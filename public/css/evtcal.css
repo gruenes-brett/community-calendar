@@ -27,31 +27,31 @@ table.events-calendar tr.day > td {
 }
 
 /* Single Event Table */
-table.event {
+table.events-calendar table.event {
     cursor: pointer;
     margin-bottom: .2em;
     margin-top: .15em;
     border: none;
 }
-table.event td {
+table.events-calendar table.event td {
     padding: 0;
     border: none;
 }
-table.event td.time {
+table.events-calendar table.event td.time {
     font-size: 0.8em;
     white-space: nowrap;
     vertical-align: top;
     padding-right: 0.2em;
 }
-table.event td.title {
+table.events-calendar table.event td.title {
     font-weight: bold;
 }
-table.event td.title, td.organizer {
+table.events-calendar table.event td.title, td.organizer {
     word-break: break-word;
     width: 99%;
 }
 
-table.event.notPublic {
+table.events-calendar table.event.notPublic {
     color: blue;
 }
 
@@ -108,9 +108,9 @@ table.event.notPublic {
 }
 
 .pulse-animation {
-    animation: pulse 2s infinite;
+    animation: evtcal-pulse 2s infinite;
 }
-@keyframes pulse {
+@keyframes evtcal-pulse {
     0% {
         opactiy: 1;
     }
