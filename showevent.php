@@ -14,7 +14,7 @@ $evtcal_RestRoute = 'evtcal/v1/';
 
 function evtcal_getShowEventBox() {
     return <<<XML
-    <div class="modal-wrapper show-event">
+    <div class="evtcal-modal-wrapper show-event">
         <div class="close">X</div>
         <div class="show-event-content">
             <span id="loading">Informationen werden abgerufen</span>

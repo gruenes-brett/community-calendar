@@ -5,8 +5,6 @@ $(document).ready(function(){
 });
 
 function prepareEditForm() {
-    // $('.modal-wrapper.edit-dialog').appendTo('#page-wrapper');
-    // $('.floating-button-container').appendTo('#page-wrapper');
     hideEditForm();
     $('button.addEvent').click(addEvent);
     $('input#cancel').click(hideEditForm);
@@ -17,9 +15,9 @@ function prepareEditForm() {
 }
 
 function showEditForm() {
-    $('.modal-wrapper.edit-dialog').css({"z-index": 200})
-    $('.modal-wrapper.edit-dialog').show(200);
-    $('.modal-wrapper.edit-dialog').scrollTop(0);
+    $('.evtcal-modal-wrapper.edit-dialog').css({"z-index": 200})
+    $('.evtcal-modal-wrapper.edit-dialog').show(200);
+    $('.evtcal-modal-wrapper.edit-dialog').scrollTop(0);
     hideAddEventWarning();
 }
 
@@ -69,8 +67,8 @@ function fillEditForm(eventId) {
 }
 
 function hideEditForm() {
-    $('.modal-wrapper.edit-dialog').css({"z-index": -200})
-    $('.modal-wrapper.edit-dialog').hide();
+    $('.evtcal-modal-wrapper.edit-dialog').css({"z-index": -200})
+    $('.evtcal-modal-wrapper.edit-dialog').hide();
 }
 
 function disableEditForm(disabled) {

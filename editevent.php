@@ -68,7 +68,7 @@ function evtcal_editEventForm() {
     $deleteForm = evtcal_getDeleteForm($adminAjaxUrl);
 
     return <<<XML
-    <div class="modal-wrapper edit-dialog">
+    <div class="evtcal-modal-wrapper edit-dialog">
         <div class="close">X</div>
         <div class="form-popup" id="editEvent">
             <h2></h2>

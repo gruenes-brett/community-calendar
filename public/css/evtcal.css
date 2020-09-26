@@ -56,7 +56,7 @@ table.event.notPublic {
 }
 
  /* Event-Form */
-.modal-wrapper {
+.evtcal-modal-wrapper {
     display: none;
     position: fixed;
     top: 0;
@@ -73,7 +73,7 @@ table.event.notPublic {
     overflow: auto;
 }
 
-.modal-wrapper .close {
+.evtcal-modal-wrapper .close {
     position: fixed;
     top: 1em;
     right: 1em;
@@ -84,26 +84,26 @@ table.event.notPublic {
     font-family: sans;
 }
 
-.modal-wrapper .form-popup, .modal-wrapper .show-event-content {
+.evtcal-modal-wrapper .form-popup, .evtcal-modal-wrapper .show-event-content {
     max-width: 600px;
     position: relative;
     margin: 0 auto;
 }
 
-.modal-wrapper form input:invalid {
+.evtcal-modal-wrapper form input:invalid {
     background-color: #faa;
 }
-.modal-wrapper form input:required {
+.evtcal-modal-wrapper form input:required {
     background-color: #ffa;
 }
-.modal-wrapper form label {
+.evtcal-modal-wrapper form label {
     font-weight: bold;
 }
 
-.modal-wrapper #loading {
+.evtcal-modal-wrapper #loading {
     opacity: 0;
 }
-.modal-wrapper #content {
+.evtcal-modal-wrapper #content {
     padding-top: 2em;
 }
 
@@ -123,14 +123,14 @@ table.event.notPublic {
 }
 
 /* Floating Buttons */
-.floating-button-container {
+.evtcal-floating-button-container {
     position: fixed;
     right: 16px;
     bottom: 16px;
     z-index: 150;
 }
 
-.floating-button-container .floating-button {
+.evtcal-floating-button-container .evtcal-floating-button {
     box-shadow: 5px 5px 20px #33333333;
     position: fixed;
     text-align: center;
@@ -138,7 +138,7 @@ table.event.notPublic {
     padding: 0;
 }
 
-.floating-button-container .floating-button.first {
+.evtcal-floating-button-container .evtcal-floating-button.first {
     width: 64px;
     height: 64px;
     border-radius: 32px;
@@ -147,7 +147,7 @@ table.event.notPublic {
     right: 16px;
 }
 
-.floating-button-container .floating-button.other {
+.evtcal-floating-button-container .evtcal-floating-button.other {
     width: 48px;
     height: 48px;
     border-radius: 24px;
@@ -158,14 +158,14 @@ table.event.notPublic {
     font-size: .8em;
 }
 
-.floating-button-container .floating-button span::before {
+.evtcal-floating-button-container .evtcal-floating-button span::before {
     font-family: sans-serif;
     font-size: 32px;
     font-weight: bold;
 }
-.floating-button-container .floating-button span.addEvent::before {
+.evtcal-floating-button-container .evtcal-floating-button span.addEvent::before {
     content: "+";
 }
-.floating-button-container .floating-button span.scrollToToday::before {
+.evtcal-floating-button-container .evtcal-floating-button span.scrollToToday::before {
     content: "⇪";
 }

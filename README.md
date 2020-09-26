@@ -31,3 +31,25 @@ The plugin introduces its functionality using short codes:
  back to the current day
 
  `[events-calendar-buttons/]`
+
+
+## Customization
+
+In your CSS you may change the behavior and visual style of the elements.
+Here are some examples:
+
+### Background color of the event detail display and the event form
+```css
+.evtcal-modal-wrapper {
+    background-color: #222;
+    color: #ccc;
+}
+```
+
+### Floating button color
+```css
+.evtcal-floating-button-container button {
+    background-color: #337;
+    color: white;
+}
+```

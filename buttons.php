@@ -5,7 +5,7 @@ function evtcal_floatingButtons_func($atts, $content=null) {
 	$a = shortcode_atts( array(
 	), $atts );
 
-	$out = "<div class='floating-button-container'>";
+	$out = "<div class='evtcal-floating-button-container'>";
 	$buttonClasses = ['addEvent', 'scrollToToday'];
 	$index = 0;
 	foreach ($buttonClasses as $class) {
@@ -17,7 +17,7 @@ function evtcal_floatingButtons_func($atts, $content=null) {
 			$bottomPos = 48;
 		}
 		$addStyle = "bottom: {$bottomPos}px;";
-		$out .= "<button class='floating-button btn $class $orderClass' style='$addStyle'>"
+		$out .= "<button class='evtcal-floating-button btn $class $orderClass' style='$addStyle'>"
 			  . "<span class='$class'></span></button>";
 		$index++;
 	}
