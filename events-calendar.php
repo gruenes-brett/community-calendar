@@ -5,11 +5,14 @@
  */
 /*
 Plugin Name: Events Calendar
-Plugin URI: tbd
+Plugin URI: https://github.com/joergrs/events-calendar
 Description: This plugin allows users to submit event to the website and display them in a calendar
 Author: Joerg Schroeter
 Version: 0.0.1
-Author URI: tbd
+Requires at least: 5.5
+Requires PHP: 7.2
+Author URI: https://github.com/joergrs
+License: GPL v3
 */
 
 // Make sure we don't expose any info if called directly
