@@ -9,7 +9,13 @@
 function evtcal_table_func( $atts ) {
 	$a = shortcode_atts( array(
         'starttoday' => 'false',
+        'category' => null,
     ), $atts );
+    if ($a['category'] === null) {
+        $category = null;
+    } else {
+        $category = evtcal_Category::queryFromName($a['category']);
+    }
     if (strtolower($a['starttoday']) != 'false') {
         $now = evtcal_DateTime::now();
     } else {
@@ -17,8 +23,9 @@ function evtcal_table_func( $atts ) {
     }
     $t = new evtcal_TableBuilder($now);
     $isAdmin = evtcal_currentUserCanSetPublic();
-    $eventsIterator = new EventIterator(!$isAdmin);
+    $eventsIterator = new EventIterator(!$isAdmin, $category);
     foreach ($eventsIterator as $event) {
+        // $event->addCategory($ccc);
         $t->addEvent($event);
     }
     return $t->getHtml() . evtcal_getShowEventBox() . evtcal_getEditForm();

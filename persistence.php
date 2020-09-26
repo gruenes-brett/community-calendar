@@ -1,22 +1,35 @@
 <?php
 /*
- * Functions for handling the event data stored in a database table
+ * Database table description for events and categories
  */
 
 
-function evtcal_tableName() {
+function evtcal_tableName_events() {
     global $wpdb;
     return $wpdb->prefix . 'evtcal';
+}
+
+function evtcal_tableName_categories() {
+    global $wpdb;
+    return $wpdb->prefix . 'evtcal_cats';
+}
+
+function evtcal_tableName_eventsVsCats() {
+    global $wpdb;
+    return $wpdb->prefix . 'evtcal_evt_vs_cats';
 }
 
 
 function evtcal_initTables() {
     global $wpdb;
     $wpdb->show_errors();
-    $tableName = evtcal_tableName();
+    $eventsTableName = evtcal_tableName_events();
+    $categoriesTableName = evtcal_tableName_categories();
+    $eventsVsCatsTableName = evtcal_tableName_eventsVsCats();
     $charset_collate = $wpdb->get_charset_collate();
 
-    $sql = "CREATE TABLE $tableName (
+    // Events
+    $sql = "CREATE TABLE $eventsTableName (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         eventId tinytext NOT NULL,
         date date DEFAULT '0000-00-00' NOT NULL,
@@ -32,125 +45,92 @@ function evtcal_initTables() {
         created timestamp NOT NULL,
         PRIMARY KEY  (id)
         ) $charset_collate;";
+    dbDelta( $sql );
 
+    // Categories
+    $sql = "CREATE TABLE $categoriesTableName (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        categoryId tinytext NOT NULL,
+        name tinytext NOT NULL,
+        PRIMARY KEY  (id)
+        ) $charset_collate;";
+    dbDelta( $sql );
+
+    // Events vs. Categories (many-to-many relationship)
+    $sql = "CREATE TABLE $eventsVsCatsTableName (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        event_id mediumint(9) NOT NULL,
+        category_id mediumint(9) NOT NULL,
+        PRIMARY KEY  (id)
+        ) $charset_collate;";
     dbDelta( $sql );
 }
 
 function evtcal_deleteTables() {
     global $wpdb;
     $wpdb->show_errors();
-    $tableName = evtcal_tableName();
-    $charset_collate = $wpdb->get_charset_collate();
 
-    $wpdb->query("DROP TABLE $tableName;");
+    foreach ([
+        evtcal_tableName_eventsVsCats(),
+        evtcal_tableName_events(),
+        evtcal_tableName_categories(),
+    ] as $tableName) {
+        $wpdb->query("DROP TABLE $tableName;");
+    }
 
 }
 
-class evtcal_Event {
+function evtcal_whereAnd($conditions) {
+    if (empty($conditions)) {
+        return '';
+    }
+    return 'WHERE ' . implode(' AND ', $conditions);
+}
+
+
+abstract class evtcal_DbTable {
     var $data = null;
-    var $dateTime = null;
-    const DEFAULTS = array(
-        'date' => '2019-01-01',
-        'time' => '12:00:00',
-        'eventId' => '',
-        'public' => 0,
-    );
-
-    public static function queryEvent($eventId) {
+    const IDPREFIX = 'x:';
+    const DEFAULTS = array();
+    abstract static function getTableName();
+    static function queryRow($sql) {
         global $wpdb;
-        $tableName = evtcal_tableName();
-
-        $rows = $wpdb->get_results("SELECT * FROM $tableName WHERE eventId='$eventId';");
+        $sql = str_replace('[T]', static::getTableName(), $sql);
+        $rows = $wpdb->get_results($sql);
         if (empty($rows)) {
             return null;
         }
-        return new self($rows[0]);
+        return $rows[0];
     }
 
-    function __construct($eventData = array()) {
-        if (is_array($eventData)) {
-            $this->data = (object) $eventData;
+    abstract static function getAllFieldNames();
+    abstract static function getIdFieldName();
+
+    function __construct($data) {
+        if (is_array($data)) {
+            $this->data = (object) $data;
         } else {
-            $this->data = $eventData;
-        }
-        $this->dateTime = evtcal_DateTime::fromDateStrTimeStr($this->getField('date'), $this->getField('time'));
-    }
-    function getDefault($name, $default=null) {
-        if ($default != null) {
-            return $default;
-        }
-        if (isset(self::DEFAULTS[$name])) {
-            return self::DEFAULTS[$name];
-        }
-        if ($name == 'created') {
-            return current_time('mysql');
-        }
-        return '';
-    }
-    function getField($name, $default=null) {
-        if (strcmp($name, 'eventId') === 0) {
-            $this->initEventId();
-        }
-        if (isset($this->data->$name)) {
-            return $this->data->$name;
-        }
-        return $this->getDefault($name, $default);
-    }
-    function getPublicFields() {
-        return array(
-            'eventId' => $this->getField('eventId'),
-            'date' => $this->getField('date'),
-            'time' => $this->getField('time'),
-            'dateEnd' => $this->getField('dateEnd'),
-            'timeEnd' => $this->getField('timeEnd'),
-            'organizer' => $this->getField('organizer'),
-            'location' => $this->getField('location'),
-            'title' => $this->getField('title'),
-            'description' => $this->getField('description'),
-            'url' => $this->getField('url'),
-            'public' => $this->getField('public'),
-            'created' => $this->getField('created'),
-        );
-    }
-    function getFullData() {
-        return array(
-            'eventId' => $this->getField('eventId'),
-            'date' => $this->getField('date'),
-            'time' => $this->getField('time'),
-            'dateEnd' => $this->getField('dateEnd'),
-            'timeEnd' => $this->getField('timeEnd'),
-            'organizer' => $this->getField('organizer'),
-            'location' => $this->getField('location'),
-            'title' => $this->getField('title'),
-            'title' => $this->getField('title'),
-            'description' => $this->getField('description'),
-            'url' => $this->getField('url'),
-            'public' => $this->getField('public'),
-            'created' => $this->getField('created'),
-        );
-    }
-    static function getTextFieldNames() {
-        return array('eventId', 'organizer', 'title', 'description', 'url');
-    }
-    private function initEventId() {
-        if (!isset($this->data->eventId) || strcmp($this->data->eventId, '') === 0) {
-            $this->data->eventId = uniqid('event:');
+            $this->data = $data;
         }
     }
-    function eventExists() {
+
+    function exists() {
         global $wpdb;
-        $tableName = evtcal_tableName();
-        $row = $wpdb->get_row("SELECT eventId FROM $tableName WHERE eventId='{$this->getField('eventId')}';");
+        $idFieldName = $this->getIdFieldName();
+        $tableName = $this->getTableName();
+        $row = $wpdb->get_row("SELECT $idFieldName FROM $tableName WHERE $idFieldName='{$this->getField($idFieldName)}';");
         return !empty($row);
     }
+
     function store() {
         global $wpdb;
-        $tableName = evtcal_tableName();
-        if ($this->eventExists()) {
+        $tableName = $this->getTableName();
+        if ($this->exists()) {
+            $where = array($this->getIdFieldName() => $this->getField($this->getIdFieldName()));
             $affectedRows = $wpdb->update(
                 $tableName,
                 $this->getFullData(),
-                array('eventId' => $this->getField('eventId'))
+                $where
             );
         } else {
             $affectedRows = $wpdb->insert($tableName, $this->getFullData());
@@ -158,92 +138,39 @@ class evtcal_Event {
         $e = $wpdb->last_error;
         return $affectedRows;
     }
-    function delete() {
-        global $wpdb;
-        $tableName = evtcal_tableName();
-        return $wpdb->delete($tableName, array('eventId' => $this->getField('eventId'))) !== false;
-    }
-    function getDateStr(): string {
-        return $this->getField('date');
-    }
-    function getDateTime(): evtcal_DateTime {
-        return $this->dateTime;
-    }
-    function getHtml(): string {
-        $editControls = '';
-        if (evtcal_currentUserCanSetPublic()) {
-            $editControls = "<a class='editEvent' eventId='{$this->getField('eventId')}'>"
-                            . "edit</a>";
+
+    function getField($name, $default=null) {
+        if (strcmp($name, $this->getIdFieldName()) === 0) {
+            $this->initId();
         }
-        $publicClass = '';
-        if ($this->getField('public') == 0) {
-            $publicClass = 'notPublic';
+        if (isset($this->data->$name)) {
+            return $this->data->$name;
         }
-        return <<<XML
-        <table class='event $publicClass' eventId="{$this->getField('eventId')}"><tbody>
-            <tr>
-                <td class='time'>{$this->dateTime->getPrettyTime()}</td>
-                <td class='title'>{$this->getField('title')}</td>
-            </tr>
-            <tr>
-                <td>$editControls</td>
-                <td class='organizer'>{$this->getField('organizer')}</td>
-            </tr>
-        </tbody></table>
-XML;
-    }
-}
-
-
-class EventIterator implements Iterator {
-    private $positition = -1;
-    public $eventRows = null;
-
-    public function __construct($publicOnly) {
-        $this->eventRows = evtcal_getAllEventRows($publicOnly);
-        $this->positition = 0;
+        return $this->getDefault($name, $default);
     }
 
-    public function rewind() {
-        $this->positition = 0;
-    }
-
-    public function current() {
-        if ($this->positition == -1) {
-            return null;
+    private function initId() {
+        $idFieldName = $this->getIdFieldName();
+        if (!isset($this->data->$idFieldName) || strcmp($this->data->$idFieldName, '') === 0) {
+            $this->data->$idFieldName = uniqid(self::IDPREFIX);
         }
-        return new evtcal_Event($this->eventRows[$this->positition]);
     }
 
-    public function key() {
-        return $this->positition;
+    function getFullData() {
+        $data = array();
+        foreach ($this->getAllFieldNames() as $fieldName) {
+            $data[$fieldName] = $this->getField($fieldName);
+        }
+        return $data;
     }
 
-    public function next() {
-        $this->positition++;
+    function getDefault($name, $default=null) {
+        if ($default != null) {
+            return $default;
+        }
+        if (isset(self::DEFAULTS[$name])) {
+            return self::DEFAULTS[$name];
+        }
+        return '';
     }
-
-    public function valid() {
-        return isset($this->eventRows[$this->positition]);
-    }
-}
-
-
-function evtcal_addEvent($data) {
-    global $wpdb;
-    $event = new evtcal_Event($data);
-    return $event->store($wpdb);
-}
-
-function evtcal_getAllEventRows($publicOnly=true) {
-    global $wpdb;
-    $tableName = evtcal_tableName();
-
-    $where = '';
-    if ($publicOnly) {
-        $where = "WHERE public='1'";
-    }
-
-    $rows = $wpdb->get_results("SELECT * FROM $tableName $where ORDER BY date, time;");
-    return $rows;
 }

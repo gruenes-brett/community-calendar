@@ -32,6 +32,8 @@ require_once( EVTCAL__PLUGIN_DIR . 'buttons.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'editevent.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'datetime.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'persistence.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'event.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'category.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'showevent.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'showmonth.php' );
 
