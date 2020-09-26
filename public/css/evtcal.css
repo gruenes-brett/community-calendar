@@ -1,0 +1,171 @@
+
+table.event-calendar {
+    width: 100%;
+    border: none;
+}
+
+/* Month Table */
+table.event-calendar td.date {
+    white-space: nowrap;
+    font-size: 0.8em;
+    text-align: left;
+    padding: .2em;
+    vertical-align: top;
+    border-right: none;
+}
+table.event-calendar td.event {
+    width:  99%;
+    padding: 0;
+    border-left: none;
+}
+table.event-calendar tr.weekend {
+    background-color: #88888833;
+}
+table.event-calendar tr.day > td {
+    border-left: none;
+    border-right: none;
+}
+
+/* Single Event Table */
+table.event {
+    cursor: pointer;
+    margin-bottom: .2em;
+    margin-top: .15em;
+    border: none;
+}
+table.event td {
+    padding: 0;
+    border: none;
+}
+table.event td.time {
+    font-size: 0.8em;
+    white-space: nowrap;
+    vertical-align: top;
+    padding-right: 0.2em;
+}
+table.event td.title {
+    font-weight: bold;
+}
+table.event td.title, td.organizer {
+    word-break: break-word;
+    width: 99%;
+}
+
+table.event.notPublic {
+    color: blue;
+}
+
+ /* Event-Form */
+.modal-wrapper {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-width: 100% !important;
+    z-index: -200;
+    margin: 1em;
+    padding: 1em;
+    background-color: #223322;
+    color: white;
+    box-shadow: 0 0 20px 0px #33333333;
+    overflow: auto;
+}
+
+.modal-wrapper .close {
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    color: white;
+    font-size: 2em;
+    cursor: pointer;
+    z-index: 1000;
+    font-family: sans;
+}
+
+.modal-wrapper .form-popup, .modal-wrapper .show-event-content {
+    max-width: 600px;
+    position: relative;
+    margin: 0 auto;
+}
+
+.modal-wrapper form input:invalid {
+    background-color: #faa;
+}
+.modal-wrapper form input:required {
+    background-color: #ffa;
+}
+.modal-wrapper form label {
+    font-weight: bold;
+}
+
+.modal-wrapper #loading {
+    opacity: 0;
+}
+.modal-wrapper #content {
+    padding-top: 2em;
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% {
+        opactiy: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Floating Buttons */
+.floating-button-container {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 150;
+}
+
+.floating-button-container .floating-button {
+    box-shadow: 5px 5px 20px #33333333;
+    position: fixed;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0;
+}
+
+.floating-button-container .floating-button.first {
+    width: 64px;
+    height: 64px;
+    border-radius: 32px;
+    line-height: 64px;
+
+    right: 16px;
+}
+
+.floating-button-container .floating-button.other {
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
+    line-height: 48px;
+
+    right: 24px;
+
+    font-size: .8em;
+}
+
+.floating-button-container .floating-button span::before {
+    font-family: sans-serif;
+    font-size: 32px;
+    font-weight: bold;
+}
+.floating-button-container .floating-button span.addEvent::before {
+    content: "+";
+}
+.floating-button-container .floating-button span.scrollToToday::before {
+    content: "⇪";
+}

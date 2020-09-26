@@ -1,0 +1,100 @@
+<?php
+
+/*
+ * Functions for rendering the month tables
+ */
+
+
+// [tag id="foo-value"]
+function evtcal_table_func( $atts ) {
+	$a = shortcode_atts( array(
+        'starttoday' => 'false',
+    ), $atts );
+    if (strtolower($a['starttoday']) != 'false') {
+        $now = evtcal_DateTime::now();
+    } else {
+        $now = null;
+    }
+    $t = new evtcal_TableBuilder($now);
+    $isAdmin = evtcal_currentUserCanSetPublic();
+    $eventsIterator = new EventIterator(!$isAdmin);
+    foreach ($eventsIterator as $event) {
+        $t->addEvent($event);
+    }
+    return $t->getHtml() . evtcal_getShowEventBox();
+}
+add_shortcode( 'event-calendar-table', 'evtcal_table_func' );
+
+class evtcal_TableBuilder {
+    var $html = '';
+    var $currentDate = null;
+    var $earliestDate = null;
+
+    function __construct($earliestDate=null) {
+        $this->earliestDate = $earliestDate;
+    }
+
+    function getHtml() {
+        $this->finishCurrentMonth();
+        return $this->html;
+    }
+
+    protected function newMonth($date) {
+        $this->finishCurrentMonth();
+        $this->html .= "<h3 class='month-title'>" . $date->getMonthTitle() . "</h3>\n"
+            . "<table class='event-calendar'><tbody>\n";
+        $this->fillDaysBetween($date->getFirstOfMonthDateTime(), $date);
+    }
+
+    protected function finishCurrentMonth() {
+        if ($this->currentDate !== null) {
+            $this->fillDaysAfter($this->currentDate);
+            $this->html .= "</tbody></table>\n";
+        }
+    }
+
+    protected function fillDaysBetween($beginAtDate, $endBeforeDate) {
+        foreach ($beginAtDate->getAllDatesUntil($endBeforeDate) as $thisDay) {
+            $this->createDayRow($thisDay, '');
+        }
+    }
+
+    protected function fillDaysAfter($date) {
+        foreach ($date->getNextDay()->getAllDatesUntil($date->getLastDayOfMonth()) as $thisDay) {
+            $this->createDayRow($thisDay, '');
+        }
+    }
+
+    protected function isDateIncluded($dateTime) {
+        return $this->earliestDate === null || !$dateTime->isDayLessThan($this->earliestDate);
+    }
+
+    protected function createDayRow($dateTime, $text, $isNewDay=true) {
+        if (!$this->isDateIncluded($dateTime)) {
+            return;
+        }
+        $dateStr = $isNewDay ? $dateTime->getShortWeekdayAndDay() : '';
+        $trClass = $isNewDay ? '' : 'sameDay';
+        $this->html .= "<tr class='{$dateTime->getDayClasses()} $trClass day'>";
+        $this->html .= "<td class='date'>$dateStr</td>";
+        $this->html .= "<td class='event'>$text</td></tr>\n";
+    }
+
+    function addEvent($event) {
+        if (!$this->isDateIncluded($event->getDateTime())) {
+            return;
+        }
+        if ($this->currentDate === null || ! $this->currentDate->isSameMonth($event->getDateTime())) {
+            $this->newMonth($event->getDateTime());
+        } else {
+            $this->fillDaysBetween($this->currentDate->getNextDay(), $event->getDateTime());
+        }
+        $this->createDayRow(
+            $event->getDateTime(),
+            $event->getHtml(),
+            !$event->getDateTime()->isSameDay($this->currentDate)
+        );
+        $this->currentDate = $event->getDateTime();
+    }
+}
+
