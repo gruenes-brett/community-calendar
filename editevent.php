@@ -48,13 +48,10 @@ XML;
     }
 }
 
-function evtcal_editEventForm($header, $event = null) {
-    if ($event == null) {
-        $event = new evtcal_Event();
-        $eventId = '';
-    } else {
-        $eventId = $event->getField('eventId');
-    }
+function evtcal_editEventForm() {
+    $event = new evtcal_Event();
+    $eventId = '';
+
     $adminAjaxUrl = admin_url('admin-ajax.php');
     $nonceField = wp_nonce_field('submit_new_event','verification-code', true, false);
     $organizer = $event->getField('organizer');
@@ -74,7 +71,7 @@ function evtcal_editEventForm($header, $event = null) {
     <div class="modal-wrapper edit-dialog">
         <div class="close">X</div>
         <div class="form-popup" id="editEvent">
-            <h2>$header</h2>
+            <h2></h2>
             <p><small>Pflichtfelder sind gelb, fehlerhafte Felder rosa hinterlegt</small><p>
             <form id="editEvent" action="$adminAjaxUrl" method="post">
                 <fieldset>
@@ -147,13 +144,9 @@ function evtcal_editEventForm($header, $event = null) {
 XML;
 }
 
-function evtcal_editForm_func($atts, $content=null) {
-	$a = shortcode_atts( array(
-    ), $atts );
-
-	return evtcal_editEventForm($content);
+function evtcal_getEditForm() {
+	return evtcal_editEventForm();
 }
-add_shortcode( 'editEventForm', 'evtcal_editForm_func' );
 
 // handle new event request
 function evtcal_submitNewEvent_func() {

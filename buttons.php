@@ -24,4 +24,4 @@ function evtcal_floatingButtons_func($atts, $content=null) {
 	return $out . '</div>';
 
 }
-add_shortcode( 'floatingButtons', 'evtcal_floatingButtons_func' );
+add_shortcode( 'event-calendar-buttons', 'evtcal_floatingButtons_func' );

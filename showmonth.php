@@ -21,7 +21,7 @@ function evtcal_table_func( $atts ) {
     foreach ($eventsIterator as $event) {
         $t->addEvent($event);
     }
-    return $t->getHtml() . evtcal_getShowEventBox();
+    return $t->getHtml() . evtcal_getShowEventBox() . evtcal_getEditForm();
 }
 add_shortcode( 'event-calendar-table', 'evtcal_table_func' );
 
