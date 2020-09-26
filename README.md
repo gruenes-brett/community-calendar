@@ -12,10 +12,10 @@ The plugin introduces its functionality using short codes:
 
 * Show the calendar, starting today:
 ```
-[event-calendar-table startToday=true/]
+[events-calendar-table startToday=true/]
 ```
 * Display floating buttons that allow the user to submit an event and to scroll
  back to the current day
  ```
- [event-calendar-buttons/]
+ [events-calendar-buttons/]
  ```

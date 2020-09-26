@@ -1,11 +1,11 @@
 
-table.event-calendar {
+table.events-calendar {
     width: 100%;
     border: none;
 }
 
 /* Month Table */
-table.event-calendar td.date {
+table.events-calendar td.date {
     white-space: nowrap;
     font-size: 0.8em;
     text-align: left;
@@ -13,15 +13,15 @@ table.event-calendar td.date {
     vertical-align: top;
     border-right: none;
 }
-table.event-calendar td.event {
+table.events-calendar td.event {
     width:  99%;
     padding: 0;
     border-left: none;
 }
-table.event-calendar tr.weekend {
+table.events-calendar tr.weekend {
     background-color: #88888833;
 }
-table.event-calendar tr.day > td {
+table.events-calendar tr.day > td {
     border-left: none;
     border-right: none;
 }

@@ -23,7 +23,7 @@ function evtcal_table_func( $atts ) {
     }
     return $t->getHtml() . evtcal_getShowEventBox() . evtcal_getEditForm();
 }
-add_shortcode( 'event-calendar-table', 'evtcal_table_func' );
+add_shortcode( 'events-calendar-table', 'evtcal_table_func' );
 
 class evtcal_TableBuilder {
     var $html = '';
@@ -42,7 +42,7 @@ class evtcal_TableBuilder {
     protected function newMonth($date) {
         $this->finishCurrentMonth();
         $this->html .= "<h3 class='month-title'>" . $date->getMonthTitle() . "</h3>\n"
-            . "<table class='event-calendar'><tbody>\n";
+            . "<table class='events-calendar'><tbody>\n";
         $this->fillDaysBetween($date->getFirstOfMonthDateTime(), $date);
     }
 
