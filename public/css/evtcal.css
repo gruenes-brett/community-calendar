@@ -181,6 +181,7 @@ p.evtcal-categories a.evtcal-category-label {
     margin: 0 0.5em 0.5em 0;
     line-height: 2;
     white-space: nowrap;
+    border-radius: .3em;
 }
 p.evtcal-categories a.evtcal-category-label.evtcal-active {
     font-weight: bold;
