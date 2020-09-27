@@ -3,10 +3,18 @@
  * Functions for rendering category buttons
  */
 
-function _reproducingHexColor($name) {
+ /**
+  * Creates a pair of background and foreground (text) color strings
+  * that will always be the same for the same input string
+  *
+  * return: array($background, $foreground)
+  */
+function evtcal_createUniqueColors($name) {
     $seed = 0;
+    $i = 0;
     foreach (str_split($name) as $chr) {
-        $seed += ord($chr);
+        $seed += ord($chr) * ($i + 1);
+        $i++;
     }
     srand($seed);
     $background = array(rand(0, 0xFF), rand(0, 0xFF), rand(0, 0xff));
@@ -27,7 +35,7 @@ function _evtcal_categoryButton($categoryId, $label, $active) {
     } else {
         $url = "?evtcal_category=$categoryId";
     }
-    list($background, $foreground) = _reproducingHexColor($label);
+    list($background, $foreground) = evtcal_createUniqueColors($label);
     $class = $active ? 'evtcal-category-label evtcal-active' : 'evtcal-category-label evtcal-inactive';
     return "<a href='$url' class='$class'"
     . "style='background-color: $background; color: $foreground;' class='$class'>"

@@ -177,6 +177,9 @@ p.evtcal-categories a.evtcal-category-label {
     line-height: 2;
     white-space: nowrap;
 }
+p.evtcal-categories a.evtcal-category-label.evtcal-active {
+    font-weight: bold;
+}
 p.evtcal-categories a.evtcal-category-label.evtcal-inactive {
     opacity: 0.5;
 }
