@@ -34,6 +34,7 @@ require_once( EVTCAL__PLUGIN_DIR . 'datetime.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'persistence.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'event.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'category.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'editcategory.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'showevent.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'showmonth.php' );
 
@@ -46,6 +47,7 @@ function evtcal_scripts() {
 	wp_enqueue_script( 'evtcal_event_js', EVTCAL__PLUGIN_URL  . 'public/js/event.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
 	wp_enqueue_script( 'evtcal_edit_js', EVTCAL__PLUGIN_URL  . 'public/js/edit.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
 	wp_enqueue_script( 'evtcal_show_js', EVTCAL__PLUGIN_URL  . 'public/js/show.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
+	wp_enqueue_script( 'evtcal_editcats_js', EVTCAL__PLUGIN_URL  . 'public/js/editcats.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
 }
 add_action( 'wp_enqueue_scripts', 'evtcal_scripts' );
 

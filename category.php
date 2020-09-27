@@ -6,8 +6,9 @@
 class evtcal_Category extends evtcal_DbTable {
     const IDPREFIX = 'category:';
 
+
     static function getIdFieldName() {
-        return 'name';
+        return 'categoryId';
     }
     static function getAllFieldNames() {
         return array('categoryId', 'name');
@@ -25,12 +26,19 @@ class evtcal_Category extends evtcal_DbTable {
         return new self($row);
     }
 
-    static function create($name) {
-        return new self(array('name' => $name));
+    static function queryFromCategoryId($categoryId) {
+        $row = self::queryRow("SELECT * FROM [T] WHERE categoryId='$categoryId';");
+        if (empty($row)) {
+            return null;
+        }
+        return new self($row);
     }
 
-    function getId() {
-        return $this->getField('id', -1);
+    static function create($name) {
+        return new self(array(
+            'name' => $name,
+            'categoryId' => uniqid(self::IDPREFIX),
+        ));
     }
 }
 

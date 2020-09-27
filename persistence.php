@@ -89,6 +89,9 @@ function evtcal_whereAnd($conditions) {
 
 
 abstract class evtcal_DbTable {
+    /*
+     * Base class for an object stored in a table
+     */
     var $data = null;
     const IDPREFIX = 'x:';
     const DEFAULTS = array();
@@ -101,6 +104,16 @@ abstract class evtcal_DbTable {
             return null;
         }
         return $rows[0];
+    }
+    static function getAll() {
+        global $wpdb;
+        $tableName = static::getTableName();
+        $rows = $wpdb->get_results("SELECT * from $tableName;");
+        $all = array();
+        foreach ($rows as $row) {
+            $all[] = new static($row);
+        }
+        return $all;
     }
 
     abstract static function getAllFieldNames();
@@ -139,6 +152,13 @@ abstract class evtcal_DbTable {
         return $affectedRows;
     }
 
+    function delete() {
+        global $wpdb;
+        $tableName = $this->getTableName();
+        $result = $wpdb->delete($tableName, array($this->getIdFieldName() => $this->getId()));
+        return $result !== false && $result;
+    }
+
     function getField($name, $default=null) {
         if (strcmp($name, $this->getIdFieldName()) === 0) {
             $this->initId();
@@ -147,6 +167,16 @@ abstract class evtcal_DbTable {
             return $this->data->$name;
         }
         return $this->getDefault($name, $default);
+    }
+    function getId() {
+        return $this->getField($this->getIdFieldName());
+    }
+    function setField($name, $value) {
+        if ($this->data->$name !== $value) {
+            $this->data->$name = $value;
+            return true;
+        }
+        return false;
     }
 
     private function initId() {

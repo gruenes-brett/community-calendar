@@ -211,7 +211,7 @@ function evtcal_getAllEventRows($publicOnly=true, $category=null) {
         $where = evtcal_whereAnd($whereConditions);
         $query = "SELECT * FROM $events $where ORDER BY date, time;";
     } else {
-        $category_id = $category->getId();
+        $category_id = $category->getField('id');
         $whereConditions[] = "$evt_cat.category_id=$category_id";
 
         $where = evtcal_whereAnd($whereConditions);

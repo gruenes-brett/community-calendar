@@ -28,7 +28,12 @@ function evtcal_table_func( $atts ) {
         // $event->addCategory($ccc);
         $t->addEvent($event);
     }
-    return $t->getHtml() . evtcal_getShowEventBox() . evtcal_getEditForm();
+
+    $allHtml = $t->getHtml() . evtcal_getShowEventBox() . evtcal_getEditForm();
+    if (evtcal_currentUserCanSetPublic()) {
+        $allHtml .= evtcal_getEditCategoriesDialog();
+    }
+    return $allHtml;
 }
 add_shortcode( 'events-calendar-table', 'evtcal_table_func' );
 

@@ -7,6 +7,9 @@ function evtcal_floatingButtons_func($atts, $content=null) {
 
 	$out = "<div class='evtcal-floating-button-container'>";
 	$buttonClasses = ['addEvent', 'scrollToToday'];
+	if (evtcal_currentUserCanSetPublic()) {
+		$buttonClasses[] = 'editCategories';
+	}
 	$index = 0;
 	foreach ($buttonClasses as $class) {
 		if ($index != 0) {
