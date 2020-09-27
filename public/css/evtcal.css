@@ -12,6 +12,7 @@ table.events-calendar td.date {
     padding: .2em;
     vertical-align: top;
     border-right: none;
+    font-weight: bold;
 }
 table.events-calendar td.date.has-events {
     padding-top: 0.8em;
