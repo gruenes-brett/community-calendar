@@ -262,14 +262,14 @@ function evtcal_updateEventFromArray($data) {
 
     if ($isNewEvent) {
         if (evtcal_currentUserCanSetPublic()) {
-            return array(200, 'Event wurde angelegt. Seite neu laden um es anzuzeigen.');
+            return array(200, 'Event wurde angelegt.');
         } else {
             return array(200, 'Vielen Dank für deinen Eintrag! Nach einer Prüfung werden wir ihn '
                 . 'so schnell wie möglich bei uns aufnehmen.');
         }
     }
 
-    return array(200, 'Event wurde aktualisiert. Bitte Seite neu laden um Änderungen zu sehen.');
+    return array(200, 'Event wurde aktualisiert.');
 }
 
 function evtcal_deleteEvent($eventId) {

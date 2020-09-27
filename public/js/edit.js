@@ -93,13 +93,12 @@ function __submitForm(form) {
         success: function(response) {
             console.log(response);
             confirmSuccess(response);
-            disableEditForm(false);
+            location.reload();
         },
         error: function(response) {
             let text = response.responseText;
             showAddEventWarning(text);
             console.error(text);
-            disableEditForm(false);
         },
     });
 }
