@@ -37,6 +37,12 @@ class evtcal_Event {
         $vs = evtcal_EventVsCategory::create($this, $category);
         $vs->store();
     }
+    function hasCategory($category) {
+        return evtcal_EventVsCategory::isset($this, $category);
+    }
+    function removeAllCategories() {
+        evtcal_EventVsCategory::removeEvent($this);
+    }
     function getDefault($name, $default=null) {
         if ($default != null) {
             return $default;
@@ -55,6 +61,13 @@ class evtcal_Event {
         }
         if (isset($this->data->$name)) {
             return $this->data->$name;
+        }
+        if ($name === 'id') {
+            $tempEvent = self::queryEvent($this->getField('eventId'));
+            if ($tempEvent !== null) {
+                $this->data->id = $tempEvent->getField('id');
+                return $this->data->id;
+            }
         }
         return $this->getDefault($name, $default);
     }

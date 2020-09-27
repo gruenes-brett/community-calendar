@@ -48,6 +48,31 @@ XML;
     }
 }
 
+function evtcal_editEventCategories() {
+    $cats = evtcal_Category::getAll();
+
+    $checkBoxes = '';
+
+    $index = 0;
+    foreach ($cats as $c) {
+        $suffix = "_$index";
+        $checkBoxes .= <<<XML
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="category$suffix" id="eventCategory$suffix" value="{$c->getField('categoryId')}" unchecked>
+                <label class="form-check-label" for="eventCategory$suffix">{$c->getField('name')}</label>
+            </div>
+XML;
+        $index++;
+    }
+
+    return <<<XML
+    <div class="form-group">
+        <label for="eventCategories">Kategorien</label>
+        $checkBoxes
+    </div>
+XML;
+}
+
 function evtcal_editEventForm() {
     $event = new evtcal_Event();
     $eventId = '';
@@ -66,6 +91,7 @@ function evtcal_editEventForm() {
     $public = $event->getField('public');
     $publicControl = evtcal_getPublicControl($public);
     $deleteForm = evtcal_getDeleteForm($adminAjaxUrl);
+    $categories = evtcal_editEventCategories();
 
     return <<<XML
     <div class="evtcal-modal-wrapper edit-dialog">
@@ -127,6 +153,8 @@ function evtcal_editEventForm() {
                         <textarea class="form-control" name="description" id="eventDescription" aria-describedby="eventTitleHelp" placeholder="">$description</textarea>
                         <small id="eventTitleHelp" class="form-text">Worum geht es bei der Veranstaltung</small>
                     </div>
+
+                    $categories
 
                     <div class="btn-group">
                         <input type="button" class="btn btn-secondary" id="cancel" value="Zurück">
@@ -201,6 +229,16 @@ function evtcal_filterPostData($data) {
     return $data;
 }
 
+function evtcal_filterCategories($data) {
+    $cats = array();
+    foreach ($data as $key => $value) {
+        if (strpos($key, 'category_') === 0) {
+            $cats[] = evtcal_Category::queryFromCategoryId($value);
+        }
+    }
+    return $cats;
+}
+
 function evtcal_updateEventFromArray($data) {
     $data = evtcal_filterPostData($data);
     $event = new evtcal_Event($data);
@@ -214,6 +252,11 @@ function evtcal_updateEventFromArray($data) {
             return array(500, 'Event konnte nicht angelegt werden. Fehlerhafte Informationen?');
         } else {
             return array(500, 'Fehler beim Update des Event');
+        }
+    } else {
+        $event->removeAllCategories();
+        foreach (evtcal_filterCategories($data) as $cat) {
+            $event->addCategory($cat);
         }
     }
 

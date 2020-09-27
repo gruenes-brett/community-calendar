@@ -50,6 +50,16 @@ class evtcal_EventVsCategory extends evtcal_DbTable {
             'category_id' => $category->getField('id'),
         ));
     }
+    static function isset($event, $category) {
+        return self::create($event, $category)->exists();
+    }
+    static function removeEvent($event) {
+        global $wpdb;
+        $tableName = self::getTableName();
+        $result = $wpdb->delete($tableName, array('event_id' => $event->getField('id')));
+        return $result !== false && $result;
+    }
+
     static function getTableName() {
         return evtcal_tableName_eventsVsCats();
     }
