@@ -10,8 +10,8 @@ function _evtcal_editCategoryForm($category, $index) {
         <label for="categoryName">Name</label>
         <input type="text" class="form-control" name="name$suffix" id="categoryName" placeholder="" value="$name" required>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="delete$suffix" id="categoryDelete" value="$categoryId" unchecked>
-            <label class="form-check-label" for="categoryDelete">Kategorie löschen?</label>
+            <input class="form-check-input" type="checkbox" name="delete$suffix" id="categoryDelete$suffix" value="$categoryId" unchecked>
+            <label class="form-check-label" for="categoryDelete$suffix">Kategorie löschen?</label>
         </div>
     </div>
 XML;
@@ -29,7 +29,7 @@ function _evtcal_allCategoryForms() {
 }
 
 function evtcal_getEditCategoriesDialog() {
-    $adminPost = admin_url('admin-post.php');
+    $postUrl = admin_url('admin-ajax.php');
     $nonceField = wp_nonce_field('evtcal_edit_categories','verification-code', true, false);
     $allForms = _evtcal_allCategoryForms();
     return <<<XML
@@ -37,7 +37,7 @@ function evtcal_getEditCategoriesDialog() {
         <div class="close">X</div>
         <div class="form-popup" id="editCategories">
             <h2>Kategorien bearbeiten</h2>
-            <form id="editCategories" action="$adminPost" method="post">
+            <form id="editCategories" action="$postUrl" method="post">
                 <fieldset>
                     <input name="action" value="evtcal_edit_categories" type="hidden">
                     $nonceField
@@ -67,13 +67,13 @@ function evtcal_submitEditCategories_func() {
     } else {
         $res = evtcal_processEditCategories($_POST);
         if ($res[0] == 200) {
-            wp_die($res[1], 'Datenübertragung erfolgreich');
+            wp_die($res[1], 'Success', array('response' => $res[0]));
         } else {
-            wp_die($res[1], 'Fehler', array('response' => $res[0]));
+            wp_die($res[1], 'Error', array('response' => $res[0]));
         }
     }
 }
-add_action('admin_post_evtcal_edit_categories', 'evtcal_submitEditCategories_func');
+add_action('wp_ajax_evtcal_edit_categories', 'evtcal_submitEditCategories_func');
 
 
 function evtcal_processEditCategories($post) {
