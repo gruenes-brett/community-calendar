@@ -87,7 +87,7 @@ class evtcal_Event {
             'created' => $this->getField('created'),
         );
     }
-    function getFullData() {
+    private function getFullData() {
         return array(
             'eventId' => $this->getField('eventId'),
             'date' => $this->getField('date'),
@@ -96,7 +96,6 @@ class evtcal_Event {
             'timeEnd' => $this->getField('timeEnd'),
             'organizer' => $this->getField('organizer'),
             'location' => $this->getField('location'),
-            'title' => $this->getField('title'),
             'title' => $this->getField('title'),
             'description' => $this->getField('description'),
             'url' => $this->getField('url'),
