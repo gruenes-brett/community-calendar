@@ -206,16 +206,17 @@ function evtcal_getAllEventRows($publicOnly=true, $category=null) {
     if ($publicOnly) {
         $whereConditions[] = "$events.public='1'";
     }
-    $where = evtcal_whereAnd($whereConditions);
 
     if ($category === null) {
+        $where = evtcal_whereAnd($whereConditions);
         $query = "SELECT * FROM $events $where ORDER BY date, time;";
     } else {
         $category_id = $category->getId();
+        $whereConditions[] = "$evt_cat.category_id=$category_id";
 
+        $where = evtcal_whereAnd($whereConditions);
         $query = "SELECT $events.* FROM $events "
         ."INNER JOIN $evt_cat ON $evt_cat.event_id=$events.id "
-        ."INNER JOIN $cats ON $evt_cat.category_id=$category_id "
         ."$where ORDER BY $events.date, $events.time;";
     }
     $rows = $wpdb->get_results($query);
