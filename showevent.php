@@ -54,7 +54,7 @@ function evtcal_queryEventDisplay($data) {
     $result = __evtcal_queryEvent($data);
     $result['description'] = evtcal_convertUrlsToLinks($result['description']);
     if (!empty($result['url'])) {
-        $result['url'] = "<a href='{$result['url']}' target='blank'>Offizieller Veranstaltungslink</a>";
+        $result['url'] = "<a href='{$result['url']}' target='blank'>Ursprungslink</a>";
     }
     $datetime = evtcal_DateTime::fromDateStrTimeStr($result['date'], $result['time']);
     $result['prettyDate'] = $datetime->getPrettyDate();
