@@ -37,6 +37,7 @@ require_once( EVTCAL__PLUGIN_DIR . 'category.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'editcategory.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'showevent.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'showmonth.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'showcategories.php' );
 
 /**
  * Enqueue scripts and styles.

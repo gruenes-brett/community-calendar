@@ -9,12 +9,11 @@
 function evtcal_table_func( $atts ) {
 	$a = shortcode_atts( array(
         'starttoday' => 'false',
-        'category' => null,
     ), $atts );
-    if ($a['category'] === null) {
-        $category = null;
-    } else {
-        $category = evtcal_Category::queryFromName($a['category']);
+
+    $category = null;
+    if (isset($_GET['evtcal_category'])) {
+        $category = evtcal_Category::queryFromCategoryId($_GET['evtcal_category']);
     }
     if (strtolower($a['starttoday']) != 'false') {
         $now = evtcal_DateTime::now();
@@ -33,7 +32,7 @@ function evtcal_table_func( $atts ) {
     if (evtcal_currentUserCanSetPublic()) {
         $allHtml .= evtcal_getEditCategoriesDialog();
     }
-    return $allHtml;
+    return evtcal_getCategoryButtons($category) . $allHtml;
 }
 add_shortcode( 'events-calendar-table', 'evtcal_table_func' );
 

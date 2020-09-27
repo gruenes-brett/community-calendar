@@ -169,3 +169,17 @@ table.events-calendar table.event.notPublic {
 .evtcal-floating-button-container .evtcal-floating-button span.scrollToToday::before {
     content: "⇪";
 }
+
+/* Categories */
+p.evtcal-categories a.evtcal-category-label {
+    padding: 0.3em;
+    margin: 0 0 0.5em 0.5em;
+    line-height: 2;
+    white-space: nowrap;
+}
+p.evtcal-categories a.evtcal-category-label.evtcal-inactive {
+    opacity: 0.5;
+}
+a.evtcal-category-label:hover {
+    text-decoration: none;
+}
