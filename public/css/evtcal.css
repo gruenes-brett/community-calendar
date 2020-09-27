@@ -44,6 +44,8 @@ table.events-calendar table.event td.time {
     font-size: 0.8em;
     white-space: nowrap;
     padding-right: 0.2em;
+    vertical-align: top;
+    padding-top: .2em;
 }
 table.events-calendar table.event td.title {
     font-weight: bold;
