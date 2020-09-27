@@ -14,10 +14,10 @@ function evtcal_floatingButtons_func($atts, $content=null) {
 	foreach ($buttonClasses as $class) {
 		if ($index != 0) {
 			$orderClass = 'other';
-			$bottomPos = 48 + 64 + 16 + ($index-1) * 56;
+			$bottomPos = 32 + 64 + 8 + ($index-1) * 56;
 		} else {
 			$orderClass = 'first';
-			$bottomPos = 48;
+			$bottomPos = 32;
 		}
 		$addStyle = "bottom: {$bottomPos}px;";
 		$out .= "<button class='evtcal-floating-button btn $class $orderClass' style='$addStyle'>"
