@@ -86,8 +86,9 @@ class evtcal_TableBuilder {
         }
         $dateStr = $isNewDay ? $dateTime->getShortWeekdayAndDay() : '';
         $trClass = $isNewDay ? '' : 'sameDay';
+        $dateClass = ($text==='') ? 'has-no-events' : 'has-events';
         $this->html .= "<tr class='{$dateTime->getDayClasses()} $trClass day'>";
-        $this->html .= "<td class='date'>$dateStr</td>";
+        $this->html .= "<td class='date $dateClass'>$dateStr</td>";
         $this->html .= "<td class='event'>$text</td></tr>\n";
     }
 
