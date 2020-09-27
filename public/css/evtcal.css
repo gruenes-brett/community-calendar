@@ -32,7 +32,7 @@ table.events-calendar tr.day > td {
 /* Single Event Table */
 table.events-calendar table.event {
     cursor: pointer;
-    margin-bottom: .8em;
+    margin-bottom: .4em;
     margin-top: .5em;
     border: none;
 }
