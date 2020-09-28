@@ -69,7 +69,7 @@ function fillEditForm(eventId) {
             if (key === 'categories') {
                 for (let catIndex in result[key]) {
                     let categoryId = result[key][catIndex].categoryId;
-                    let control = $('input[value="'+categoryId+'"]');
+                    let control = $('form#editEvent input[value="'+categoryId+'"]');
                     control.attr('checked', true);
                 }
             }
