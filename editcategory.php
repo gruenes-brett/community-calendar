@@ -1,6 +1,6 @@
 <?php
 
-function _evtcal_editCategoryForm($category, $index) {
+function _comcal_editCategoryForm($category, $index) {
     $suffix = "_$index";
     $name = $category->getField('name');
     $categoryId = $category->getField('categoryId');
@@ -17,29 +17,29 @@ function _evtcal_editCategoryForm($category, $index) {
 XML;
 }
 
-function _evtcal_allCategoryForms() {
-    $all = evtcal_Category::getAll();
+function _comcal_allCategoryForms() {
+    $all = comcal_Category::getAll();
     $out = '';
     $index = 0;
     foreach ($all as $c) {
-        $out .= _evtcal_editCategoryForm($c, $index);
+        $out .= _comcal_editCategoryForm($c, $index);
         $index++;
     }
     return $out;
 }
 
-function evtcal_getEditCategoriesDialog() {
+function comcal_getEditCategoriesDialog() {
     $postUrl = admin_url('admin-ajax.php');
-    $nonceField = wp_nonce_field('evtcal_edit_categories','verification-code', true, false);
-    $allForms = _evtcal_allCategoryForms();
+    $nonceField = wp_nonce_field('comcal_edit_categories','verification-code', true, false);
+    $allForms = _comcal_allCategoryForms();
     return <<<XML
-    <div class="evtcal-modal-wrapper edit-cats-dialog">
+    <div class="comcal-modal-wrapper edit-cats-dialog">
         <div class="close">X</div>
         <div class="form-popup" id="editCategories">
             <h2>Kategorien bearbeiten</h2>
             <form id="editCategories" action="$postUrl" method="post">
                 <fieldset>
-                    <input name="action" value="evtcal_edit_categories" type="hidden">
+                    <input name="action" value="comcal_edit_categories" type="hidden">
                     $nonceField
                     $allForms
 
@@ -59,13 +59,13 @@ XML;
 }
 
 
-function evtcal_submitEditCategories_func() {
-    if ( empty($_POST) || !wp_verify_nonce($_POST['verification-code'], 'evtcal_edit_categories') ) {
+function comcal_submitEditCategories_func() {
+    if ( empty($_POST) || !wp_verify_nonce($_POST['verification-code'], 'comcal_edit_categories') ) {
         echo 'You targeted the right function, but sorry, your nonce did not verify.';
         wp_die('You targeted the right function, but sorry, your nonce did not verify.', 'Error in submission',
             array('response' => 500));
     } else {
-        $res = evtcal_processEditCategories($_POST);
+        $res = comcal_processEditCategories($_POST);
         if ($res[0] == 200) {
             wp_die($res[1], 'Success', array('response' => $res[0]));
         } else {
@@ -73,16 +73,16 @@ function evtcal_submitEditCategories_func() {
         }
     }
 }
-add_action('wp_ajax_evtcal_edit_categories', 'evtcal_submitEditCategories_func');
+add_action('wp_ajax_comcal_edit_categories', 'comcal_submitEditCategories_func');
 
 
-function evtcal_processEditCategories($post) {
+function comcal_processEditCategories($post) {
     $messages = array();
     $result = 200;
 
     // Create new
     if (isset($post['name_new']) && !empty(trim($post['name_new']))) {
-        $c = evtcal_Category::create($post['name_new']);
+        $c = comcal_Category::create($post['name_new']);
         if ($c->store()) {
             $messages[] = "Neue Kategorie '{$c->getField('name')}' mit ID {$c->getField('categoryId')} angelegt";
         } else {
@@ -100,7 +100,7 @@ function evtcal_processEditCategories($post) {
         $delete = isset($post["delete$suffix"]);
         $categoryId = $post["categoryId$suffix"];
         $name = $post["name$suffix"];
-        $c = evtcal_Category::queryFromCategoryId($categoryId);
+        $c = comcal_Category::queryFromCategoryId($categoryId);
         if ($delete) {
             if ($c->delete()) {
                 $messages[] = "Kategorie '$name' wurde gelöscht!";

@@ -1,7 +1,7 @@
 
 function queryEventData(eventId, suffix, success) {
     return jQuery.get(
-        '/wp-json/evtcal/v1/event' + suffix + '/' + eventId,
+        '/wp-json/comcal/v1/event' + suffix + '/' + eventId,
         function (result) {
             success(result);
         }).fail(function (result) {

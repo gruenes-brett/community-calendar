@@ -1,11 +1,11 @@
 
-table.events-calendar {
+table.community-calendar {
     width: 100%;
     border: none;
 }
 
 /* Month Table */
-table.events-calendar td.date {
+table.community-calendar td.date {
     white-space: nowrap;
     font-size: 0.8em;
     text-align: left;
@@ -14,54 +14,54 @@ table.events-calendar td.date {
     border-right: none;
     font-weight: bold;
 }
-table.events-calendar td.date.has-events {
+table.community-calendar td.date.has-events {
     padding-top: 0.8em;
 }
-table.events-calendar td.event {
+table.community-calendar td.event {
     width:  99%;
     padding: 0;
     border-left: none;
 }
-table.events-calendar tr.weekend {
+table.community-calendar tr.weekend {
     background-color: #88888833;
 }
-table.events-calendar tr.day > td {
+table.community-calendar tr.day > td {
     border-left: none;
     border-right: none;
 }
 
 /* Single Event Table */
-table.events-calendar table.event {
+table.community-calendar table.event {
     cursor: pointer;
     margin-bottom: .4em;
     margin-top: .5em;
     border: none;
 }
-table.events-calendar table.event td {
+table.community-calendar table.event td {
     padding: 0;
     border: none;
 }
-table.events-calendar table.event td.time {
+table.community-calendar table.event td.time {
     font-size: 0.8em;
     white-space: nowrap;
     padding-right: 0.2em;
     vertical-align: top;
     padding-top: .2em;
 }
-table.events-calendar table.event td.title {
+table.community-calendar table.event td.title {
     font-weight: bold;
 }
-table.events-calendar table.event td.title, td.organizer {
+table.community-calendar table.event td.title, td.organizer {
     word-break: break-word;
     width: 99%;
 }
 
-table.events-calendar table.event.notPublic {
+table.community-calendar table.event.notPublic {
     color: blue;
 }
 
  /* Event-Form */
-.evtcal-modal-wrapper {
+.comcal-modal-wrapper {
     display: none;
     position: fixed;
     top: 0;
@@ -78,7 +78,7 @@ table.events-calendar table.event.notPublic {
     overflow: auto;
 }
 
-.evtcal-modal-wrapper .close {
+.comcal-modal-wrapper .close {
     position: fixed;
     top: 1em;
     right: 1em;
@@ -89,33 +89,33 @@ table.events-calendar table.event.notPublic {
     font-family: sans;
 }
 
-.evtcal-modal-wrapper .form-popup, .evtcal-modal-wrapper .show-event-content {
+.comcal-modal-wrapper .form-popup, .comcal-modal-wrapper .show-event-content {
     max-width: 600px;
     position: relative;
     margin: 0 auto;
 }
 
-.evtcal-modal-wrapper form input:invalid {
+.comcal-modal-wrapper form input:invalid {
     background-color: #faa;
 }
-.evtcal-modal-wrapper form input:required {
+.comcal-modal-wrapper form input:required {
     background-color: #ffa;
 }
-.evtcal-modal-wrapper form label {
+.comcal-modal-wrapper form label {
     font-weight: bold;
 }
 
-.evtcal-modal-wrapper #loading {
+.comcal-modal-wrapper #loading {
     opacity: 0;
 }
-.evtcal-modal-wrapper #content {
+.comcal-modal-wrapper #content {
     padding-top: 2em;
 }
 
 .pulse-animation {
-    animation: evtcal-pulse 2s infinite;
+    animation: comcal-pulse 2s infinite;
 }
-@keyframes evtcal-pulse {
+@keyframes comcal-pulse {
     0% {
         opactiy: 1;
     }
@@ -128,14 +128,14 @@ table.events-calendar table.event.notPublic {
 }
 
 /* Floating Buttons */
-.evtcal-floating-button-container {
+.comcal-floating-button-container {
     position: fixed;
     right: 16px;
     bottom: 16px;
     z-index: 150;
 }
 
-.evtcal-floating-button-container .evtcal-floating-button {
+.comcal-floating-button-container .comcal-floating-button {
     box-shadow: 5px 5px 20px #33333333;
     position: fixed;
     text-align: center;
@@ -143,7 +143,7 @@ table.events-calendar table.event.notPublic {
     padding: 0;
 }
 
-.evtcal-floating-button-container .evtcal-floating-button.first {
+.comcal-floating-button-container .comcal-floating-button.first {
     width: 64px;
     height: 64px;
     border-radius: 32px;
@@ -152,7 +152,7 @@ table.events-calendar table.event.notPublic {
     right: 8px;
 }
 
-.evtcal-floating-button-container .evtcal-floating-button.other {
+.comcal-floating-button-container .comcal-floating-button.other {
     width: 48px;
     height: 48px;
     border-radius: 24px;
@@ -163,35 +163,35 @@ table.events-calendar table.event.notPublic {
     font-size: .8em;
 }
 
-.evtcal-floating-button-container .evtcal-floating-button span::before {
+.comcal-floating-button-container .comcal-floating-button span::before {
     font-family: sans-serif;
     font-size: 32px;
     font-weight: bold;
 }
-.evtcal-floating-button-container .evtcal-floating-button span.addEvent::before {
+.comcal-floating-button-container .comcal-floating-button span.addEvent::before {
     content: "+";
 }
-.evtcal-floating-button-container .evtcal-floating-button span.scrollToToday::before {
+.comcal-floating-button-container .comcal-floating-button span.scrollToToday::before {
     content: "⇪";
 }
-.evtcal-floating-button-container .evtcal-floating-button span.editCategories::before {
+.comcal-floating-button-container .comcal-floating-button span.editCategories::before {
     content: "C";
 }
 
 /* Categories */
-p.evtcal-categories a.evtcal-category-label {
+p.comcal-categories a.comcal-category-label {
     padding: 0.3em;
     margin: 0 0.5em 0.5em 0;
     line-height: 2;
     white-space: nowrap;
     border-radius: .3em;
 }
-p.evtcal-categories a.evtcal-category-label.evtcal-active {
+p.comcal-categories a.comcal-category-label.comcal-active {
     font-weight: bold;
 }
-p.evtcal-categories a.evtcal-category-label.evtcal-inactive {
+p.comcal-categories a.comcal-category-label.comcal-inactive {
     opacity: 0.5;
 }
-a.evtcal-category-label:hover {
+a.comcal-category-label:hover {
     text-decoration: none;
 }

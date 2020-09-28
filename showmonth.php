@@ -6,37 +6,37 @@
 
 
 // [tag id="foo-value"]
-function evtcal_table_func( $atts ) {
+function comcal_table_func( $atts ) {
 	$a = shortcode_atts( array(
         'starttoday' => 'false',
     ), $atts );
 
     $category = null;
-    if (isset($_GET['evtcal_category'])) {
-        $category = evtcal_Category::queryFromCategoryId($_GET['evtcal_category']);
+    if (isset($_GET['comcal_category'])) {
+        $category = comcal_Category::queryFromCategoryId($_GET['comcal_category']);
     }
     if (strtolower($a['starttoday']) != 'false') {
-        $now = evtcal_DateTime::now();
+        $now = comcal_DateTime::now();
     } else {
         $now = null;
     }
-    $t = new evtcal_TableBuilder($now);
-    $isAdmin = evtcal_currentUserCanSetPublic();
+    $t = new comcal_TableBuilder($now);
+    $isAdmin = comcal_currentUserCanSetPublic();
     $eventsIterator = new EventIterator(!$isAdmin, $category);
     foreach ($eventsIterator as $event) {
         // $event->addCategory($ccc);
         $t->addEvent($event);
     }
 
-    $allHtml = $t->getHtml() . evtcal_getShowEventBox() . evtcal_getEditForm();
-    if (evtcal_currentUserCanSetPublic()) {
-        $allHtml .= evtcal_getEditCategoriesDialog();
+    $allHtml = $t->getHtml() . comcal_getShowEventBox() . comcal_getEditForm();
+    if (comcal_currentUserCanSetPublic()) {
+        $allHtml .= comcal_getEditCategoriesDialog();
     }
-    return evtcal_getCategoryButtons($category) . $allHtml;
+    return comcal_getCategoryButtons($category) . $allHtml;
 }
-add_shortcode( 'events-calendar-table', 'evtcal_table_func' );
+add_shortcode( 'community-calendar-table', 'comcal_table_func' );
 
-class evtcal_TableBuilder {
+class comcal_TableBuilder {
     var $html = '';
     var $currentDate = null;
     var $earliestDate = null;
@@ -53,7 +53,7 @@ class evtcal_TableBuilder {
     protected function newMonth($date) {
         $this->finishCurrentMonth();
         $this->html .= "<h3 class='month-title'>" . $date->getMonthTitle() . "</h3>\n"
-            . "<table class='events-calendar'><tbody>\n";
+            . "<table class='community-calendar'><tbody>\n";
         $this->fillDaysBetween($date->getFirstOfMonthDateTime(), $date);
     }
 

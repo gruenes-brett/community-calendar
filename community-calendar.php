@@ -1,11 +1,11 @@
 <?php
 /**
- * @package Events_Calendar
+ * @package Community_Calendar
  * @version 0.0.1
  */
 /*
-Plugin Name: Events Calendar
-Plugin URI: https://github.com/joergrs/events-calendar
+Plugin Name: Community Calendar
+Plugin URI: https://github.com/joergrs/community-calendar
 Description: This plugin allows users to submit event to the website and display them in a calendar
 Author: Joerg Schroeter
 Version: 0.0.1
@@ -42,29 +42,29 @@ require_once( EVTCAL__PLUGIN_DIR . 'showcategories.php' );
 /**
  * Enqueue scripts and styles.
  */
-function evtcal_scripts() {
+function comcal_scripts() {
 	// $JQUERY_VERSION = '3.4.1';
 	$SCRIPT_VERSION = EVTCAL_VERSION . '-' . time();
-	wp_enqueue_script( 'evtcal_event_js', EVTCAL__PLUGIN_URL  . 'public/js/event.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
-	wp_enqueue_script( 'evtcal_edit_js', EVTCAL__PLUGIN_URL  . 'public/js/edit.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
-	wp_enqueue_script( 'evtcal_show_js', EVTCAL__PLUGIN_URL  . 'public/js/show.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
-	wp_enqueue_script( 'evtcal_editcats_js', EVTCAL__PLUGIN_URL  . 'public/js/editcats.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
+	wp_enqueue_script( 'comcal_event_js', EVTCAL__PLUGIN_URL  . 'public/js/event.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
+	wp_enqueue_script( 'comcal_edit_js', EVTCAL__PLUGIN_URL  . 'public/js/edit.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
+	wp_enqueue_script( 'comcal_show_js', EVTCAL__PLUGIN_URL  . 'public/js/show.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
+	wp_enqueue_script( 'comcal_editcats_js', EVTCAL__PLUGIN_URL  . 'public/js/editcats.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
 }
-add_action( 'wp_enqueue_scripts', 'evtcal_scripts' );
+add_action( 'wp_enqueue_scripts', 'comcal_scripts' );
 
-function evtcal_styles() {
+function comcal_styles() {
 	$STYLE_VERSION = EVTCAL_VERSION . '-' . time();
-	wp_enqueue_style('evtcal_css', EVTCAL__PLUGIN_URL . 'public/css/evtcal.css', array(), $STYLE_VERSION);
+	wp_enqueue_style('comcal_css', EVTCAL__PLUGIN_URL . 'public/css/comcal.css', array(), $STYLE_VERSION);
 }
-add_action('wp_print_styles', 'evtcal_styles');
+add_action('wp_print_styles', 'comcal_styles');
 
-function evtcal_activation() {
+function comcal_activation() {
 	// initialize/update database table on activation
-	evtcal_initTables();
+	comcal_initTables();
 }
-register_activation_hook( __FILE__, 'evtcal_activation' );
+register_activation_hook( __FILE__, 'comcal_activation' );
 
-function evtcal_deactivation() {
+function comcal_deactivation() {
 	// tbd
 }
-register_deactivation_hook( __FILE__, 'evtcal_deactivation' );
+register_deactivation_hook( __FILE__, 'comcal_deactivation' );

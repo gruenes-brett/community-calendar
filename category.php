@@ -3,7 +3,7 @@
  * Functions for retrieving and updating categories
  */
 
-class evtcal_Category extends evtcal_DbTable {
+class comcal_Category extends comcal_DbTable {
     const IDPREFIX = 'category:';
 
 
@@ -15,7 +15,7 @@ class evtcal_Category extends evtcal_DbTable {
     }
 
     static function getTableName() {
-        return evtcal_tableName_categories();
+        return comcal_tableName_categories();
     }
 
     static function queryFromName($name) {
@@ -43,7 +43,7 @@ class evtcal_Category extends evtcal_DbTable {
 }
 
 
-class evtcal_EventVsCategory extends evtcal_DbTable {
+class comcal_EventVsCategory extends comcal_DbTable {
     static function create($event, $category) {
         return new self(array(
             'event_id' => $event->getField('id'),
@@ -61,7 +61,7 @@ class evtcal_EventVsCategory extends evtcal_DbTable {
     }
 
     static function getTableName() {
-        return evtcal_tableName_eventsVsCats();
+        return comcal_tableName_eventsVsCats();
     }
     static function getAllFieldNames() {
         return array('event_id', 'category_id');

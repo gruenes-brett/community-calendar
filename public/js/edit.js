@@ -15,9 +15,9 @@ function prepareEditForm() {
 }
 
 function showEditForm() {
-    $('.evtcal-modal-wrapper.edit-dialog').css({"z-index": 200})
-    $('.evtcal-modal-wrapper.edit-dialog').show(200);
-    $('.evtcal-modal-wrapper.edit-dialog').scrollTop(0);
+    $('.comcal-modal-wrapper.edit-dialog').css({"z-index": 200})
+    $('.comcal-modal-wrapper.edit-dialog').show(200);
+    $('.comcal-modal-wrapper.edit-dialog').scrollTop(0);
     hideAddEventWarning();
 }
 
@@ -67,8 +67,8 @@ function fillEditForm(eventId) {
 }
 
 function hideEditForm() {
-    $('.evtcal-modal-wrapper.edit-dialog').css({"z-index": -200})
-    $('.evtcal-modal-wrapper.edit-dialog').hide();
+    $('.comcal-modal-wrapper.edit-dialog').css({"z-index": -200})
+    $('.comcal-modal-wrapper.edit-dialog').hide();
 }
 
 function disableEditForm(disabled) {

@@ -1,13 +1,13 @@
 <?php
 
 // [floatingButtons target="targetDivId"]btn-class-1 btn-class-2[/floatingButtons]
-function evtcal_floatingButtons_func($atts, $content=null) {
+function comcal_floatingButtons_func($atts, $content=null) {
 	$a = shortcode_atts( array(
 	), $atts );
 
-	$out = "<div class='evtcal-floating-button-container'>";
+	$out = "<div class='comcal-floating-button-container'>";
 	$buttonClasses = ['addEvent', 'scrollToToday'];
-	if (evtcal_currentUserCanSetPublic()) {
+	if (comcal_currentUserCanSetPublic()) {
 		$buttonClasses[] = 'editCategories';
 	}
 	$index = 0;
@@ -20,11 +20,11 @@ function evtcal_floatingButtons_func($atts, $content=null) {
 			$bottomPos = 16;
 		}
 		$addStyle = "bottom: {$bottomPos}px;";
-		$out .= "<button class='evtcal-floating-button btn $class $orderClass' style='$addStyle'>"
+		$out .= "<button class='comcal-floating-button btn $class $orderClass' style='$addStyle'>"
 			  . "<span class='$class'></span></button>";
 		$index++;
 	}
 	return $out . '</div>';
 
 }
-add_shortcode( 'events-calendar-buttons', 'evtcal_floatingButtons_func' );
+add_shortcode( 'community-calendar-buttons', 'comcal_floatingButtons_func' );

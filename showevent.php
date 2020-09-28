@@ -3,18 +3,18 @@
  * Functions for showing the details of an event in a modal div
  * The event details can be queried as JSON via an REST API endpoint
  * E.g.:
- *      example.com/wp-json/evtcal/v1/eventDisplay/event:1234abcd
+ *      example.com/wp-json/comcal/v1/eventDisplay/event:1234abcd
  *          -> Prettified event details as HTML (for showing event details)
  *
- *      example.com/wp-json/evtcal/v1/eventNoHtml/event:1234abcd
+ *      example.com/wp-json/comcal/v1/eventNoHtml/event:1234abcd
  *          -> Event details as raw text (for the edit form)
 */
 
-$evtcal_RestRoute = 'evtcal/v1/';
+$comcal_RestRoute = 'comcal/v1/';
 
-function evtcal_getShowEventBox() {
+function comcal_getShowEventBox() {
     return <<<XML
-    <div class="evtcal-modal-wrapper show-event">
+    <div class="comcal-modal-wrapper show-event">
         <div class="close">X</div>
         <div class="show-event-content">
             <span id="loading">Informationen werden abgerufen</span>
@@ -33,13 +33,13 @@ XML;
 }
 
 
-function evtcal_convertUrlsToLinks($input) {
+function comcal_convertUrlsToLinks($input) {
     $pattern = '@[^\@](http(s)?://)?(([a-zA-Z])([-\w]+\.)+([^\s\.]+[^\s]*)+[^,.\s])@';
     return preg_replace($pattern, '<a target="_blank" href="http$2://$3">$0</a>', $input);
 }
 
-function __evtcal_queryEvent($data) {
-    $event = evtcal_Event::queryEvent($data['eventId']);
+function __comcal_queryEvent($data) {
+    $event = comcal_Event::queryEvent($data['eventId']);
     if ($event === null) {
         return new WP_Error(
             'no_event',
@@ -50,48 +50,48 @@ function __evtcal_queryEvent($data) {
     return $event->getPublicFields();
 }
 
-function evtcal_queryEventDisplay($data) {
-    $result = __evtcal_queryEvent($data);
-    $result['description'] = evtcal_convertUrlsToLinks($result['description']);
+function comcal_queryEventDisplay($data) {
+    $result = __comcal_queryEvent($data);
+    $result['description'] = comcal_convertUrlsToLinks($result['description']);
     if (!empty($result['url'])) {
         $result['url'] = "<a href='{$result['url']}' target='blank'>Ursprungslink</a>";
     }
-    $datetime = evtcal_DateTime::fromDateStrTimeStr($result['date'], $result['time']);
+    $datetime = comcal_DateTime::fromDateStrTimeStr($result['date'], $result['time']);
     $result['prettyDate'] = $datetime->getPrettyDate();
     $result['prettyTime'] = $datetime->getPrettyTime();
     $result['weekday'] = $datetime->getWeekday();
-    foreach (evtcal_Event::getTextFieldNames() as $name) {
+    foreach (comcal_Event::getTextFieldNames() as $name) {
         $result[$name] = nl2br($result[$name]);
     }
     return $result;
 }
 add_action('rest_api_init', function () {
-    global $evtcal_RestRoute;
+    global $comcal_RestRoute;
     register_rest_route(
-        $evtcal_RestRoute,
+        $comcal_RestRoute,
         'eventDisplay/(?P<eventId>event:[a-f0-9]+)',
         array(
             'methods' => 'GET',
-            'callback' => 'evtcal_queryEventDisplay'
+            'callback' => 'comcal_queryEventDisplay'
         )
     );
 });
 
-function evtcal_queryEventNoHtml($data) {
-    $result = __evtcal_queryEvent($data);
-    foreach (evtcal_Event::getTextFieldNames() as $name) {
+function comcal_queryEventNoHtml($data) {
+    $result = __comcal_queryEvent($data);
+    foreach (comcal_Event::getTextFieldNames() as $name) {
         $result[$name] = htmlspecialchars_decode($result[$name]);
     }
     return $result;
 }
 add_action('rest_api_init', function () {
-    global $evtcal_RestRoute;
+    global $comcal_RestRoute;
     register_rest_route(
-        $evtcal_RestRoute,
+        $comcal_RestRoute,
         '/eventNoHtml/(?P<eventId>event:[a-f0-9]+)',
         array(
             'methods' => 'GET',
-            'callback' => 'evtcal_queryEventNoHtml'
+            'callback' => 'comcal_queryEventNoHtml'
         )
     );
 });

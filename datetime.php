@@ -4,10 +4,10 @@
  * Functions for handling PHP DateTime objects
  */
 
-$evtcal_aWeekdayNamesDE = [
+$comcal_aWeekdayNamesDE = [
     'Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'
 ];
-$evtcal_monthMap = array(
+$comcal_monthMap = array(
     'Jan' => 'Januar',
     'Feb' => 'Februar',
     'Mar' => 'März',
@@ -23,7 +23,7 @@ $evtcal_monthMap = array(
 );
 
 
-class evtcal_DateTime {
+class comcal_DateTime {
     /*
      * Wrapper for a PHP DateTime object with convenience functions
      */
@@ -61,13 +61,13 @@ class evtcal_DateTime {
     }
 
     function getWeekday() {
-        global $evtcal_aWeekdayNamesDE;
-        return $evtcal_aWeekdayNamesDE[$this->dateTime->format('w')];
+        global $comcal_aWeekdayNamesDE;
+        return $comcal_aWeekdayNamesDE[$this->dateTime->format('w')];
     }
 
     function getShortWeekdayAndDay() {
-        global $evtcal_aWeekdayNamesDE;
-        return $this->dateTime->format('d ') . substr($evtcal_aWeekdayNamesDE[$this->dateTime->format('w')], 0, 2);
+        global $comcal_aWeekdayNamesDE;
+        return $this->dateTime->format('d ') . substr($comcal_aWeekdayNamesDE[$this->dateTime->format('w')], 0, 2);
     }
 
     function getDayClasses() {
@@ -84,15 +84,15 @@ class evtcal_DateTime {
     }
 
     function getMonthTitle() {
-        global $evtcal_monthMap;
+        global $comcal_monthMap;
         $month = $monthEng = $this->dateTime->format('M');
-        if (isset($evtcal_monthMap[$monthEng])) {
-            $month = $evtcal_monthMap[$monthEng];
+        if (isset($comcal_monthMap[$monthEng])) {
+            $month = $comcal_monthMap[$monthEng];
         }
         return $month . $this->dateTime->format(' Y');
     }
 
-    function getFirstOfMonthDateTime(): evtcal_DateTime {
+    function getFirstOfMonthDateTime(): comcal_DateTime {
         $dt = new DateTime($this->dateTime->format('Y-m-01\TH:i:s'));
         return self::fromDateTime($dt);
     }

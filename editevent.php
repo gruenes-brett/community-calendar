@@ -4,12 +4,12 @@
  * Functions for showing an edit event form in a modal div
  */
 
-function evtcal_currentUserCanSetPublic() {
+function comcal_currentUserCanSetPublic() {
     return current_user_can('edit_others_posts');
 }
 
-function evtcal_getPublicControl($public) {
-    if (evtcal_currentUserCanSetPublic()) {
+function comcal_getPublicControl($public) {
+    if (comcal_currentUserCanSetPublic()) {
         $checked = $public == 1 ? 'checked' : 'unchecked';
         return <<<XML
             <div class="form-group">
@@ -27,8 +27,8 @@ XML;
     }
 }
 
-function evtcal_getDeleteForm($adminAjaxUrl) {
-    if (evtcal_currentUserCanSetPublic()) {
+function comcal_getDeleteForm($adminAjaxUrl) {
+    if (comcal_currentUserCanSetPublic()) {
         $deleteNonceField = wp_nonce_field('delete_event','verification-code', true, false);
         return <<<XML
             <form id="deleteEvent" action="$adminAjaxUrl" method="post">
@@ -48,8 +48,8 @@ XML;
     }
 }
 
-function evtcal_editEventCategories() {
-    $cats = evtcal_Category::getAll();
+function comcal_editEventCategories() {
+    $cats = comcal_Category::getAll();
 
     $checkBoxes = '';
 
@@ -73,8 +73,8 @@ XML;
 XML;
 }
 
-function evtcal_editEventForm() {
-    $event = new evtcal_Event();
+function comcal_editEventForm() {
+    $event = new comcal_Event();
     $eventId = '';
 
     $adminAjaxUrl = admin_url('admin-ajax.php');
@@ -89,12 +89,12 @@ function evtcal_editEventForm() {
     $url = $event->getField('url');
     $description = $event->getField('description');
     $public = $event->getField('public');
-    $publicControl = evtcal_getPublicControl($public);
-    $deleteForm = evtcal_getDeleteForm($adminAjaxUrl);
-    $categories = evtcal_editEventCategories();
+    $publicControl = comcal_getPublicControl($public);
+    $deleteForm = comcal_getDeleteForm($adminAjaxUrl);
+    $categories = comcal_editEventCategories();
 
     return <<<XML
-    <div class="evtcal-modal-wrapper edit-dialog">
+    <div class="comcal-modal-wrapper edit-dialog">
         <div class="close">X</div>
         <div class="form-popup" id="editEvent">
             <h2></h2>
@@ -172,18 +172,18 @@ function evtcal_editEventForm() {
 XML;
 }
 
-function evtcal_getEditForm() {
-	return evtcal_editEventForm();
+function comcal_getEditForm() {
+	return comcal_editEventForm();
 }
 
 // handle new event request
-function evtcal_submitNewEvent_func() {
+function comcal_submitNewEvent_func() {
     if ( empty($_POST) || !wp_verify_nonce($_POST['verification-code'], 'submit_new_event') ) {
         echo 'You targeted the right function, but sorry, your nonce did not verify.';
         wp_die('You targeted the right function, but sorry, your nonce did not verify.', 'Error in submission',
             array('response' => 500));
     } else {
-        $res = evtcal_updateEventFromArray($_POST);
+        $res = comcal_updateEventFromArray($_POST);
         if ($res[0] == 200) {
             wp_die($res[1], 'Datenübertragung erfolgreich');
         } else {
@@ -191,16 +191,16 @@ function evtcal_submitNewEvent_func() {
         }
     }
 }
-add_action('wp_ajax_nopriv_submit_new_event', 'evtcal_submitNewEvent_func');
-add_action('wp_ajax_submit_new_event', 'evtcal_submitNewEvent_func');
+add_action('wp_ajax_nopriv_submit_new_event', 'comcal_submitNewEvent_func');
+add_action('wp_ajax_submit_new_event', 'comcal_submitNewEvent_func');
 
-function evtcal_deleteEvent_func() {
+function comcal_deleteEvent_func() {
     if ( empty($_POST) || !wp_verify_nonce($_POST['verification-code'], 'delete_event') ) {
         echo 'You targeted the right function, but sorry, your nonce did not verify.';
         wp_die('You targeted the right function, but sorry, your nonce did not verify.', 'Error in submission',
             array('response' => 500));
     } else {
-        $res = evtcal_deleteEvent($_POST['eventId']);
+        $res = comcal_deleteEvent($_POST['eventId']);
         if ($res[0] == 200) {
             wp_die($res[1], 'Event wurde gelöscht');
         } else {
@@ -208,42 +208,42 @@ function evtcal_deleteEvent_func() {
         }
     }
 }
-add_action('wp_ajax_nopriv_delete_event', 'evtcal_deleteEvent_func');
-add_action('wp_ajax_delete_event', 'evtcal_deleteEvent_func');
+add_action('wp_ajax_nopriv_delete_event', 'comcal_deleteEvent_func');
+add_action('wp_ajax_delete_event', 'comcal_deleteEvent_func');
 
 
-function evtcal_prevent_html($str) {
+function comcal_prevent_html($str) {
     return stripslashes(htmlspecialchars($str));
 }
 
-function evtcal_filterPostData($data) {
-    if (!evtcal_currentUserCanSetPublic()) {
+function comcal_filterPostData($data) {
+    if (!comcal_currentUserCanSetPublic()) {
         // Forbid to set an event public if not logged in
         $data['public'] = 0;
         // Forbid to modify an existing event if not logged in
         $data['eventId'] = '';
     }
-    foreach (evtcal_Event::getTextFieldNames() as $name) {
-        $data[$name] = evtcal_prevent_html($data[$name]);
+    foreach (comcal_Event::getTextFieldNames() as $name) {
+        $data[$name] = comcal_prevent_html($data[$name]);
     }
     return $data;
 }
 
-function evtcal_filterCategories($data) {
+function comcal_filterCategories($data) {
     $cats = array();
     foreach ($data as $key => $value) {
         if (strpos($key, 'category_') === 0) {
-            $cats[] = evtcal_Category::queryFromCategoryId($value);
+            $cats[] = comcal_Category::queryFromCategoryId($value);
         }
     }
     return $cats;
 }
 
-function evtcal_updateEventFromArray($data) {
-    $data = evtcal_filterPostData($data);
-    $event = new evtcal_Event($data);
+function comcal_updateEventFromArray($data) {
+    $data = comcal_filterPostData($data);
+    $event = new comcal_Event($data);
     $isNewEvent = !$event->eventExists();
-    if (!evtcal_currentUserCanSetPublic() && !$isNewEvent) {
+    if (!comcal_currentUserCanSetPublic() && !$isNewEvent) {
         return array(500, 'Keine Berechtigung um ein Event zu aktualisieren!');
     }
 
@@ -255,13 +255,13 @@ function evtcal_updateEventFromArray($data) {
         }
     } else {
         $event->removeAllCategories();
-        foreach (evtcal_filterCategories($data) as $cat) {
+        foreach (comcal_filterCategories($data) as $cat) {
             $event->addCategory($cat);
         }
     }
 
     if ($isNewEvent) {
-        if (evtcal_currentUserCanSetPublic()) {
+        if (comcal_currentUserCanSetPublic()) {
             return array(200, 'Event wurde angelegt.');
         } else {
             return array(200, 'Vielen Dank für deinen Eintrag! Nach einer Prüfung werden wir ihn '
@@ -272,8 +272,8 @@ function evtcal_updateEventFromArray($data) {
     return array(200, 'Event wurde aktualisiert.');
 }
 
-function evtcal_deleteEvent($eventId) {
-    $event = evtcal_Event::queryEvent($eventId);
+function comcal_deleteEvent($eventId) {
+    $event = comcal_Event::queryEvent($eventId);
     if ($event == null) {
         return array(500, 'Event kann nicht gelöscht werden, da nicht vorhanden');
     }

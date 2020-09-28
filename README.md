@@ -9,11 +9,11 @@ a page admin).
 ## Installation
 
 1. Download or clone all the files from this repository into the plugins directory of your Wordpress
-site (usually `wp-content/plugins/`). The directory must be named `events-calendar` (`git clone` will
+site (usually `wp-content/plugins/`). The directory must be named `community-calendar` (`git clone` will
 create this directory for you).
 ```
 cd <root_of_page>/wp-content/plugins
-git clone https://github.com/joergrs/events-calendar.git
+git clone https://github.com/joergrs/community-calendar.git
 ```
 2. Activate the plugin in the the admin area of your page
 
@@ -23,14 +23,14 @@ The plugin introduces its functionality using short codes:
 
 * Show the calendar, starting today:
 
-  `[events-calendar-table startToday=true/]`
+  `[community-calendar-table startToday=true/]`
 
   Use `startToday=false` to also display past events
 
 * Display floating buttons that allow the user to submit an event and to scroll
  back to the current day
 
- `[events-calendar-buttons/]`
+ `[community-calendar-buttons/]`
 
 
 ## Customization
@@ -40,7 +40,7 @@ Here are some examples:
 
 ### Background color of the event detail display and the event form
 ```css
-.evtcal-modal-wrapper {
+.comcal-modal-wrapper {
     background-color: #222;
     color: #ccc;
 }
@@ -48,7 +48,7 @@ Here are some examples:
 
 ### Floating button color
 ```css
-.evtcal-floating-button-container button {
+.comcal-floating-button-container button {
     background-color: #337;
     color: white;
 }

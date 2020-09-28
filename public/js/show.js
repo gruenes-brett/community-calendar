@@ -5,7 +5,7 @@ $(document).ready(function(){
 });
 
 function prepareShowEvent() {
-    // $('.evtcal-modal-wrapper.show-event').appendTo('#page-wrapper');
+    // $('.comcal-modal-wrapper.show-event').appendTo('#page-wrapper');
     hideShowEvent();
     $('.show-event .close').click(function() {
         hideShowEvent();
@@ -14,16 +14,16 @@ function prepareShowEvent() {
 }
 
 function hideShowEvent() {
-    $('.evtcal-modal-wrapper.show-event').css({"z-index": -200})
-    $('.evtcal-modal-wrapper.show-event').hide();
+    $('.comcal-modal-wrapper.show-event').css({"z-index": -200})
+    $('.comcal-modal-wrapper.show-event').hide();
 }
 
 function showShowEvent() {
-    $('.evtcal-modal-wrapper.show-event').css({ "z-index": 200 })
-    $('.evtcal-modal-wrapper.show-event').show(200);
-    $('.evtcal-modal-wrapper.show-event').scrollTop(0);
-    $('.evtcal-modal-wrapper.show-event #content').hide();
-    $('.evtcal-modal-wrapper.show-event #loading').addClass('pulse-animation');
+    $('.comcal-modal-wrapper.show-event').css({ "z-index": 200 })
+    $('.comcal-modal-wrapper.show-event').show(200);
+    $('.comcal-modal-wrapper.show-event').scrollTop(0);
+    $('.comcal-modal-wrapper.show-event #content').hide();
+    $('.comcal-modal-wrapper.show-event #loading').addClass('pulse-animation');
 }
 
 function findEventId(element) {
@@ -37,8 +37,8 @@ function showEvent(e) {
     queryEventData(eventId, 'Display', function (result) {
         updateContent(result);
     }).done(function(){
-        $('.evtcal-modal-wrapper.show-event #loading').removeClass('pulse-animation');
-        $('.evtcal-modal-wrapper.show-event #content').show();
+        $('.comcal-modal-wrapper.show-event #loading').removeClass('pulse-animation');
+        $('.comcal-modal-wrapper.show-event #content').show();
     });
 }
 

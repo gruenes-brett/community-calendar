@@ -13,9 +13,9 @@ function prepareEditCatsForm() {
 }
 
 function showEditForm() {
-    $('.evtcal-modal-wrapper.edit-cats-dialog').css({"z-index": 200})
-    $('.evtcal-modal-wrapper.edit-cats-dialog').show(200);
-    $('.evtcal-modal-wrapper.edit-cats-dialog').scrollTop(0);
+    $('.comcal-modal-wrapper.edit-cats-dialog').css({"z-index": 200})
+    $('.comcal-modal-wrapper.edit-cats-dialog').show(200);
+    $('.comcal-modal-wrapper.edit-cats-dialog').scrollTop(0);
 }
 
 function editCategories(event) {
@@ -24,8 +24,8 @@ function editCategories(event) {
 }
 
 function hideEditCatsForm() {
-    $('.evtcal-modal-wrapper.edit-cats-dialog').css({"z-index": -200})
-    $('.evtcal-modal-wrapper.edit-cats-dialog').hide();
+    $('.comcal-modal-wrapper.edit-cats-dialog').css({"z-index": -200})
+    $('.comcal-modal-wrapper.edit-cats-dialog').hide();
 }
 
 function submitEditCategories(event) {

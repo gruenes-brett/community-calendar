@@ -4,29 +4,37 @@
  */
 
 
-function evtcal_tableName_events() {
+function comcal_tableName_events() {
     global $wpdb;
-    return $wpdb->prefix . 'evtcal';
+    return $wpdb->prefix . 'comcal';
 }
 
-function evtcal_tableName_categories() {
+function comcal_tableName_categories() {
     global $wpdb;
-    return $wpdb->prefix . 'evtcal_cats';
+    return $wpdb->prefix . 'comcal_cats';
 }
 
-function evtcal_tableName_eventsVsCats() {
+function comcal_tableName_eventsVsCats() {
     global $wpdb;
-    return $wpdb->prefix . 'evtcal_evt_vs_cats';
+    return $wpdb->prefix . 'comcal_evt_vs_cats';
 }
 
 
-function evtcal_initTables() {
+function comcal_initTables() {
     global $wpdb;
     $wpdb->show_errors();
-    $eventsTableName = evtcal_tableName_events();
-    $categoriesTableName = evtcal_tableName_categories();
-    $eventsVsCatsTableName = evtcal_tableName_eventsVsCats();
+    $eventsTableName = comcal_tableName_events();
+    $categoriesTableName = comcal_tableName_categories();
+    $eventsVsCatsTableName = comcal_tableName_eventsVsCats();
     $charset_collate = $wpdb->get_charset_collate();
+
+    // Rename tables
+    $old = $wpdb->prefix . 'evtcal';
+    $wpdb->query("ALTER TABLE $old RENAME TO $eventsTableName;");
+    $old = $wpdb->prefix . 'evtcal_cats';
+    $wpdb->query("ALTER TABLE $old RENAME TO $categoriesTableName;");
+    $old = $wpdb->prefix . 'evtcal_evt_vs_cats';
+    $wpdb->query("ALTER TABLE $old RENAME TO $eventsVsCatsTableName;");
 
     // Events
     $sql = "CREATE TABLE $eventsTableName (
@@ -66,21 +74,21 @@ function evtcal_initTables() {
     dbDelta( $sql );
 }
 
-function evtcal_deleteTables() {
+function comcal_deleteTables() {
     global $wpdb;
     $wpdb->show_errors();
 
     foreach ([
-        evtcal_tableName_eventsVsCats(),
-        evtcal_tableName_events(),
-        evtcal_tableName_categories(),
+        comcal_tableName_eventsVsCats(),
+        comcal_tableName_events(),
+        comcal_tableName_categories(),
     ] as $tableName) {
         $wpdb->query("DROP TABLE $tableName;");
     }
 
 }
 
-function evtcal_whereAnd($conditions) {
+function comcal_whereAnd($conditions) {
     if (empty($conditions)) {
         return '';
     }
@@ -88,7 +96,7 @@ function evtcal_whereAnd($conditions) {
 }
 
 
-abstract class evtcal_DbTable {
+abstract class comcal_DbTable {
     /*
      * Base class for an object stored in a table
      */

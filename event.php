@@ -3,10 +3,10 @@
  * Functions for retrieving and updating events from the database
  */
 
-class evtcal_Event {
+class comcal_Event {
     var $data = null;  // stdClass
-    var $dateTime = null;  // evtcal_DateTime
-    var $categories = null;  // array of evtcal_Category objects
+    var $dateTime = null;  // comcal_DateTime
+    var $categories = null;  // array of comcal_Category objects
     const DEFAULTS = array(
         'date' => '2019-01-01',
         'time' => '12:00:00',
@@ -16,7 +16,7 @@ class evtcal_Event {
 
     public static function queryEvent($eventId) {
         global $wpdb;
-        $tableName = evtcal_tableName_events();
+        $tableName = comcal_tableName_events();
 
         $rows = $wpdb->get_results("SELECT * FROM $tableName WHERE eventId='$eventId';");
         if (empty($rows)) {
@@ -31,17 +31,17 @@ class evtcal_Event {
         } else {
             $this->data = $eventData;
         }
-        $this->dateTime = evtcal_DateTime::fromDateStrTimeStr($this->getField('date'), $this->getField('time'));
+        $this->dateTime = comcal_DateTime::fromDateStrTimeStr($this->getField('date'), $this->getField('time'));
     }
     function addCategory($category) {
-        $vs = evtcal_EventVsCategory::create($this, $category);
+        $vs = comcal_EventVsCategory::create($this, $category);
         $vs->store();
     }
     function hasCategory($category) {
-        return evtcal_EventVsCategory::isset($this, $category);
+        return comcal_EventVsCategory::isset($this, $category);
     }
     function removeAllCategories() {
-        evtcal_EventVsCategory::removeEvent($this);
+        comcal_EventVsCategory::removeEvent($this);
     }
     function getDefault($name, $default=null) {
         if ($default != null) {
@@ -113,13 +113,13 @@ class evtcal_Event {
     }
     function eventExists() {
         global $wpdb;
-        $tableName = evtcal_tableName_events();
+        $tableName = comcal_tableName_events();
         $row = $wpdb->get_row("SELECT eventId FROM $tableName WHERE eventId='{$this->getField('eventId')}';");
         return !empty($row);
     }
     function store() {
         global $wpdb;
-        $tableName = evtcal_tableName_events();
+        $tableName = comcal_tableName_events();
         if ($this->eventExists()) {
             $affectedRows = $wpdb->update(
                 $tableName,
@@ -133,18 +133,18 @@ class evtcal_Event {
     }
     function delete() {
         global $wpdb;
-        $tableName = evtcal_tableName_events();
+        $tableName = comcal_tableName_events();
         return $wpdb->delete($tableName, array('eventId' => $this->getField('eventId'))) !== false;
     }
     function getDateStr(): string {
         return $this->getField('date');
     }
-    function getDateTime(): evtcal_DateTime {
+    function getDateTime(): comcal_DateTime {
         return $this->dateTime;
     }
     function getHtml(): string {
         $editControls = '';
-        if (evtcal_currentUserCanSetPublic()) {
+        if (comcal_currentUserCanSetPublic()) {
             $editControls = "<a class='editEvent' eventId='{$this->getField('eventId')}'>"
                             . "edit</a>";
         }
@@ -173,7 +173,7 @@ class EventIterator implements Iterator {
     public $eventRows = null;
 
     public function __construct($publicOnly, $category=null) {
-        $this->eventRows = evtcal_getAllEventRows($publicOnly, $category);
+        $this->eventRows = comcal_getAllEventRows($publicOnly, $category);
         $this->positition = 0;
     }
 
@@ -185,7 +185,7 @@ class EventIterator implements Iterator {
         if ($this->positition == -1) {
             return null;
         }
-        return new evtcal_Event($this->eventRows[$this->positition]);
+        return new comcal_Event($this->eventRows[$this->positition]);
     }
 
     public function key() {
@@ -202,17 +202,17 @@ class EventIterator implements Iterator {
 }
 
 
-function evtcal_addEvent($data) {
+function comcal_addEvent($data) {
     global $wpdb;
-    $event = new evtcal_Event($data);
+    $event = new comcal_Event($data);
     return $event->store($wpdb);
 }
 
-function evtcal_getAllEventRows($publicOnly=true, $category=null) {
+function comcal_getAllEventRows($publicOnly=true, $category=null) {
     global $wpdb;
-    $events = evtcal_tableName_events();
-    $cats = evtcal_tableName_categories();
-    $evt_cat = evtcal_tableName_eventsVsCats();
+    $events = comcal_tableName_events();
+    $cats = comcal_tableName_categories();
+    $evt_cat = comcal_tableName_eventsVsCats();
 
     $whereConditions = array();
     if ($publicOnly) {
@@ -220,13 +220,13 @@ function evtcal_getAllEventRows($publicOnly=true, $category=null) {
     }
 
     if ($category === null) {
-        $where = evtcal_whereAnd($whereConditions);
+        $where = comcal_whereAnd($whereConditions);
         $query = "SELECT * FROM $events $where ORDER BY date, time;";
     } else {
         $category_id = $category->getField('id');
         $whereConditions[] = "$evt_cat.category_id=$category_id";
 
-        $where = evtcal_whereAnd($whereConditions);
+        $where = comcal_whereAnd($whereConditions);
         $query = "SELECT $events.* FROM $events "
         ."INNER JOIN $evt_cat ON $evt_cat.event_id=$events.id "
         ."$where ORDER BY $events.date, $events.time;";
