@@ -97,13 +97,16 @@ abstract class comcal_DbTable {
     const DEFAULTS = array();
     abstract static function getTableName();
     static function queryRow($sql) {
-        global $wpdb;
-        $sql = str_replace('[T]', static::getTableName(), $sql);
-        $rows = $wpdb->get_results($sql);
+        $rows = static::query($sql);
         if (empty($rows)) {
             return null;
         }
         return $rows[0];
+    }
+    static function query($sql) {
+        global $wpdb;
+        $sql = str_replace('[T]', static::getTableName(), $sql);
+        return $wpdb->get_results($sql);
     }
     static function getAll() {
         global $wpdb;

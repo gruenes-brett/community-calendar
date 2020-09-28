@@ -43,6 +43,9 @@ class comcal_Event {
     function removeAllCategories() {
         comcal_EventVsCategory::removeEvent($this);
     }
+    function getCategories() {
+        return comcal_EventVsCategory::getCategories($this);
+    }
     function getDefault($name, $default=null) {
         if ($default != null) {
             return $default;
@@ -85,6 +88,7 @@ class comcal_Event {
             'url' => $this->getField('url'),
             'public' => $this->getField('public'),
             'created' => $this->getField('created'),
+            'categories' => $this->getCategoriesDetails(),
         );
     }
     private function getFullData() {
@@ -165,6 +169,13 @@ class comcal_Event {
         </tbody></table>
 XML;
     }
+    function getCategoriesDetails() {
+        $result = array();
+        foreach ($this->getCategories() as $c) {
+            $result[] = $c->getPublicFields();
+        }
+        return $result;
+    }
 }
 
 
@@ -211,7 +222,6 @@ function comcal_addEvent($data) {
 function comcal_getAllEventRows($publicOnly=true, $category=null) {
     global $wpdb;
     $events = comcal_tableName_events();
-    $cats = comcal_tableName_categories();
     $evt_cat = comcal_tableName_eventsVsCats();
 
     $whereConditions = array();

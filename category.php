@@ -40,6 +40,12 @@ class comcal_Category extends comcal_DbTable {
             'categoryId' => uniqid(self::IDPREFIX),
         ));
     }
+
+    function getPublicFields() {
+        $data = $this->getFullData();
+        $data['html'] = comcal_categoryButton($data['categoryId'], $data['name'], false);
+        return $data;
+    }
 }
 
 
@@ -74,5 +80,18 @@ class comcal_EventVsCategory extends comcal_DbTable {
         $where = "WHERE event_id={$this->getField('event_id')} AND category_id={$this->getField('category_id')}";
         $row = self::queryRow("SELECT id from [T] $where;");
         return !empty($row);
+    }
+    static function getCategories($event) {
+        $catsTable = comcal_tableName_categories();
+        $event_id = $event->getField('id');
+        $query = "SELECT $catsTable.* FROM $catsTable "
+        . "INNER JOIN [T] ON [T].category_id=$catsTable.id "
+        . "WHERE [T].event_id=$event_id;";
+        $cats = array();
+        $rows = static::query($query);
+        foreach ($rows as $row) {
+            $cats[] = new comcal_Category($row);
+        }
+        return $cats;
     }
 }

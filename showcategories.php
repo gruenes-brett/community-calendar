@@ -29,7 +29,7 @@ function comcal_createUniqueColors($name) {
     );
 }
 
-function _comcal_categoryButton($categoryId, $label, $active) {
+function comcal_categoryButton($categoryId, $label, $active) {
     if ($categoryId === null) {
         $url = '?';
     } else {
@@ -46,7 +46,7 @@ function comcal_getCategoryButtons($activeCategory=null) {
     $cats = comcal_Category::getAll();
     $html = '<p class="comcal-categories">';
 
-    $html .= _comcal_categoryButton(null, 'Alles anzeigen', $activeCategory===null);
+    $html .= comcal_categoryButton(null, 'Alles anzeigen', $activeCategory===null);
 
     $activeCategoryId = '';
     if ($activeCategory !== null) {
@@ -56,7 +56,7 @@ function comcal_getCategoryButtons($activeCategory=null) {
     foreach ($cats as $c) {
         $categoryId = $c->getField('categoryId');
         $name = $c->getField('name');
-        $html .= _comcal_categoryButton(
+        $html .= comcal_categoryButton(
             $categoryId,
             $name,
             $activeCategoryId === $c->getField('categoryId')
