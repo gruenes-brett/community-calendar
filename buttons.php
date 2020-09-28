@@ -24,6 +24,9 @@ function comcal_floatingButtons_func($atts, $content=null) {
 		if ($index == 0) {
 			$imgSrc = EVTCAL__PLUGIN_URL . 'public/images/plus.png';
 			$out .= "<img class='$class' src='$imgSrc'></img>";
+		} else if ($index == 1) {
+			$imgSrc = EVTCAL__PLUGIN_URL . 'public/images/arrow_up.png';
+			$out .= "<img class='$class' src='$imgSrc'></img>";
 		} else {
 			$out .= "<span class='$class'></span>";
 		}
