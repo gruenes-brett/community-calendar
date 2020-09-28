@@ -46,9 +46,17 @@ function updateContent(json) {
     for (var key in json) {
         let target = $('.show-event-content #content #' + key);
         if (target[0] !== undefined) {
-            target.html(json[key]);
-            if (key == 'url') {
-                target.attr('href', json[key]);
+            if (key === 'categories') {
+                let cats = '';
+                for (let catIndex in json[key]) {
+                    cats += ' ' + json[key][catIndex].html;
+                }
+                target.html(cats);
+            } else {
+                target.html(json[key]);
+                if (key == 'url') {
+                    target.attr('href', json[key]);
+                }
             }
         }
     }

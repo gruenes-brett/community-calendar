@@ -26,6 +26,7 @@ function comcal_getShowEventBox() {
                 <p><a id="url" target="_blank"></a></p>
                 <b>Beschreibung:</b>
                 <p id="description"></b>
+                <p id="categories" class="comcal-categories"></p>
             </div>
         </div>
     </div>

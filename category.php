@@ -43,7 +43,7 @@ class comcal_Category extends comcal_DbTable {
 
     function getPublicFields() {
         $data = $this->getFullData();
-        $data['html'] = comcal_categoryButton($data['categoryId'], $data['name'], false);
+        $data['html'] = comcal_categoryButton($data['categoryId'], $data['name'], true);
         return $data;
     }
 }
