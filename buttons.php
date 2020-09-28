@@ -20,8 +20,14 @@ function comcal_floatingButtons_func($atts, $content=null) {
 			$bottomPos = 16;
 		}
 		$addStyle = "bottom: {$bottomPos}px;";
-		$out .= "<button class='comcal-floating-button btn $class $orderClass' style='$addStyle'>"
-			  . "<span class='$class'></span></button>";
+		$out .= "<button class='comcal-floating-button btn $class $orderClass' style='$addStyle'>";
+		if ($index == 0) {
+			$imgSrc = EVTCAL__PLUGIN_URL . 'public/images/plus.png';
+			$out .= "<img class='$class' src='$imgSrc'></img>";
+		} else {
+			$out .= "<span class='$class'></span>";
+		}
+		$out .= "</button>";
 		$index++;
 	}
 	return $out . '</div>';

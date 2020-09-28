@@ -168,9 +168,9 @@ table.community-calendar table.event.notPublic {
     font-size: 32px;
     font-weight: bold;
 }
-.comcal-floating-button-container .comcal-floating-button span.addEvent::before {
+/* .comcal-floating-button-container .comcal-floating-button span.addEvent::before {
     content: "+";
-}
+} */
 .comcal-floating-button-container .comcal-floating-button span.scrollToToday::before {
     content: "⇪";
 }
