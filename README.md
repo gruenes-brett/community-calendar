@@ -1,4 +1,4 @@
-# Events Calendar Wordpress Plugin
+# Community Calendar Wordpress Plugin
 
 The purpose of this plugin is to provide a straight-forward way of
 displaying a calendar with public events. Users may submit events and have
