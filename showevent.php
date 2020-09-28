@@ -6,7 +6,7 @@
  *      example.com/wp-json/comcal/v1/eventDisplay/event:1234abcd
  *          -> Prettified event details as HTML (for showing event details)
  *
- *      example.com/wp-json/comcal/v1/eventNoHtml/event:1234abcd
+ *      example.com/wp-json/comcal/v1/eventRaw/event:1234abcd
  *          -> Event details as raw text (for the edit form)
 */
 
@@ -77,7 +77,7 @@ add_action('rest_api_init', function () {
     );
 });
 
-function comcal_queryEventNoHtml($data) {
+function comcal_queryEventRaw($data) {
     $result = __comcal_queryEvent($data);
     foreach (comcal_Event::getTextFieldNames() as $name) {
         $result[$name] = htmlspecialchars_decode($result[$name]);
@@ -88,10 +88,10 @@ add_action('rest_api_init', function () {
     global $comcal_RestRoute;
     register_rest_route(
         $comcal_RestRoute,
-        '/eventNoHtml/(?P<eventId>event:[a-f0-9]+)',
+        '/eventRaw/(?P<eventId>event:[a-f0-9]+)',
         array(
             'methods' => 'GET',
-            'callback' => 'comcal_queryEventNoHtml'
+            'callback' => 'comcal_queryEventRaw'
         )
     );
 });

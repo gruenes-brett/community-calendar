@@ -49,7 +49,7 @@ function editEvent(event) {
 }
 
 function fillEditForm(eventId) {
-    return queryEventData(eventId, 'NoHtml', function(result) {
+    return queryEventData(eventId, 'Raw', function(result) {
         for (let key in result) {
             let control = $('input[name='+key+'],textarea[name='+key+']');
             if (control.attr('type') === 'checkbox') {
