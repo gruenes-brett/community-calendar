@@ -50,6 +50,10 @@ function editEvent(event) {
 
 function fillEditForm(eventId) {
     return queryEventData(eventId, 'Raw', function(result) {
+        // uncheck everything
+        $('input[type=checkbox]').attr('checked', false);
+
+        // fill in form data
         for (let key in result) {
             let control = $('input[name='+key+'],textarea[name='+key+']');
             if (control.attr('type') === 'checkbox') {
@@ -60,6 +64,13 @@ function fillEditForm(eventId) {
             } else {
                 for (i = 0; i < control.length; i++) {
                     control[i].value = result[key];
+                }
+            }
+            if (key === 'categories') {
+                for (let catIndex in result[key]) {
+                    let categoryId = result[key][catIndex].categoryId;
+                    let control = $('input[value="'+categoryId+'"]');
+                    control.attr('checked', true);
                 }
             }
         }
