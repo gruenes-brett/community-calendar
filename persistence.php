@@ -28,14 +28,6 @@ function comcal_initTables() {
     $eventsVsCatsTableName = comcal_tableName_eventsVsCats();
     $charset_collate = $wpdb->get_charset_collate();
 
-    // Rename tables
-    $old = $wpdb->prefix . 'evtcal';
-    $wpdb->query("ALTER TABLE $old RENAME TO $eventsTableName;");
-    $old = $wpdb->prefix . 'evtcal_cats';
-    $wpdb->query("ALTER TABLE $old RENAME TO $categoriesTableName;");
-    $old = $wpdb->prefix . 'evtcal_evt_vs_cats';
-    $wpdb->query("ALTER TABLE $old RENAME TO $eventsVsCatsTableName;");
-
     // Events
     $sql = "CREATE TABLE $eventsTableName (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
