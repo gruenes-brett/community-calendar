@@ -4,9 +4,14 @@
  * Functions for rendering the month tables
  */
 
+$comcal_calendarAlreadyShown = false;
 
 // [tag id="foo-value"]
 function comcal_table_func( $atts ) {
+    global $comcal_calendarAlreadyShown;
+    if ($comcal_calendarAlreadyShown) {
+        return '<p style="color:red">Error: only a single calendar is allowed per page!</p>';
+    }
 	$a = shortcode_atts( array(
         'starttoday' => 'false',
         'name' => '',
@@ -29,6 +34,8 @@ function comcal_table_func( $atts ) {
         // $event->addCategory($ccc);
         $t->addEvent($event);
     }
+
+    $comcal_calendarAlreadyShown = true;
 
     $allHtml = $t->getHtml() . comcal_getShowEventBox() . comcal_getEditForm($calendarName);
     if (comcal_currentUserCanSetPublic()) {
