@@ -9,8 +9,10 @@
 function comcal_table_func( $atts ) {
 	$a = shortcode_atts( array(
         'starttoday' => 'false',
+        'name' => '',
     ), $atts );
 
+    $calendarName = $a['name'];
     $category = null;
     if (isset($_GET['comcal_category'])) {
         $category = comcal_Category::queryFromCategoryId($_GET['comcal_category']);
@@ -22,13 +24,13 @@ function comcal_table_func( $atts ) {
     }
     $t = new comcal_TableBuilder($now);
     $isAdmin = comcal_currentUserCanSetPublic();
-    $eventsIterator = new EventIterator(!$isAdmin, $category);
+    $eventsIterator = new EventIterator(!$isAdmin, $category, $calendarName);
     foreach ($eventsIterator as $event) {
         // $event->addCategory($ccc);
         $t->addEvent($event);
     }
 
-    $allHtml = $t->getHtml() . comcal_getShowEventBox() . comcal_getEditForm();
+    $allHtml = $t->getHtml() . comcal_getShowEventBox() . comcal_getEditForm($calendarName);
     if (comcal_currentUserCanSetPublic()) {
         $allHtml .= comcal_getEditCategoriesDialog();
     }

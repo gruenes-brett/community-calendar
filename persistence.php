@@ -43,6 +43,7 @@ function comcal_initTables() {
         url varchar(1300) DEFAULT '' NOT NULL,
         public tinyint(2) DEFAULT 0 NOT NULL,
         created timestamp NOT NULL,
+        calendarName tinytext NOT NULL,
         PRIMARY KEY  (id)
         ) $charset_collate;";
     dbDelta( $sql );

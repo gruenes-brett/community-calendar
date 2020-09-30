@@ -55,6 +55,11 @@ function fillEditForm(eventId) {
 
         // fill in form data
         for (let key in result) {
+            if (key === 'calendarName') {
+                // do not override the calendarName in order to allow
+                // to move an event from an unnamed calendar to this one
+                continue;
+            }
             let control = $('input[name='+key+'],textarea[name='+key+']');
             if (control.attr('type') === 'checkbox') {
                 control.attr('checked', result[key] == 1);

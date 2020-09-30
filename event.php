@@ -89,6 +89,7 @@ class comcal_Event {
             'public' => $this->getField('public'),
             'created' => $this->getField('created'),
             'categories' => $this->getCategoriesDetails(),
+            'calendarName' => $this->getField('calendarName'),
         );
     }
     private function getFullData() {
@@ -105,6 +106,7 @@ class comcal_Event {
             'url' => $this->getField('url'),
             'public' => $this->getField('public'),
             'created' => $this->getField('created'),
+            'calendarName' => $this->getField('calendarName'),
         );
     }
     static function getTextFieldNames() {
@@ -183,8 +185,8 @@ class EventIterator implements Iterator {
     private $positition = -1;
     public $eventRows = null;
 
-    public function __construct($publicOnly, $category=null) {
-        $this->eventRows = comcal_getAllEventRows($publicOnly, $category);
+    public function __construct($publicOnly, $category=null, $calendarName='') {
+        $this->eventRows = comcal_getAllEventRows($publicOnly, $category, $calendarName);
         $this->positition = 0;
     }
 
@@ -219,12 +221,13 @@ function comcal_addEvent($data) {
     return $event->store($wpdb);
 }
 
-function comcal_getAllEventRows($publicOnly=true, $category=null) {
+function comcal_getAllEventRows($publicOnly=true, $category=null, $calendarName='') {
     global $wpdb;
     $events = comcal_tableName_events();
     $evt_cat = comcal_tableName_eventsVsCats();
 
     $whereConditions = array();
+    $whereConditions[] = "($events.calendarName='$calendarName' OR $events.calendarName='')";
     if ($publicOnly) {
         $whereConditions[] = "$events.public='1'";
     }

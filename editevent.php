@@ -73,7 +73,7 @@ XML;
 XML;
 }
 
-function comcal_editEventForm() {
+function comcal_getEditForm($calendarName='') {
     $event = new comcal_Event();
     $eventId = '';
 
@@ -104,6 +104,7 @@ function comcal_editEventForm() {
                     $nonceField
                     <input name="eventId" id="eventId" value="$eventId" type="hidden">
                     <input name="action" value="submit_new_event" type="hidden">
+                    <input name="calendarName" value="$calendarName" type="hidden">
                     $publicControl
 
                     <div class="form-group">
@@ -172,9 +173,6 @@ function comcal_editEventForm() {
 XML;
 }
 
-function comcal_getEditForm() {
-	return comcal_editEventForm();
-}
 
 // handle new event request
 function comcal_submitNewEvent_func() {

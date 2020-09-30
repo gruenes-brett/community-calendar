@@ -5,6 +5,9 @@ displaying a calendar with public events. Users may submit events and have
 them displayed in the calendar (after they have been revised and activated by
 a page admin).
 
+A main goal for this plugin is to be simple in configuration, simple to use,
+and to have a clean and tidy presentation of the events.
+
 
 ## Installation
 
@@ -21,16 +24,19 @@ git clone https://github.com/joergrs/community-calendar.git
 
 The plugin introduces its functionality using short codes:
 
-* Show the calendar, starting today:
+**Show the calendar, starting today:**
 
-  `[community-calendar-table startToday=true/]`
+  `[community-calendar-table startToday=true name=Main]`
 
-  Use `startToday=false` to also display past events
+  * Use `startToday=false` to also display past events
+  * `name=CalendarName` specifies a name for this calendar. Only events
+    are shown that are added to this calendar. This allows to show
+    different calendars on different pages.
 
-* Display floating buttons that allow the user to submit an event and to scroll
- back to the current day
+**Display floating buttons that allow the user to submit an event and to scroll
+ back to the current day**
 
- `[community-calendar-buttons/]`
+ `[community-calendar-buttons]`
 
 
 ## Customization
@@ -53,3 +59,11 @@ Here are some examples:
     color: white;
 }
 ```
+
+## Upgrading
+
+**Important note**
+
+If the plugin is upgraded to a new version that alters the database format,
+in order for this to take effect, the plugin should be *deactivated* and
+immediately *activated* again.
