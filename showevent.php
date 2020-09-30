@@ -40,7 +40,7 @@ function comcal_convertUrlsToLinks($input) {
 }
 
 function __comcal_queryEvent($data) {
-    $event = comcal_Event::queryEvent($data['eventId']);
+    $event = comcal_Event::queryByEntryId($data['eventId']);
     if ($event === null) {
         return new WP_Error(
             'no_event',

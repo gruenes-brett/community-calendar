@@ -3,36 +3,52 @@
  * Functions for retrieving and updating events from the database
  */
 
-class comcal_Event {
-    var $data = null;  // stdClass
-    var $dateTime = null;  // comcal_DateTime
+class comcal_Event extends comcal_DbTable {
+    var $dateTime = null;  // comcal_DateTime ... don't use directly, always use getDateTime()
     var $categories = null;  // array of comcal_Category objects
-    const DEFAULTS = array(
+    const IDPREFIX = 'event:';
+    static function DEFAULTS() {
+        return array(
         'date' => '2019-01-01',
         'time' => '12:00:00',
         'eventId' => '',
         'public' => 0,
-    );
-
-    public static function queryEvent($eventId) {
-        global $wpdb;
-        $tableName = comcal_tableName_events();
-
-        $rows = $wpdb->get_results("SELECT * FROM $tableName WHERE eventId='$eventId';");
-        if (empty($rows)) {
-            return null;
-        }
-        return new self($rows[0]);
+        'created' => current_time('mysql'),
+        );
     }
 
-    function __construct($eventData = array()) {
-        if (is_array($eventData)) {
-            $this->data = (object) $eventData;
-        } else {
-            $this->data = $eventData;
-        }
-        $this->dateTime = comcal_DateTime::fromDateStrTimeStr($this->getField('date'), $this->getField('time'));
+    /* overridden static methods */
+    static function getIdFieldName() {
+        return 'eventId';
     }
+    static function getAllFieldNames() {
+        return array(
+            'eventId', 'date', 'time', 'dateEnd', 'timeEnd', 'organizer', 'location',
+            'title', 'description', 'url', 'public', 'created', 'calendarName',
+        );
+    }
+    static function getTableName() {
+        return comcal_tableName_events();
+    }
+
+    // public static function queryEvent($eventId) {
+    //     global $wpdb;
+    //     $tableName = comcal_tableName_events();
+
+    //     $rows = $wpdb->get_results("SELECT * FROM $tableName WHERE eventId='$eventId';");
+    //     if (empty($rows)) {
+    //         return null;
+    //     }
+    //     return new self($rows[0]);
+    // }
+
+    // function __construct($eventData = array()) {
+    //     if (is_array($eventData)) {
+    //         $this->data = (object) $eventData;
+    //     } else {
+    //         $this->data = $eventData;
+    //     }
+    // }
     function addCategory($category) {
         $vs = comcal_EventVsCategory::create($this, $category);
         $vs->store();
@@ -46,35 +62,9 @@ class comcal_Event {
     function getCategories() {
         return comcal_EventVsCategory::getCategories($this);
     }
-    function getDefault($name, $default=null) {
-        if ($default != null) {
-            return $default;
-        }
-        if (isset(self::DEFAULTS[$name])) {
-            return self::DEFAULTS[$name];
-        }
-        if ($name == 'created') {
-            return current_time('mysql');
-        }
-        return '';
-    }
-    function getField($name, $default=null) {
-        if (strcmp($name, 'eventId') === 0) {
-            $this->initEventId();
-        }
-        if (isset($this->data->$name)) {
-            return $this->data->$name;
-        }
-        if ($name === 'id') {
-            $tempEvent = self::queryEvent($this->getField('eventId'));
-            if ($tempEvent !== null) {
-                $this->data->id = $tempEvent->getField('id');
-                return $this->data->id;
-            }
-        }
-        return $this->getDefault($name, $default);
-    }
+
     function getPublicFields() {
+        /* returns fields and values for display */
         return array(
             'eventId' => $this->getField('eventId'),
             'date' => $this->getField('date'),
@@ -92,60 +82,18 @@ class comcal_Event {
             'calendarName' => $this->getField('calendarName'),
         );
     }
-    private function getFullData() {
-        return array(
-            'eventId' => $this->getField('eventId'),
-            'date' => $this->getField('date'),
-            'time' => $this->getField('time'),
-            'dateEnd' => $this->getField('dateEnd'),
-            'timeEnd' => $this->getField('timeEnd'),
-            'organizer' => $this->getField('organizer'),
-            'location' => $this->getField('location'),
-            'title' => $this->getField('title'),
-            'description' => $this->getField('description'),
-            'url' => $this->getField('url'),
-            'public' => $this->getField('public'),
-            'created' => $this->getField('created'),
-            'calendarName' => $this->getField('calendarName'),
-        );
-    }
     static function getTextFieldNames() {
         return array('eventId', 'organizer', 'title', 'description', 'url');
     }
-    private function initEventId() {
-        if (!isset($this->data->eventId) || strcmp($this->data->eventId, '') === 0) {
-            $this->data->eventId = uniqid('event:');
-        }
-    }
-    function eventExists() {
-        global $wpdb;
-        $tableName = comcal_tableName_events();
-        $row = $wpdb->get_row("SELECT eventId FROM $tableName WHERE eventId='{$this->getField('eventId')}';");
-        return !empty($row);
-    }
-    function store() {
-        global $wpdb;
-        $tableName = comcal_tableName_events();
-        if ($this->eventExists()) {
-            $affectedRows = $wpdb->update(
-                $tableName,
-                $this->getFullData(),
-                array('eventId' => $this->getField('eventId'))
-            );
-        } else {
-            $affectedRows = $wpdb->insert($tableName, $this->getFullData());
-        }
-        return $affectedRows;
-    }
-    function delete() {
-        global $wpdb;
-        $tableName = comcal_tableName_events();
-        return $wpdb->delete($tableName, array('eventId' => $this->getField('eventId'))) !== false;
-    }
+
     function getDateStr(): string {
         return $this->getField('date');
     }
     function getDateTime(): comcal_DateTime {
+        if ($this->dateTime === null) {
+            // initialize on first use
+            $this->dateTime = comcal_DateTime::fromDateStrTimeStr($this->getField('date'), $this->getField('time'));
+        }
         return $this->dateTime;
     }
     function getHtml(): string {
@@ -161,7 +109,7 @@ class comcal_Event {
         return <<<XML
         <table class='event $publicClass' eventId="{$this->getField('eventId')}"><tbody>
             <tr>
-                <td class='time'>{$this->dateTime->getPrettyTime()}</td>
+                <td class='time'>{$this->getDateTime()->getPrettyTime()}</td>
                 <td class='title'>{$this->getField('title')}</td>
             </tr>
             <tr>

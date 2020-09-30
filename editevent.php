@@ -240,7 +240,7 @@ function comcal_filterCategories($data) {
 function comcal_updateEventFromArray($data) {
     $data = comcal_filterPostData($data);
     $event = new comcal_Event($data);
-    $isNewEvent = !$event->eventExists();
+    $isNewEvent = !$event->exists();
     if (!comcal_currentUserCanSetPublic() && !$isNewEvent) {
         return array(500, 'Keine Berechtigung um ein Event zu aktualisieren!');
     }
@@ -271,7 +271,7 @@ function comcal_updateEventFromArray($data) {
 }
 
 function comcal_deleteEvent($eventId) {
-    $event = comcal_Event::queryEvent($eventId);
+    $event = comcal_Event::queryByEntryId($eventId);
     if ($event == null) {
         return array(500, 'Event kann nicht gelöscht werden, da nicht vorhanden');
     }

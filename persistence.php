@@ -93,10 +93,15 @@ abstract class comcal_DbTable {
     /*
      * Base class for an object stored in a table
      */
-    var $data = null;
+    var $data = null;  // stdClass
     const IDPREFIX = 'x:';
-    const DEFAULTS = array();
+
+    /* abstract static methods */
     abstract static function getTableName();
+    abstract static function getAllFieldNames();
+    abstract static function getIdFieldName();
+
+    /* static query helper functions */
     static function queryRow($sql) {
         $rows = static::query($sql);
         if (empty($rows)) {
@@ -119,11 +124,17 @@ abstract class comcal_DbTable {
         }
         return $all;
     }
+    static function queryByEntryId($elementId) {
+        $idField = static::getIdFieldName();
+        $row = self::queryRow("SELECT * FROM [T] WHERE $idField='$elementId';");
+        if (empty($row)) {
+            return null;
+        }
+        return new static($row);
+    }
 
-    abstract static function getAllFieldNames();
-    abstract static function getIdFieldName();
-
-    function __construct($data) {
+    /* instance methods */
+    function __construct($data=array()) {
         if (is_array($data)) {
             $this->data = (object) $data;
         } else {
@@ -143,7 +154,7 @@ abstract class comcal_DbTable {
         global $wpdb;
         $tableName = $this->getTableName();
         if ($this->exists()) {
-            $where = array($this->getIdFieldName() => $this->getField($this->getIdFieldName()));
+            $where = array($this->getIdFieldName() => $this->getEntryId());
             $affectedRows = $wpdb->update(
                 $tableName,
                 $this->getFullData(),
@@ -159,20 +170,29 @@ abstract class comcal_DbTable {
     function delete() {
         global $wpdb;
         $tableName = $this->getTableName();
-        $result = $wpdb->delete($tableName, array($this->getIdFieldName() => $this->getId()));
+        $result = $wpdb->delete($tableName, array($this->getIdFieldName() => $this->getEntryId()));
         return $result !== false && $result;
     }
 
     function getField($name, $default=null) {
         if (strcmp($name, $this->getIdFieldName()) === 0) {
-            $this->initId();
+            $this->initEntryId();
         }
         if (isset($this->data->$name)) {
             return $this->data->$name;
         }
+        if ($name === 'id') {
+            // update 'id' with value from database
+            $tempEntry = static::queryByEntryId($this->getEntryId());
+            if ($tempEntry !== null) {
+                $this->data->id = $tempEntry->getField('id');
+                return $this->data->id;
+            }
+        }
         return $this->getDefault($name, $default);
     }
-    function getId() {
+
+    function getEntryId() {
         return $this->getField($this->getIdFieldName());
     }
     function setField($name, $value) {
@@ -183,10 +203,10 @@ abstract class comcal_DbTable {
         return false;
     }
 
-    private function initId() {
+    private function initEntryId() {
         $idFieldName = $this->getIdFieldName();
         if (!isset($this->data->$idFieldName) || strcmp($this->data->$idFieldName, '') === 0) {
-            $this->data->$idFieldName = uniqid(self::IDPREFIX);
+            $this->data->$idFieldName = uniqid(static::IDPREFIX);
         }
     }
 
@@ -198,12 +218,15 @@ abstract class comcal_DbTable {
         return $data;
     }
 
+    static function DEFAULTS() {
+        return array();
+    }
     function getDefault($name, $default=null) {
         if ($default != null) {
             return $default;
         }
-        if (isset(self::DEFAULTS[$name])) {
-            return self::DEFAULTS[$name];
+        if (isset(static::DEFAULTS()[$name])) {
+            return static::DEFAULTS()[$name];
         }
         return '';
     }
