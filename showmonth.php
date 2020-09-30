@@ -56,7 +56,11 @@ class comcal_TableBuilder {
 
     function getHtml() {
         $this->finishCurrentMonth();
-        return $this->html;
+        if (empty($this->html)) {
+            return '<h3 class="month-title comcal-no-entries">Keine Einträge vorhanden</h3>';
+        } else {
+            return $this->html;
+        }
     }
 
     protected function newMonth($date) {
