@@ -49,6 +49,7 @@ function comcal_scripts() {
 	wp_enqueue_script( 'comcal_edit_js', EVTCAL__PLUGIN_URL  . 'public/js/edit.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
 	wp_enqueue_script( 'comcal_show_js', EVTCAL__PLUGIN_URL  . 'public/js/show.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
 	wp_enqueue_script( 'comcal_editcats_js', EVTCAL__PLUGIN_URL  . 'public/js/editcats.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
+	wp_enqueue_script( 'comcal_calendar_js', EVTCAL__PLUGIN_URL  . 'public/js/calendar.js', array('jquery', 'jquery-form'), $SCRIPT_VERSION, true);
 }
 add_action( 'wp_enqueue_scripts', 'comcal_scripts' );
 

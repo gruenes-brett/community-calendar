@@ -63,5 +63,5 @@ function comcal_getCategoryButtons($activeCategory=null) {
         );
     }
 
-    return $html . '</>';
+    return $html . '<p/>';
 }

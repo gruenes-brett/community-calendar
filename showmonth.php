@@ -177,10 +177,12 @@ Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
 ";
     }
     function getHtml() {
-        return '<pre id="comcal-markdown">' . $this->html .
+        $result = '<input id="comcal-copy-markdown" type="button" class="btn btn-primary" value="Copy to clipboard"/><br>';
+        $result .= '<textarea id="comcal-markdown" style="width: 100%; height: 80vh;">' . $this->html .
         'Achtet auf Veranstaltungen bitte auf eure Mitmenschen u. haltet euch an die Hygiene- und Abstandsregeln!
 **Allen eine schöne Woche!** 😁'
-        . '</pre>';
+        . '</textarea>';
+        return $result;
     }
     protected function fillDaysBetween($beginAtDate, $endBeforeDate) {
         foreach ($beginAtDate->getAllDatesUntil($endBeforeDate) as $thisDay) {
