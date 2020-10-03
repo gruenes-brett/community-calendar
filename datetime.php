@@ -68,7 +68,7 @@ class comcal_DateTime {
     }
 
     function getHumanizedTime() {
-        $hour = $this->dateTime->format('H');
+        $hour = $this->dateTime->format('G');
         $minute = $this->dateTime->format('i');
         $time = $hour;
         if ($minute !== '00') {
