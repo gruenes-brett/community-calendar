@@ -162,6 +162,9 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
 
 
 class comcal_MarkdownBuilder extends comcal_EventsDisplayBuilder {
+    /*
+     * Creates a Markdown overview of all events in the next week (starting monday)
+     */
     var $html = '';
     var $currentDate = null;
     function __construct($earliestDate=null) {

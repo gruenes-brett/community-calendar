@@ -26,12 +26,14 @@ The plugin introduces its functionality using short codes:
 
 **Show the calendar, starting today:**
 
-  `[community-calendar-table startToday=true name=Main]`
+  `[community-calendar-table startToday=true name=Main style=table]`
 
   * Use `startToday=false` to also display past events
   * `name=CalendarName` specifies a name for this calendar. Only events
     are shown that are added to this calendar. This allows to show
     different calendars on different pages.
+  * `style=table|markdown`: Show the events as table (default) or as a markdown
+    overview that can be copy/pasted to a Telegram chat or group.
 
 **Display floating buttons that allow the user to submit an event and to scroll
  back to the current day**
