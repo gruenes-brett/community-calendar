@@ -119,6 +119,17 @@ class comcal_Event extends comcal_DbTable {
         </tbody></table>
 XML;
     }
+    function getMarkdown() {
+        $dateTime = $this->getDateTime();
+        $md = '**' . $dateTime->getHumanizedTime() . '** ';
+        $md .= $this->getField('organizer');
+        $md .= ' | ';
+        $md .= $this->getField('title');
+        $md .= ' ';
+        $md .= $this->getField('url');
+
+        return $md;
+    }
     function getCategoriesDetails() {
         $result = array();
         foreach ($this->getCategories() as $c) {
@@ -169,7 +180,7 @@ function comcal_addEvent($data) {
     return $event->store($wpdb);
 }
 
-function comcal_getAllEventRows($publicOnly=true, $category=null, $calendarName='') {
+function comcal_getAllEventRows($publicOnly=true, $category=null, $calendarName='', $startDate=null) {
     global $wpdb;
     $events = comcal_tableName_events();
     $evt_cat = comcal_tableName_eventsVsCats();

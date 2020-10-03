@@ -44,6 +44,17 @@ class comcal_DateTime {
         $instance->dateTime = new DateTime();
         return $instance;
     }
+    public static function nextMonday() {
+        $instance = static::now();
+        while (!$instance->isMonday()) {
+            $instance = $instance->getNextDay();
+        }
+        return $instance;
+    }
+
+    function format($fmt) {
+        return $this->dateTime->format($fmt);
+    }
 
     function getDateStr() {
         return $this->dateTime->format('Y-m-d');
@@ -56,13 +67,31 @@ class comcal_DateTime {
         return $this->dateTime->format('H:i') . ' Uhr';
     }
 
+    function getHumanizedTime() {
+        $hour = $this->dateTime->format('H');
+        $minute = $this->dateTime->format('i');
+        $time = $hour;
+        if ($minute !== '00') {
+            $time .= ":$minute";
+        }
+        return $time . ' Uhr';
+    }
+
     function getPrettyDate() {
         return $this->dateTime->format('d.m.Y');
+    }
+
+    function getHumanizedDate() {
+        $weekday = $this->getWeekday();
+        return "$weekday, " . $this->dateTime->format('d.m.');
     }
 
     function getWeekday() {
         global $comcal_aWeekdayNamesDE;
         return $comcal_aWeekdayNamesDE[$this->dateTime->format('w')];
+    }
+    function isMonday() {
+        return $this->dateTime->format('N') == 1;
     }
 
     function getShortWeekdayAndDay() {
@@ -116,9 +145,9 @@ class comcal_DateTime {
         return strcmp($this->dateTime->format('Y-m-d'), $other->getDateTime()->format('Y-m-d')) < 0;
     }
 
-    function getNextDay() {
+    function getNextDay($numberOfDays=1) {
         $nextDay = clone $this->dateTime;
-        $nextDay->add(new DateInterval('P1D'));
+        $nextDay->add(new DateInterval("P${numberOfDays}D"));
         return self::fromDateTime($nextDay);
     }
 
