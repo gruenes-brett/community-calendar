@@ -177,6 +177,7 @@ Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
 ";
     }
     function getHtml() {
+        $this->fillDaysBetween($this->currentDate->getNextDay(), $this->latestDate->getNextDay());
         $result = '<input id="comcal-copy-markdown" type="button" class="btn btn-primary" value="Copy to clipboard"/><br>';
         $result .= '<textarea id="comcal-markdown" style="width: 100%; height: 80vh;">' . $this->html .
         'Achtet auf Veranstaltungen bitte auf eure Mitmenschen u. haltet euch an die Hygiene- und Abstandsregeln!
@@ -195,7 +196,9 @@ Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
         if (!$this->isDateIncluded($event->getDateTime())) {
             return;
         }
-        if ($this->currentDate !== null) {
+        if ($this->currentDate === null) {
+            $this->fillDaysBetween($this->earliestDate, $event->getDateTime());
+        } else {
             $this->fillDaysBetween($this->currentDate->getNextDay(), $event->getDateTime());
         }
         if ($this->currentDate === null || !$this->currentDate->isSameDay($event->getDateTime())) {
