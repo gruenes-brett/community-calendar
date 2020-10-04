@@ -18,7 +18,7 @@ function comcal_table_func( $atts ) {
         'start' => null,  // show events starting from ... 'today', 'next-monday', '2020-10-22', ... 
         'name' => '',
         'style' => 'table',
-        'days' => '',  // number of days to show (excluding start day)
+        'days' => null,  // number of days to show (excluding start day)
     ), $atts );
 
     $calendarName = $a['name'];
