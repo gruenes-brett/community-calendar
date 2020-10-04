@@ -22,15 +22,24 @@ git clone https://github.com/joergrs/community-calendar.git
 
 ## Usage
 
-The plugin introduces its functionality using short codes:
+### Integration into the Wordpress page
+
+The plugin introduces its functionality using short codes. Differently named calendars may
+be shown on different pages, but only one calendar may be shown on a single page (as of right now).
 
 **Show the calendar, starting today:**
 
-  `[community-calendar-table startToday=true name=Main style=table]`
+  `[community-calendar-table start=today days=30 name=Main style=table]`
 
-  * Use `startToday=false` to also display past events
-  * `name=CalendarName` specifies a name for this calendar. Only events
-    are shown that are added to this calendar. This allows to show
+Attributes:
+  * `start=today` hides past events. More options:\
+    `start=next-monday`: show events starting next monday\
+    `start=2020-10-22`: show events starting at 22nd October 2020\
+    If omitted, all events that are in the database are shown.
+  * `days=30` shows events from the next 30 days after start date.\
+    Only works if `start` is set.
+  * `name=CalendarName` specifies a name for this calendar.\
+    Only events are shown that are added to this calendar. This allows to show
     different calendars on different pages.
   * `style=table|markdown`: Show the events as table (default) or as a markdown
     overview that can be copy/pasted to a Telegram chat or group.
@@ -39,6 +48,20 @@ The plugin introduces its functionality using short codes:
  back to the current day**
 
  `[community-calendar-buttons]`
+
+If logged in, an additional button is shown that can be used to organize categories.
+
+### Workflow for submitting and editing events
+
+Non-logged-in users:
+
+* May submit an event using the `+` button
+* Event will not be shown until an authorized user revises it and flags it as 'public'
+
+Logged-in users:
+
+* May edit events by clicking the events' `edit` button
+* May set events 'public' or hide them again.
 
 
 ## Customization
@@ -69,3 +92,12 @@ Here are some examples:
 If the plugin is upgraded to a new version that alters the database format,
 in order for this to take effect, the plugin should be *deactivated* and
 immediately *activated* again.
+
+
+## Contributing
+
+If you encounter problems with the plugin or have ideas for improvements and
+useful features, please open an issue.
+
+If you even would like to contribute to the code, feel free to contact us at
+uk-dd@posteo.de.
