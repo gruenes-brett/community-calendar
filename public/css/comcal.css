@@ -129,15 +129,15 @@ table.community-calendar table.event.notPublic {
 
 /* Floating Buttons */
 .comcal-floating-button-container {
-    position: fixed;
+    position: sticky;
     right: 16px;
-    bottom: 16px;
+    bottom: 0px;
     z-index: 150;
 }
 
 .comcal-floating-button-container .comcal-floating-button {
     box-shadow: 5px 5px 20px #33333333;
-    position: fixed;
+    position: absolute;
     text-align: center;
     vertical-align: middle;
     padding: 0;
