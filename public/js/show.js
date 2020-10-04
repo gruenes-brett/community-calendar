@@ -7,7 +7,7 @@ $(document).ready(function(){
 function prepareShowEvent() {
     // $('.comcal-modal-wrapper.show-event').appendTo('#page-wrapper');
     hideShowEvent();
-    $('.show-event .close').click(function() {
+    $('.show-event .comcal-close').click(function() {
         hideShowEvent();
     });
     $('table.event td.title, table.event td.organizer').click(showEvent);

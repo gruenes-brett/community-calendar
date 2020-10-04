@@ -95,7 +95,7 @@ function comcal_getEditForm($calendarName='') {
 
     return <<<XML
     <div class="comcal-modal-wrapper edit-dialog">
-        <div class="close">X</div>
+        <div class="comcal-close">X</div>
         <div class="form-popup" id="editEvent">
             <h2></h2>
             <p><small>Pflichtfelder sind gelb, fehlerhafte Felder rosa hinterlegt</small><p>

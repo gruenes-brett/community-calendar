@@ -78,7 +78,7 @@ table.community-calendar table.event.notPublic {
     overflow: auto;
 }
 
-.comcal-modal-wrapper .close {
+.comcal-modal-wrapper .comcal-close {
     position: fixed;
     top: 1em;
     right: 1em;
@@ -86,7 +86,7 @@ table.community-calendar table.event.notPublic {
     font-size: 2em;
     cursor: pointer;
     z-index: 1000;
-    font-family: sans;
+    font-family: sans-serif;
 }
 
 .comcal-modal-wrapper .form-popup, .comcal-modal-wrapper .show-event-content {

@@ -15,7 +15,7 @@ $comcal_RestRoute = 'comcal/v1/';
 function comcal_getShowEventBox() {
     return <<<XML
     <div class="comcal-modal-wrapper show-event">
-        <div class="close">X</div>
+        <div class="comcal-close">X</div>
         <div class="show-event-content">
             <span id="loading">Informationen werden abgerufen</span>
             <div id="content">

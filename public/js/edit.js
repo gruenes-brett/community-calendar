@@ -8,7 +8,7 @@ function prepareEditForm() {
     hideEditForm();
     $('button.addEvent').click(addEvent);
     $('.edit-dialog .comcal-cancel').click(hideEditForm);
-    $('.edit-dialog .close').click(hideEditForm);
+    $('.edit-dialog .comcal-close').click(hideEditForm);
     $('form#editEvent').submit( submitEditForm );
     $('form#deleteEvent').submit( submitDeleteForm );
     $('a.editEvent').click(editEvent);
