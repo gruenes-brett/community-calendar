@@ -35,6 +35,7 @@ require_once( EVTCAL__PLUGIN_DIR . 'data/event.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'data/category.php' );
 
 // view
+require_once( EVTCAL__PLUGIN_DIR . 'view/view-common.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'view/buttons.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'view/show-event.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'view/show-calendar.php' );

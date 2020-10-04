@@ -144,8 +144,20 @@ class EventIterator implements Iterator {
     private $positition = -1;
     public $eventRows = null;
 
-    public function __construct($publicOnly, $category=null, $calendarName='') {
-        $this->eventRows = comcal_getAllEventRows($publicOnly, $category, $calendarName);
+    public function __construct(
+        $publicOnly,
+        $category = null,
+        $calendarName = '',
+        $startDate = null,
+        $endDate = null
+    ) {
+        $this->eventRows = __comcal_getAllEventRows(
+            $publicOnly,
+            $category,
+            $calendarName,
+            $startDate,
+            $endDate
+        );
         $this->positition = 0;
     }
 
@@ -180,7 +192,16 @@ function comcal_addEvent($data) {
     return $event->store($wpdb);
 }
 
-function comcal_getAllEventRows($publicOnly=true, $category=null, $calendarName='', $startDate=null) {
+/**
+ * Query events from database
+ */
+function __comcal_getAllEventRows(
+    $publicOnly = true,
+    $category = null,
+    $calendarName = '',
+    $startDate = null,
+    $endDate = null
+) {
     global $wpdb;
     $events = comcal_tableName_events();
     $evt_cat = comcal_tableName_eventsVsCats();
@@ -189,6 +210,12 @@ function comcal_getAllEventRows($publicOnly=true, $category=null, $calendarName=
     $whereConditions[] = "($events.calendarName='$calendarName' OR $events.calendarName='')";
     if ($publicOnly) {
         $whereConditions[] = "$events.public='1'";
+    }
+    if ($startDate !== null) {
+        $whereConditions[] = "$events.date >= '$startDate'";
+    }
+    if ($endDate !== null) {
+        $whereConditions[] = "$events.date <= '$endDate'";
     }
 
     if ($category === null) {

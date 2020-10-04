@@ -1,41 +1,65 @@
 <?php
 
-/*
- * Functions for rendering the month tables
+/**
+ * Functions for rendering the events
  */
 
 $comcal_calendarAlreadyShown = false;
 
-// [tag id="foo-value"]
+/**
+ * Shortcode [community-calendar-table]
+ */
 function comcal_table_func( $atts ) {
     global $comcal_calendarAlreadyShown;
     if ($comcal_calendarAlreadyShown) {
-        return '<p style="color:red">Error: only a single calendar is allowed per page!</p>';
+        return comcal_makeErrorBox('Error: only a single calendar is allowed per page!');
     }
 	$a = shortcode_atts( array(
-        'starttoday' => 'false',
+        'start' => null,  // show events starting from ... 'today', 'next-monday', '2020-10-22', ... 
         'name' => '',
         'style' => 'table',
+        'days' => '',  // number of days to show (excluding start day)
     ), $atts );
 
     $calendarName = $a['name'];
     $style = $a['style'];
+    $days = $a['days'];
+    $start = $a['start'];
+
+    // determine category
     $category = null;
     if (isset($_GET['comcal_category'])) {
         $category = comcal_Category::queryFromCategoryId($_GET['comcal_category']);
     }
-    if (strtolower($a['starttoday']) != 'false') {
-        $now = comcal_DateTime::now();
-    } else {
-        $now = null;
+
+    // determine date range
+    $latestDate = null;
+    $startDate = null;
+    if (strtolower($start) === 'today') {
+        $startDate = comcal_DateTime::now();
+    } else if (strtolower($start) === 'next-monday') {
+        $startDate = comcal_DateTime::nextMonday();
+    } else if ($start !== null) {
+        try {
+            $startDate = comcal_DateTime::fromDateStrTimeStr($start, '00:00:00');
+        } catch (Exception $e) {
+            return comcal_makeErrorBox("Error in 'start' attribute:<br>{$e->getMessage()}");
+        }
     }
-    $output = comcal_EventsDisplayBuilder::createDisplay($style, $now);
+    if ($days !== null && $startDate !== null) {
+        $latestDate = $startDate->getNextDay($days);
+    }
+
     $isAdmin = comcal_currentUserCanSetPublic();
-    $eventsIterator = new EventIterator(!$isAdmin, $category, $calendarName, $now);
-    foreach ($eventsIterator as $event) {
-        // $event->addCategory($ccc);
-        $output->addEvent($event);
-    }
+    $eventsIterator = new EventIterator(
+        !$isAdmin,
+        $category,
+        $calendarName,
+        $startDate ? $startDate->getDateStr() : null,
+        $latestDate ? $latestDate->getDateStr() : null
+    );
+
+    $output = comcal_EventsDisplayBuilder::createDisplay($style, $eventsIterator, $startDate, $latestDate);
 
     $comcal_calendarAlreadyShown = true;
 
@@ -48,10 +72,15 @@ function comcal_table_func( $atts ) {
 add_shortcode( 'community-calendar-table', 'comcal_table_func' );
 
 
+/**
+ * Base class for objects that output the calendar and events in different formats
+ * (e.g., as HTML table, as Markdown, etc.)
+ */
 abstract class comcal_EventsDisplayBuilder {
     var $earliestDate = null;
     var $latestDate = null;
-    static function createDisplay($styleName, $earliestDate=null) {
+    var $currentDate = null;
+    static function createDisplay($styleName, $eventsIterator, $earliestDate=null, $latestDate=null) {
         // Factory for display class instances
         $styles = array(
             'table' => 'comcal_TableBuilder',
@@ -62,14 +91,21 @@ abstract class comcal_EventsDisplayBuilder {
         } else {
             $clazz = 'comcal_DefaultDisplayBuilder';
         }
-        return new $clazz($earliestDate);
+        $builder = new $clazz($earliestDate, $latestDate);
+        foreach ($eventsIterator as $event) {
+            // $event->addCategory($ccc);
+            $builder->addEvent($event);
+        }
+        return $builder;
     }
 
     abstract function addEvent($event);
     abstract function getHtml();
 
-    function __construct($earliestDate=null) {
+    function __construct($earliestDate=null, $latestDate=null) {
         $this->earliestDate = $earliestDate;
+        $this->latestDate = $latestDate;
+        $this->currentDate = null;
     }
     protected function isDateIncluded($dateTime) {
         $included = $this->earliestDate === null || !$dateTime->isDayLessThan($this->earliestDate);
@@ -81,6 +117,9 @@ abstract class comcal_EventsDisplayBuilder {
 }
 
 
+/**
+ * Fallback if a wrong or non-existent output builder has been selected
+ */
 class comcal_DefaultDisplayBuilder {
     function addEvent($event) {
     }
@@ -93,7 +132,6 @@ class comcal_DefaultDisplayBuilder {
 
 class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
     var $html = '';
-    var $currentDate = null;
 
     function getHtml() {
         $this->finishCurrentMonth();
@@ -166,23 +204,29 @@ class comcal_MarkdownBuilder extends comcal_EventsDisplayBuilder {
      * Creates a Markdown overview of all events in the next week (starting monday)
      */
     var $html = '';
-    var $currentDate = null;
-    function __construct($earliestDate=null) {
-        $this->earliestDate = comcal_DateTime::nextMonday();
-        $this->latestDate = $this->earliestDate->getNextDay(6);
-        $prettyStart = $this->earliestDate->format('d.m.');
-        $prettyEnd = $this->latestDate->format('d.m.');
-        $this->html = "🗓 **Woche vom $prettyStart bis $prettyEnd:**
+    function getHtml() {
+        if ($this->earliestDate !== null) {
+            $prettyStart = $this->earliestDate->format('d.m.');
+        } else {
+            $prettyStart = '??.??.';
+        }
+        if ($this->latestDate !== null) {
+            $prettyEnd = $this->latestDate->format('d.m.');
+        } else {
+            $prettyEnd = '??.??.';
+        }
+        $header = "🗓 **Woche vom $prettyStart bis $prettyEnd:**
 
 Hallo liebe Leser*innen von @input_dd, hier die Veranstaltungsempfehlungen der kommenden Woche!
 Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
 
 ";
-    }
-    function getHtml() {
-        $this->fillDaysBetween($this->currentDate->getNextDay(), $this->latestDate->getNextDay());
+
+        if ($this->latestDate !== null && $this->currentDate !== null) {
+            $this->fillDaysBetween($this->currentDate->getNextDay(), $this->latestDate->getNextDay());
+        }
         $result = '<input id="comcal-copy-markdown" type="button" class="btn btn-primary" value="Copy to clipboard"/><br>';
-        $result .= '<textarea id="comcal-markdown" style="width: 100%; height: 80vh;">' . $this->html .
+        $result .= '<textarea id="comcal-markdown" style="width: 100%; height: 80vh;">' . $header . $this->html .
         'Achtet auf Veranstaltungen bitte auf eure Mitmenschen u. haltet euch an die Hygiene- und Abstandsregeln!
 **Allen eine schöne Woche!** 😁'
         . '</textarea>';
@@ -199,9 +243,9 @@ Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
         if (!$this->isDateIncluded($event->getDateTime())) {
             return;
         }
-        if ($this->currentDate === null) {
+        if ($this->currentDate === null && $this->earliestDate !== null) {
             $this->fillDaysBetween($this->earliestDate, $event->getDateTime());
-        } else {
+        } else if ($this->currentDate !== null) {
             $this->fillDaysBetween($this->currentDate->getNextDay(), $event->getDateTime());
         }
         if ($this->currentDate === null || !$this->currentDate->isSameDay($event->getDateTime())) {
