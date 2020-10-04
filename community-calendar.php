@@ -36,13 +36,13 @@ require_once( EVTCAL__PLUGIN_DIR . 'data/category.php' );
 
 // view
 require_once( EVTCAL__PLUGIN_DIR . 'view/buttons.php' );
-require_once( EVTCAL__PLUGIN_DIR . 'view/showevent.php' );
-require_once( EVTCAL__PLUGIN_DIR . 'view/showmonth.php' );
-require_once( EVTCAL__PLUGIN_DIR . 'view/showcategories.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'view/show-event.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'view/show-calendar.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'view/show-categories.php' );
 
 // controller
-require_once( EVTCAL__PLUGIN_DIR . 'edit/editevent.php' );
-require_once( EVTCAL__PLUGIN_DIR . 'edit/editcategory.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'edit/edit-event.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'edit/edit-category.php' );
 
 
 /**
