@@ -28,16 +28,22 @@ define( 'EVTCAL__PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-require_once( EVTCAL__PLUGIN_DIR . 'buttons.php' );
-require_once( EVTCAL__PLUGIN_DIR . 'editevent.php' );
-require_once( EVTCAL__PLUGIN_DIR . 'datetime.php' );
-require_once( EVTCAL__PLUGIN_DIR . 'persistence.php' );
-require_once( EVTCAL__PLUGIN_DIR . 'event.php' );
-require_once( EVTCAL__PLUGIN_DIR . 'category.php' );
-require_once( EVTCAL__PLUGIN_DIR . 'editcategory.php' );
-require_once( EVTCAL__PLUGIN_DIR . 'showevent.php' );
-require_once( EVTCAL__PLUGIN_DIR . 'showmonth.php' );
-require_once( EVTCAL__PLUGIN_DIR . 'showcategories.php' );
+// model
+require_once( EVTCAL__PLUGIN_DIR . 'data/datetime.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'data/persistence.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'data/event.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'data/category.php' );
+
+// view
+require_once( EVTCAL__PLUGIN_DIR . 'view/buttons.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'view/showevent.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'view/showmonth.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'view/showcategories.php' );
+
+// controller
+require_once( EVTCAL__PLUGIN_DIR . 'edit/editevent.php' );
+require_once( EVTCAL__PLUGIN_DIR . 'edit/editcategory.php' );
+
 
 /**
  * Enqueue scripts and styles.
