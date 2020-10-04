@@ -142,6 +142,9 @@ abstract class comcal_DbTable {
         }
     }
 
+    /**
+     * Checks if an entry with the current entry-ID exists in the database
+     */
     function exists() {
         global $wpdb;
         $idFieldName = $this->getIdFieldName();
@@ -150,6 +153,12 @@ abstract class comcal_DbTable {
         return !empty($row);
     }
 
+    /**
+     * Store this object to the table
+     * If the entry-ID is set and present in the tabel, the corresponding row will be updated 
+     * with the current data.
+     * If not, a new entry is created.
+     */
     function store() {
         global $wpdb;
         $tableName = $this->getTableName();
@@ -167,6 +176,9 @@ abstract class comcal_DbTable {
         return $affectedRows;
     }
 
+    /**
+     * Deletes all entries with the current entry-ID
+     */
     function delete() {
         global $wpdb;
         $tableName = $this->getTableName();

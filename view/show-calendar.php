@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Functions for rendering the events
+ * Functions for rendering the events to a Wordpress page
  */
 
 $comcal_calendarAlreadyShown = false;
@@ -107,18 +107,11 @@ abstract class comcal_EventsDisplayBuilder {
         $this->latestDate = $latestDate;
         $this->currentDate = null;
     }
-    protected function isDateIncluded($dateTime) {
-        $included = $this->earliestDate === null || !$dateTime->isDayLessThan($this->earliestDate);
-        if ($included && $this->latestDate !== null) {
-            return $dateTime->isDayLessThan($this->latestDate->getNextDay());
-        }
-        return $included;
-    }
 }
 
 
 /**
- * Fallback if a wrong or non-existent output builder has been selected
+ * Fallback builder if a wrong or non-existent output builder has been selected
  */
 class comcal_DefaultDisplayBuilder {
     function addEvent($event) {
@@ -130,6 +123,9 @@ class comcal_DefaultDisplayBuilder {
 }
 
 
+/**
+ * Creates HTML tables for each month that contains at least one event
+ */
 class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
     var $html = '';
 
@@ -169,9 +165,6 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
     }
 
     protected function createDayRow($dateTime, $text, $isNewDay=true) {
-        if (!$this->isDateIncluded($dateTime)) {
-            return;
-        }
         $dateStr = $isNewDay ? $dateTime->getShortWeekdayAndDay() : '';
         $trClass = $isNewDay ? '' : 'sameDay';
         $dateClass = ($text==='') ? 'has-no-events' : 'has-events';
@@ -181,9 +174,6 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
     }
 
     function addEvent($event) {
-        if (!$this->isDateIncluded($event->getDateTime())) {
-            return;
-        }
         if ($this->currentDate === null || ! $this->currentDate->isSameMonth($event->getDateTime())) {
             $this->newMonth($event->getDateTime());
         } else {
@@ -199,10 +189,10 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
 }
 
 
+/**
+ * Creates a Markdown overview of all events in the next week (starting monday)
+ */
 class comcal_MarkdownBuilder extends comcal_EventsDisplayBuilder {
-    /*
-     * Creates a Markdown overview of all events in the next week (starting monday)
-     */
     var $html = '';
     function getHtml() {
         if ($this->earliestDate !== null) {
@@ -240,9 +230,6 @@ Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
         }
     }
     function addEvent($event) {
-        if (!$this->isDateIncluded($event->getDateTime())) {
-            return;
-        }
         if ($this->currentDate === null && $this->earliestDate !== null) {
             $this->fillDaysBetween($this->earliestDate, $event->getDateTime());
         } else if ($this->currentDate !== null) {
