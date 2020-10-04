@@ -6,9 +6,9 @@ function _comcal_editCategoryForm($category, $index) {
     $categoryId = $category->getField('categoryId');
     return <<<XML
     <div class="form-group">
-        <input name="categoryId$suffix" id="categoryId" value="$categoryId" type="hidden">
-        <label for="categoryName">Name</label>
-        <input type="text" class="form-control" name="name$suffix" id="categoryName" placeholder="" value="$name" required>
+        <input name="categoryId$suffix" id="categoryId$suffix" value="$categoryId" type="hidden">
+        <label for="categoryName$suffix">Name</label>
+        <input type="text" class="form-control" name="name$suffix" id="categoryName$suffix" placeholder="" value="$name" required>
         <div class="form-check">
             <input class="form-check-input" type="checkbox" name="delete$suffix" id="categoryDelete$suffix" value="$categoryId" unchecked>
             <label class="form-check-label" for="categoryDelete$suffix">Kategorie löschen?</label>
@@ -30,11 +30,11 @@ function _comcal_allCategoryForms() {
 
 function comcal_getEditCategoriesDialog() {
     $postUrl = admin_url('admin-ajax.php');
-    $nonceField = wp_nonce_field('comcal_edit_categories','verification-code', true, false);
+    $nonceField = wp_nonce_field('comcal_edit_categories','verification-code-categories', true, false);
     $allForms = _comcal_allCategoryForms();
     return <<<XML
     <div class="comcal-modal-wrapper edit-cats-dialog">
-        <div class="close">X</div>
+        <div class="comcal-close">X</div>
         <div class="form-popup" id="editCategories">
             <h2>Kategorien bearbeiten</h2>
             <form id="editCategories" action="$postUrl" method="post">
@@ -44,12 +44,12 @@ function comcal_getEditCategoriesDialog() {
                     $allForms
 
                     <div class="form-group">
-                        <label for="categoryName">Neue Kategorie</label>
+                        <label for="categoryName_new">Neue Kategorie</label>
                         <input type="text" class="form-control" name="name_new" id="categoryName_new" placeholder="" value="">
                     </div>
                     <div class="btn-group">
-                        <input type="button" class="btn btn-secondary" id="cancel" value="Zurück">
-                        <input type="submit" class="btn btn-success" id="send" value="Senden">
+                        <input type="button" class="btn btn-secondary comcal-cancel" value="Zurück">
+                        <input type="submit" class="btn btn-success comcal-send" value="Senden">
                     </div>
                 </fieldset>
             </form>
@@ -60,7 +60,7 @@ XML;
 
 
 function comcal_submitEditCategories_func() {
-    if ( empty($_POST) || !wp_verify_nonce($_POST['verification-code'], 'comcal_edit_categories') ) {
+    if ( empty($_POST) || !wp_verify_nonce($_POST['verification-code-categories'], 'comcal_edit_categories') ) {
         echo 'You targeted the right function, but sorry, your nonce did not verify.';
         wp_die('You targeted the right function, but sorry, your nonce did not verify.', 'Error in submission',
             array('response' => 500));

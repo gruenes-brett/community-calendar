@@ -29,13 +29,13 @@ XML;
 
 function comcal_getDeleteForm($adminAjaxUrl) {
     if (comcal_currentUserCanSetPublic()) {
-        $deleteNonceField = wp_nonce_field('delete_event','verification-code', true, false);
+        $deleteNonceField = wp_nonce_field('delete_event','verification-code-delete', true, false);
         return <<<XML
             <form id="deleteEvent" action="$adminAjaxUrl" method="post">
                 <br/> <br/>
                 <fieldset>
                     $deleteNonceField
-                    <input name="eventId" id="eventId" value="" type="hidden">
+                    <input name="eventId" id="eventId_delete" value="" type="hidden">
                     <input name="action" value="delete_event" type="hidden">
                     <div class="btn-group">
                         <input type="submit" class="btn btn-danger" name="delete" id="delete" value="Löschen">
@@ -78,7 +78,7 @@ function comcal_getEditForm($calendarName='') {
     $eventId = '';
 
     $adminAjaxUrl = admin_url('admin-ajax.php');
-    $nonceField = wp_nonce_field('submit_new_event','verification-code', true, false);
+    $nonceField = wp_nonce_field('submit_new_event','verification-code-edit', true, false);
     $organizer = $event->getField('organizer');
     $location = $event->getField('location');
     $title = $event->getField('title');
@@ -158,8 +158,8 @@ function comcal_getEditForm($calendarName='') {
                     $categories
 
                     <div class="btn-group">
-                        <input type="button" class="btn btn-secondary" id="cancel" value="Zurück">
-                        <input type="submit" class="btn btn-success" id="send" value="Senden">
+                        <input type="button" class="btn btn-secondary comcal-cancel" value="Zurück">
+                        <input type="submit" class="btn btn-success comcal-send" value="Senden">
                     </div>
 
                 </fieldset>
@@ -176,7 +176,7 @@ XML;
 
 // handle new event request
 function comcal_submitNewEvent_func() {
-    if ( empty($_POST) || !wp_verify_nonce($_POST['verification-code'], 'submit_new_event') ) {
+    if ( empty($_POST) || !wp_verify_nonce($_POST['verification-code-edit'], 'submit_new_event') ) {
         echo 'You targeted the right function, but sorry, your nonce did not verify.';
         wp_die('You targeted the right function, but sorry, your nonce did not verify.', 'Error in submission',
             array('response' => 500));
@@ -193,7 +193,7 @@ add_action('wp_ajax_nopriv_submit_new_event', 'comcal_submitNewEvent_func');
 add_action('wp_ajax_submit_new_event', 'comcal_submitNewEvent_func');
 
 function comcal_deleteEvent_func() {
-    if ( empty($_POST) || !wp_verify_nonce($_POST['verification-code'], 'delete_event') ) {
+    if ( empty($_POST) || !wp_verify_nonce($_POST['verification-code-delete'], 'delete_event') ) {
         echo 'You targeted the right function, but sorry, your nonce did not verify.';
         wp_die('You targeted the right function, but sorry, your nonce did not verify.', 'Error in submission',
             array('response' => 500));

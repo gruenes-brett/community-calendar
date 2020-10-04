@@ -7,7 +7,7 @@ $(document).ready(function(){
 function prepareEditForm() {
     hideEditForm();
     $('button.addEvent').click(addEvent);
-    $('input#cancel').click(hideEditForm);
+    $('.edit-dialog .comcal-cancel').click(hideEditForm);
     $('.edit-dialog .close').click(hideEditForm);
     $('form#editEvent').submit( submitEditForm );
     $('form#deleteEvent').submit( submitDeleteForm );
@@ -88,7 +88,7 @@ function hideEditForm() {
 }
 
 function disableEditForm(disabled) {
-    $('form#editEvent #send').prop('disabled', disabled);
+    $('form#editEvent .comcal-send').prop('disabled', disabled);
 }
 
 function resetEditForm() {

@@ -7,8 +7,8 @@ $(document).ready(function(){
 function prepareEditCatsForm() {
     hideEditCatsForm();
     $('button.editCategories').click(editCategories);
-    $('input#cancel').click(hideEditCatsForm);
-    $('.edit-cats-dialog .close').click(hideEditCatsForm);
+    $('.edit-cats-dialog .comcal-cancel').click(hideEditCatsForm);
+    $('.edit-cats-dialog .comcal-close').click(hideEditCatsForm);
     $('form#editCategories').submit( submitEditCategories );
 }
 
