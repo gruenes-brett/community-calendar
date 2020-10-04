@@ -56,6 +56,9 @@ class comcal_DateTime {
         return $this->dateTime->format($fmt);
     }
 
+    function getTimestamp() {
+        return $this->dateTime->getTimestamp();
+    }
     function getDateStr() {
         return $this->dateTime->format('Y-m-d');
     }
@@ -149,6 +152,12 @@ class comcal_DateTime {
         $nextDay = clone $this->dateTime;
         $nextDay->add(new DateInterval("P${numberOfDays}D"));
         return self::fromDateTime($nextDay);
+    }
+
+    function getPrevMinutes($minutes) {
+        $prevMinutesDate = clone $this->dateTime;
+        $prevMinutesDate->sub(new DateInterval("PT${minutes}M"));
+        return self::fromDateTime($prevMinutesDate);
     }
 
     function getAllDatesUntil($endDateTime) {

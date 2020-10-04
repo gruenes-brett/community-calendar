@@ -18,6 +18,7 @@ function showEditForm() {
     $('.comcal-modal-wrapper.edit-dialog').css({"z-index": 200})
     $('.comcal-modal-wrapper.edit-dialog').show(200);
     $('.comcal-modal-wrapper.edit-dialog').scrollTop(0);
+    disableEditForm(false);
     hideAddEventWarning();
 }
 
@@ -114,6 +115,7 @@ function __submitForm(form) {
         error: function(response) {
             let text = response.responseText;
             showAddEventWarning(text);
+            disableEditForm(false);
             console.error(text);
         },
     });

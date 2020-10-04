@@ -76,3 +76,14 @@ function comcal_deactivation() {
 	// tbd
 }
 register_deactivation_hook( __FILE__, 'comcal_deactivation' );
+
+
+/**
+ * Logging functions
+ */
+function comcal_warning($text) {
+	error_log('ComCal-warning: ' . $text);
+}
+function comcal_error($text) {
+	error_log('ComCal-error: ' . $text);
+}

@@ -215,3 +215,19 @@ function __comcal_getAllEventRows(
     $rows = $wpdb->get_results($query);
     return $rows;
 }
+
+
+/**
+ * Returns how many Events have been added to the database
+ * within the past X minutes.
+ */
+function comcal_countEvents($withinLastMinutes=5) {
+    global $wpdb;
+    $events = comcal_tableName_events();
+    $prevDateTime = comcal_DateTime::now()->getPrevMinutes($withinLastMinutes);
+    $whereConditions = ["$events.created >= '{$prevDateTime->format('c')}'"];
+    $where = comcal_whereAnd($whereConditions);
+    $query = "SELECT COUNT(*) FROM $events $where;";
+    $count = $wpdb->get_var($query);
+    return $count;
+}

@@ -1,11 +1,39 @@
 <?php
 
-/*
+/**
  * Functions for showing an edit event form in a modal div
  */
 
+
+/**
+ * Checks if the currently logged in user may edit/delete events and
+ * other superior stuff.
+ */
 function comcal_currentUserCanSetPublic() {
     return current_user_can('edit_others_posts');
+}
+
+/**
+ * Spam protection:
+ * Checks if the limit 'events submitted per time' have been surpassed
+ */
+function comcal_throttleEventSubmissions() {
+    if (comcal_currentUserCanSetPublic()) {
+        return true;
+    }
+    $timeLimit = 5;
+    $submitLimit = 10;
+    $count = comcal_countEvents($timeLimit);
+    if ($count >= $submitLimit) {
+        comcal_warning("Spam limit exceeded: $submitLimit submissions per $timeLimit minutes");
+        sleep(3);
+        return "Aktion aktuell nicht möglich. Bitte in $timeLimit Minuten erneut versuchen.";
+    }
+    if ($count >= $submitLimit/2) {
+        // Slow down submission if nearing the limit
+        sleep(3);
+    }
+    return true;
 }
 
 function comcal_getPublicControl($public) {
@@ -243,6 +271,11 @@ function comcal_updateEventFromArray($data) {
     $isNewEvent = !$event->exists();
     if (!comcal_currentUserCanSetPublic() && !$isNewEvent) {
         return array(500, 'Keine Berechtigung um ein Event zu aktualisieren!');
+    }
+
+    $allowSubmission = comcal_throttleEventSubmissions();
+    if ($allowSubmission !== true) {
+        return array(403, $allowSubmission);
     }
 
     if (!$event->store()) {
