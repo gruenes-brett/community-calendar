@@ -31,24 +31,6 @@ class comcal_Event extends comcal_DbTable {
         return comcal_tableName_events();
     }
 
-    // public static function queryEvent($eventId) {
-    //     global $wpdb;
-    //     $tableName = comcal_tableName_events();
-
-    //     $rows = $wpdb->get_results("SELECT * FROM $tableName WHERE eventId='$eventId';");
-    //     if (empty($rows)) {
-    //         return null;
-    //     }
-    //     return new self($rows[0]);
-    // }
-
-    // function __construct($eventData = array()) {
-    //     if (is_array($eventData)) {
-    //         $this->data = (object) $eventData;
-    //     } else {
-    //         $this->data = $eventData;
-    //     }
-    // }
     function addCategory($category) {
         $vs = comcal_EventVsCategory::create($this, $category);
         $vs->store();
