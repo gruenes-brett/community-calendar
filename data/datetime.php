@@ -29,6 +29,11 @@ class comcal_DateTime {
      */
     var $dateTime = null;
 
+    public static function fromDateTimeStr($dateTimeStr) {
+        $instance = new self();
+        $instance->dateTime = new DateTime($dateTimeStr);
+        return $instance;
+    }
     public static function fromDateStrTimeStr($dateStr, $timeStr) {
         $instance = new self();
         $instance->dateTime = new DateTime($dateStr . 'T' . $timeStr);
@@ -61,6 +66,9 @@ class comcal_DateTime {
     }
     function getDateStr() {
         return $this->dateTime->format('Y-m-d');
+    }
+    function getTimeStr() {
+        return $this->dateTime->format('H:i');
     }
     function getDateTime() {
         return $this->dateTime;

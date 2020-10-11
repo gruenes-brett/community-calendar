@@ -101,6 +101,12 @@ XML;
 XML;
 }
 
+function comcal_getImportEventUrlControls() {
+    return <<<XML
+        <input type="button" class="btn btn-info comcal-import-event-url" value="Event von URL importieren">
+XML;
+}
+
 function comcal_getEditForm($calendarName='') {
     $event = new comcal_Event();
     $eventId = '';
@@ -120,6 +126,7 @@ function comcal_getEditForm($calendarName='') {
     $publicControl = comcal_getPublicControl($public);
     $deleteForm = comcal_getDeleteForm($adminAjaxUrl);
     $categories = comcal_editEventCategories();
+    $importEventUrl = comcal_getImportEventUrlControls();
 
     return <<<XML
     <div class="comcal-modal-wrapper edit-dialog">
@@ -127,6 +134,7 @@ function comcal_getEditForm($calendarName='') {
         <div class="form-popup" id="editEvent">
             <h2></h2>
             <p><small>Pflichtfelder sind gelb, fehlerhafte Felder rosa hinterlegt</small><p>
+            $importEventUrl
             <form id="editEvent" action="$adminAjaxUrl" method="post">
                 <fieldset>
                     $nonceField
