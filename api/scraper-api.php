@@ -1,12 +1,16 @@
 <?php
 
 function comcal_api_importEventUrl($data) {
-    $ch = curl_init('http://127.0.0.1:5000/api/scrape?' . http_build_query($data->get_params()));
+    $scraperUrl = 'http://127.0.0.1:5000/api/scrape?';
+    $ch = curl_init($scraperUrl . http_build_query($data->get_params()));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, 0);
     $response = curl_exec($ch);
     $info = curl_getinfo($ch);
     curl_close($ch);
+    if ($response === false) {
+        return new WP_Error('import-event-url', "Could not reach $scraperUrl", array('status' => 500));
+    }
     if ($info['http_code'] !== 200) {
         return new WP_Error('import-event-url', $response, array('status' => $info['http_code']));
     }

@@ -135,6 +135,9 @@ function comcal_getEditForm($calendarName='') {
             <h2></h2>
             <p><small>Pflichtfelder sind gelb, fehlerhafte Felder rosa hinterlegt</small><p>
             $importEventUrl
+
+            <div class="alert alert-warning hide fade" role="alert"></div>
+
             <form id="editEvent" action="$adminAjaxUrl" method="post">
                 <fieldset>
                     $nonceField
