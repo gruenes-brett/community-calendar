@@ -12,6 +12,7 @@ function prepareEditForm() {
     $('form#editEvent').submit( submitEditForm );
     $('form#deleteEvent').submit( submitDeleteForm );
     $('a.editEvent').click(editEvent);
+    $('input.comcal-import-event-url').click(importEventUrl);
 }
 
 function showEditForm() {
@@ -42,45 +43,47 @@ function editEvent(event) {
     event.preventDefault();
     let eventId = $(event.currentTarget).attr('eventId');
     console.log('Edit Event ' + eventId);
-    fillEditForm(eventId)
+    fillEditFormWithEventData(eventId)
     .done(function(){
         showEditForm();
         showDeleteForm();
     });
 }
 
-function fillEditForm(eventId) {
-    return queryEventData(eventId, 'Raw', function(result) {
-        // uncheck everything
-        $('input[type=checkbox]').attr('checked', false);
+function fillEditFormWithEventData(eventId) {
+    return queryEventData(eventId, 'Raw', __fillEditFormFields);
+}
 
-        // fill in form data
-        for (let key in result) {
-            if (key === 'calendarName') {
-                // do not override the calendarName in order to allow
-                // to move an event from an unnamed calendar to this one
-                continue;
-            }
-            let control = $('input[name='+key+'],textarea[name='+key+']');
-            if (control.attr('type') === 'checkbox') {
-                control.attr('checked', result[key] == 1);
-            } else if (control.prop('tagName') === 'TEXTAREA') {
-                control.html(result[key]);
-                control.attr('value', result[key]);
-            } else {
-                for (i = 0; i < control.length; i++) {
-                    control[i].value = result[key];
-                }
-            }
-            if (key === 'categories') {
-                for (let catIndex in result[key]) {
-                    let categoryId = result[key][catIndex].categoryId;
-                    let control = $('form#editEvent input[value="'+categoryId+'"]');
-                    control.attr('checked', true);
-                }
+function __fillEditFormFields(data) {
+    // uncheck everything
+    $('input[type=checkbox]').attr('checked', false);
+
+    // fill in form data
+    for (let key in data) {
+        if (key === 'calendarName') {
+            // do not override the calendarName in order to allow
+            // to move an event from an unnamed calendar to this one
+            continue;
+        }
+        let control = $('input[name='+key+'],textarea[name='+key+']');
+        if (control.attr('type') === 'checkbox') {
+            control.attr('checked', data[key] == 1);
+        } else if (control.prop('tagName') === 'TEXTAREA') {
+            control.html(data[key]);
+            control.attr('value', data[key]);
+        } else {
+            for (i = 0; i < control.length; i++) {
+                control[i].value = data[key];
             }
         }
-    });
+        if (key === 'categories') {
+            for (let catIndex in data[key]) {
+                let categoryId = data[key][catIndex].categoryId;
+                let control = $('form#editEvent input[value="'+categoryId+'"]');
+                control.attr('checked', true);
+            }
+        }
+    }
 }
 
 function hideEditForm() {
@@ -142,6 +145,23 @@ function showAddEventWarning(text) {
 function hideAddEventWarning() {
     let warnBox = $('#editEvent .alert-warning');
     warnBox.removeClass('show');
+}
+
+function importEventUrl() {
+    hideAddEventWarning();
+    var url = prompt('URL des Events (z.B. von Facebook):');
+    if (url === null) {
+        return;
+    }
+    $.get(
+        '/wp-json/comcal/v1/import-event-url',
+        data = {'url': url},
+    ).success(function(result) {
+        console.log(result);
+        __fillEditFormFields(result);
+    }).fail(function(result) {
+        showAddEventWarning(result.responseJSON.message);
+    });
 }
 
 })(jQuery);

@@ -45,6 +45,8 @@ require_once( EVTCAL__PLUGIN_DIR . 'view/show-categories.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'edit/edit-event.php' );
 require_once( EVTCAL__PLUGIN_DIR . 'edit/edit-category.php' );
 
+// api
+require_once( EVTCAL__PLUGIN_DIR . 'api/scraper-api.php' );
 
 /**
  * Enqueue scripts and styles.
