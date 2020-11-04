@@ -107,6 +107,12 @@ abstract class comcal_EventsDisplayBuilder {
         $this->latestDate = $latestDate;
         $this->currentDate = null;
     }
+
+    function showFullMonth() {
+        /* show a full month when not starting at a specific date or
+        if this is not the first month */
+        return $this->earliestDate === null || $this->currentDate !== null;
+    }
 }
 
 
@@ -142,7 +148,9 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
         $this->finishCurrentMonth();
         $this->html .= "<h3 class='month-title'>" . $date->getMonthTitle() . "</h3>\n"
             . "<table class='community-calendar'><tbody>\n";
-        $this->fillDaysBetween($date->getFirstOfMonthDateTime(), $date);
+        if ($this->showFullMonth()) {
+            $this->fillDaysBetween($date->getFirstOfMonthDateTime(), $date);
+        }    
     }
 
     protected function finishCurrentMonth() {
@@ -171,12 +179,32 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
         $this->html .= "<tr class='{$dateTime->getDayClasses()} $trClass day'>";
         $this->html .= "<td class='date $dateClass'>$dateStr</td>";
         $this->html .= "<td class='event'>$text</td></tr>\n";
+        $this->currentDate = $dateTime;
     }
 
     function addEvent($event) {
+        if ($this->earliestDate !== null && $this->currentDate === null 
+                                         && !$event->getDateTime()->isSameDay($this->earliestDate)) {
+            // add an empty row for the earliest date
+            $this->newMonth($this->earliestDate);
+            $this->createDayRow($this->earliestDate, '');
+        } 
         if ($this->currentDate === null || ! $this->currentDate->isSameMonth($event->getDateTime())) {
+            // new month
+            if ($this->currentDate !== null) {
+                while (true) {
+                    // fill in empty months
+                    $nextMonth = $this->currentDate->getLastDayOfMonth()->getNextDay();
+                    if ($nextMonth->isSameMonth($event->getDateTime())) {
+                        break;
+                    }
+                    $this->newMonth($nextMonth);
+                } 
+            }
+            // create month with this event
             $this->newMonth($event->getDateTime());
-        } else {
+        } else if ($this->currentDate !== null) {
+            // fill empty days between events
             $this->fillDaysBetween($this->currentDate->getNextDay(), $event->getDateTime());
         }
         $this->createDayRow(
@@ -184,7 +212,6 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
             $event->getHtml(),
             !$event->getDateTime()->isSameDay($this->currentDate)
         );
-        $this->currentDate = $event->getDateTime();
     }
 }
 
