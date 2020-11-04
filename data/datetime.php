@@ -168,6 +168,12 @@ class comcal_DateTime {
         return self::fromDateTime($prevMinutesDate);
     }
 
+    function getDateTimeDifference($otherDateTime) {
+        $thisDateTime = clone $this->dateTime;
+        $diff = $otherDateTime->getDateTime()->diff($thisDateTime);
+        return $diff;
+    }
+
     function getAllDatesUntil($endDateTime) {
         $dates = [];
         $current = $this;

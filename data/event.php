@@ -62,6 +62,7 @@ class comcal_Event extends comcal_DbTable {
             'created' => $this->getField('created'),
             'categories' => $this->getCategoriesDetails(),
             'calendarName' => $this->getField('calendarName'),
+            'numberOfDays' => $this->getNumberOfDays(),
         );
     }
     static function getTextFieldNames() {
@@ -118,6 +119,15 @@ XML;
             $result[] = $c->getPublicFields();
         }
         return $result;
+    }
+    function getNumberOfDays() {
+        $startDate = comcal_DateTime::fromDateStrTimeStr($this->getField('date'), '00:00');
+        $endDate = comcal_DateTime::fromDateStrTimeStr($this->getField('dateEnd'), '00:00');
+        $diff = $endDate->getDateTimeDifference($startDate);
+        if ($diff->invert === 1) {
+            return 1;
+        }
+        return $diff->days + 1;
     }
 }
 
