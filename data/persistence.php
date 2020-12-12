@@ -102,17 +102,28 @@ abstract class comcal_DbTable {
     abstract static function getIdFieldName();
 
     /* static query helper functions */
-    static function queryRow($sql) {
-        $rows = static::query($sql);
+
+    static function prepareQuery($sql, $args=[]) {
+        global $wpdb;
+        $sql = str_replace('[T]', static::getTableName(), $sql);
+        if (strpos($sql, '%') !== false) {
+            $sql = $wpdb->prepare($sql, $args);
+        }
+        return $sql;
+    }
+    static function queryRow($sql, $args=[]) {
+        if (stripos($sql, ' limit ') === false) {
+            $sql = trim($sql, ';') . ' LIMIT 1;';
+        }
+        $rows = static::query($sql, $args);
         if (empty($rows)) {
             return null;
         }
         return $rows[0];
     }
-    static function query($sql) {
+    static function query($sql, $args=[]) {
         global $wpdb;
-        $sql = str_replace('[T]', static::getTableName(), $sql);
-        return $wpdb->get_results($sql);
+        return $wpdb->get_results(static::prepareQuery($sql, $args));
     }
     static function getAll() {
         global $wpdb;
@@ -126,7 +137,7 @@ abstract class comcal_DbTable {
     }
     static function queryByEntryId($elementId) {
         $idField = static::getIdFieldName();
-        $row = self::queryRow("SELECT * FROM [T] WHERE $idField='$elementId';");
+        $row = self::queryRow("SELECT * FROM [T] WHERE $idField=%s;", [$elementId]);
         if (empty($row)) {
             return null;
         }
@@ -146,10 +157,8 @@ abstract class comcal_DbTable {
      * Checks if an entry with the current entry-ID exists in the database
      */
     function exists() {
-        global $wpdb;
         $idFieldName = $this->getIdFieldName();
-        $tableName = $this->getTableName();
-        $row = $wpdb->get_row("SELECT $idFieldName FROM $tableName WHERE $idFieldName='{$this->getField($idFieldName)}';");
+        $row = $this->queryRow("SELECT $idFieldName FROM [T] WHERE $idFieldName=%s;", [$this->getField($idFieldName)]);
         return !empty($row);
     }
 

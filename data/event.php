@@ -235,8 +235,7 @@ function comcal_countEvents($withinLastMinutes=5) {
     global $wpdb;
     $events = comcal_tableName_events();
     $prevDateTime = comcal_DateTime::now()->getPrevMinutes($withinLastMinutes);
-    $whereConditions = ["$events.created >= '{$prevDateTime->format('c')}'"];
-    $where = comcal_whereAnd($whereConditions);
+    $where = "WHERE $events.created >= '{$prevDateTime->format('c')}'";
     $query = "SELECT COUNT(*) FROM $events $where;";
     $count = $wpdb->get_var($query);
     return $count;

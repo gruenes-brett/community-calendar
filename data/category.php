@@ -19,7 +19,7 @@ class comcal_Category extends comcal_DbTable {
     }
 
     static function queryFromName($name) {
-        $row = self::queryRow("SELECT * FROM [T] WHERE name='$name';");
+        $row = self::queryRow("SELECT * FROM [T] WHERE name=%s;", [$name]);
         if (empty($row)) {
             return null;
         }
@@ -27,7 +27,7 @@ class comcal_Category extends comcal_DbTable {
     }
 
     static function queryFromCategoryId($categoryId) {
-        $row = self::queryRow("SELECT * FROM [T] WHERE categoryId='$categoryId';");
+        $row = self::queryRow("SELECT * FROM [T] WHERE categoryId=%s;", [$categoryId]);
         if (empty($row)) {
             return null;
         }
@@ -77,8 +77,8 @@ class comcal_EventVsCategory extends comcal_DbTable {
         return 'id';
     }
     function exists() {
-        $where = "WHERE event_id={$this->getField('event_id')} AND category_id={$this->getField('category_id')}";
-        $row = self::queryRow("SELECT id from [T] $where;");
+        $where = "WHERE event_id=%d AND category_id=%d";
+        $row = self::queryRow("SELECT id from [T] $where;", [$this->getField('event_id'), $this->getField('category_id')]);
         return !empty($row);
     }
     static function getCategories($event) {
@@ -86,9 +86,9 @@ class comcal_EventVsCategory extends comcal_DbTable {
         $event_id = $event->getField('id');
         $query = "SELECT $catsTable.* FROM $catsTable "
         . "INNER JOIN [T] ON [T].category_id=$catsTable.id "
-        . "WHERE [T].event_id=$event_id;";
+        . "WHERE [T].event_id=%d;";
         $cats = array();
-        $rows = static::query($query);
+        $rows = static::query($query, [$event_id]);
         foreach ($rows as $row) {
             $cats[] = new comcal_Category($row);
         }
