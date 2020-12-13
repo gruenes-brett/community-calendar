@@ -51,7 +51,7 @@ function comcal_table_func( $atts ) {
     }
 
     $isAdmin = comcal_currentUserCanSetPublic();
-    $eventsIterator = new EventIterator(
+    $eventsIterator = new comcal_EventIterator(
         !$isAdmin,
         $category,
         $calendarName,
@@ -77,9 +77,9 @@ add_shortcode( 'community-calendar-table', 'comcal_table_func' );
  * (e.g., as HTML table, as Markdown, etc.)
  */
 abstract class comcal_EventsDisplayBuilder {
-    var $earliestDate = null;
-    var $latestDate = null;
-    var $currentDate = null;
+    // var $earliestDate;
+    // var $latestDate;
+    // var $currentDate;
     static function createDisplay($styleName, $eventsIterator, $earliestDate=null, $latestDate=null) {
         // Factory for display class instances
         $styles = array(
@@ -188,7 +188,7 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
             // add an empty row for the earliest date
             $this->newMonth($this->earliestDate);
             $this->createDayRow($this->earliestDate, '');
-        } 
+        }
         if ($this->currentDate === null || ! $this->currentDate->isSameMonth($event->getDateTime())) {
             // new month
             if ($this->currentDate !== null) {
@@ -199,7 +199,7 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
                         break;
                     }
                     $this->newMonth($nextMonth);
-                } 
+                }
             }
             // create month with this event
             $this->newMonth($event->getDateTime());

@@ -17,6 +17,20 @@ class comcal_Event extends comcal_DbTable {
         );
     }
 
+    /**
+     * Returns how many Events have been added to the database
+     * within the past X minutes.
+     */
+    static function countEvents($withinLastMinutes=5) {
+        global $wpdb;
+        $events = comcal_tableName_events();
+        $prevDateTime = comcal_DateTime::now()->getPrevMinutes($withinLastMinutes);
+        $where = "WHERE $events.created >= '{$prevDateTime->format('c')}'";
+        $query = "SELECT COUNT(*) FROM $events $where;";
+        $count = $wpdb->get_var($query);
+        return $count;
+    }
+
     /* overridden static methods */
     static function getIdFieldName() {
         return 'eventId';
@@ -132,7 +146,7 @@ XML;
 }
 
 
-class EventIterator implements Iterator {
+class comcal_EventIterator implements Iterator {
     private $positition = -1;
     public $eventRows = null;
 
@@ -178,12 +192,6 @@ class EventIterator implements Iterator {
 }
 
 
-function comcal_addEvent($data) {
-    global $wpdb;
-    $event = new comcal_Event($data);
-    return $event->store($wpdb);
-}
-
 /**
  * Query events from database
  */
@@ -226,17 +234,3 @@ function __comcal_getAllEventRows(
     return $rows;
 }
 
-
-/**
- * Returns how many Events have been added to the database
- * within the past X minutes.
- */
-function comcal_countEvents($withinLastMinutes=5) {
-    global $wpdb;
-    $events = comcal_tableName_events();
-    $prevDateTime = comcal_DateTime::now()->getPrevMinutes($withinLastMinutes);
-    $where = "WHERE $events.created >= '{$prevDateTime->format('c')}'";
-    $query = "SELECT COUNT(*) FROM $events $where;";
-    $count = $wpdb->get_var($query);
-    return $count;
-}

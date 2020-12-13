@@ -23,7 +23,7 @@ function comcal_throttleEventSubmissions() {
     }
     $timeLimit = 5;
     $submitLimit = 10;
-    $count = comcal_countEvents($timeLimit);
+    $count = comcal_Event::countEvents($timeLimit);
     if ($count >= $submitLimit) {
         comcal_warning("Spam limit exceeded: $submitLimit submissions per $timeLimit minutes");
         sleep(3);
