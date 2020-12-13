@@ -4,90 +4,33 @@
  */
 
 
-function comcal_tableName_events() {
-    global $wpdb;
-    return $wpdb->prefix . 'comcal';
-}
+class comcal_Database {
+    static function initTables() {
+        global $wpdb;
+        $wpdb->show_errors();
 
-function comcal_tableName_categories() {
-    global $wpdb;
-    return $wpdb->prefix . 'comcal_cats';
-}
+        comcal_Event::createTable();
+        comcal_Category::createTable();
+        comcal_EventVsCategory::createTable();
+    }
 
-function comcal_tableName_eventsVsCats() {
-    global $wpdb;
-    return $wpdb->prefix . 'comcal_evt_vs_cats';
-}
+    static function deleteTables() {
+        global $wpdb;
+        $wpdb->show_errors();
 
+        comcal_Event::dropTable();
+        comcal_Category::dropTable();
+        comcal_EventVsCategory::dropTable();
+    }
 
-function comcal_initTables() {
-    global $wpdb;
-    $wpdb->show_errors();
-    $eventsTableName = comcal_tableName_events();
-    $categoriesTableName = comcal_tableName_categories();
-    $eventsVsCatsTableName = comcal_tableName_eventsVsCats();
-    $charset_collate = $wpdb->get_charset_collate();
-
-    // Events
-    $sql = "CREATE TABLE $eventsTableName (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
-        eventId tinytext NOT NULL,
-        date date DEFAULT '0000-00-00' NOT NULL,
-        time time DEFAULT '00:00:00' NOT NULL,
-        dateEnd date DEFAULT '0000-00-00' NOT NULL,
-        timeEnd time DEFAULT '00:00:00' NOT NULL,
-        title tinytext NOT NULL,
-        organizer tinytext DEFAULT '' NOT NULL,
-        location tinytext DEFAULT '' NOT NULL,
-        description text NOT NULL,
-        url varchar(1300) DEFAULT '' NOT NULL,
-        public tinyint(2) DEFAULT 0 NOT NULL,
-        created timestamp NOT NULL,
-        calendarName tinytext NOT NULL,
-        PRIMARY KEY  (id)
-        ) $charset_collate;";
-    dbDelta( $sql );
-
-    // Categories
-    $sql = "CREATE TABLE $categoriesTableName (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
-        categoryId tinytext NOT NULL,
-        name tinytext NOT NULL,
-        PRIMARY KEY  (id)
-        ) $charset_collate;";
-    dbDelta( $sql );
-
-    // Events vs. Categories (many-to-many relationship)
-    $sql = "CREATE TABLE $eventsVsCatsTableName (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
-        event_id mediumint(9) NOT NULL,
-        category_id mediumint(9) NOT NULL,
-        PRIMARY KEY  (id)
-        ) $charset_collate;";
-    dbDelta( $sql );
-}
-
-function comcal_deleteTables() {
-    global $wpdb;
-    $wpdb->show_errors();
-
-    foreach ([
-        comcal_tableName_eventsVsCats(),
-        comcal_tableName_events(),
-        comcal_tableName_categories(),
-    ] as $tableName) {
-        $wpdb->query("DROP TABLE $tableName;");
+    static function whereAnd($conditions) {
+        if (empty($conditions)) {
+            return '';
+        }
+        return 'WHERE ' . implode(' AND ', $conditions);
     }
 
 }
-
-function comcal_whereAnd($conditions) {
-    if (empty($conditions)) {
-        return '';
-    }
-    return 'WHERE ' . implode(' AND ', $conditions);
-}
-
 
 abstract class comcal_DbTable {
     /*
@@ -100,6 +43,18 @@ abstract class comcal_DbTable {
     abstract static function getTableName();
     abstract static function getAllFieldNames();
     abstract static function getIdFieldName();
+    abstract protected static function getCreateTableQuery();
+
+    /* database admin functions */
+    static function createTable() {
+        $sql = static::getCreateTableQuery();
+        $sql = static::prepareQuery($sql);
+        dbDelta($sql);
+    }
+    static function dropTable() {
+        global $wpdb;
+        $wpdb->query(static::prepareQuery("DROP TABLE [T];"));
+    }
 
     /* static query helper functions */
 
@@ -142,6 +97,16 @@ abstract class comcal_DbTable {
             return null;
         }
         return new static($row);
+    }
+    static function count($where=null, $args=[]) {
+        global $wpdb;
+        $sql = 'SELECT COUNT(*) FROM [T]';
+        if ($where) {
+            $sql .= " WHERE $where;";
+        }
+        $sql = static::prepareQuery($sql, $args);
+        $count = $wpdb->get_var($sql);
+        return $count;
     }
 
     /* instance methods */

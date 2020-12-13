@@ -15,7 +15,20 @@ class comcal_Category extends comcal_DbTable {
     }
 
     static function getTableName() {
-        return comcal_tableName_categories();
+        global $wpdb;
+        return $wpdb->prefix . 'comcal_cats';
+    }
+
+    protected static function getCreateTableQuery() {
+        global $wpdb;
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE [T] (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            categoryId tinytext NOT NULL,
+            name tinytext NOT NULL,
+            PRIMARY KEY  (id)
+            ) $charset_collate;";
+        return $sql;
     }
 
     static function queryFromName($name) {
@@ -67,7 +80,19 @@ class comcal_EventVsCategory extends comcal_DbTable {
     }
 
     static function getTableName() {
-        return comcal_tableName_eventsVsCats();
+        global $wpdb;
+        return $wpdb->prefix . 'comcal_evt_vs_cats';
+    }
+    protected static function getCreateTableQuery() {
+        global $wpdb;
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE [T] (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            event_id mediumint(9) NOT NULL,
+            category_id mediumint(9) NOT NULL,
+            PRIMARY KEY  (id)
+            ) $charset_collate;";
+        return $sql;
     }
     static function getAllFieldNames() {
         return array('event_id', 'category_id');
@@ -82,7 +107,7 @@ class comcal_EventVsCategory extends comcal_DbTable {
         return !empty($row);
     }
     static function getCategories($event) {
-        $catsTable = comcal_tableName_categories();
+        $catsTable = comcal_Category::getTableName();
         $event_id = $event->getField('id');
         $query = "SELECT $catsTable.* FROM $catsTable "
         . "INNER JOIN [T] ON [T].category_id=$catsTable.id "

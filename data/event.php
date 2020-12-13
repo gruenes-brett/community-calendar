@@ -22,13 +22,8 @@ class comcal_Event extends comcal_DbTable {
      * within the past X minutes.
      */
     static function countEvents($withinLastMinutes=5) {
-        global $wpdb;
-        $events = comcal_tableName_events();
         $prevDateTime = comcal_DateTime::now()->getPrevMinutes($withinLastMinutes);
-        $where = "WHERE $events.created >= '{$prevDateTime->format('c')}'";
-        $query = "SELECT COUNT(*) FROM $events $where;";
-        $count = $wpdb->get_var($query);
-        return $count;
+        return static::count("created >= %s", [$prevDateTime->format('Y-m-d H:i:s')]);
     }
 
     /* overridden static methods */
@@ -42,7 +37,30 @@ class comcal_Event extends comcal_DbTable {
         );
     }
     static function getTableName() {
-        return comcal_tableName_events();
+        global $wpdb;
+        return $wpdb->prefix . 'comcal';
+    }
+    protected static function getCreateTableQuery() {
+        global $wpdb;
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE [T] (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            eventId tinytext NOT NULL,
+            date date DEFAULT '0000-00-00' NOT NULL,
+            time time DEFAULT '00:00:00' NOT NULL,
+            dateEnd date DEFAULT '0000-00-00' NOT NULL,
+            timeEnd time DEFAULT '00:00:00' NOT NULL,
+            title tinytext NOT NULL,
+            organizer tinytext DEFAULT '' NOT NULL,
+            location tinytext DEFAULT '' NOT NULL,
+            description text NOT NULL,
+            url varchar(1300) DEFAULT '' NOT NULL,
+            public tinyint(2) DEFAULT 0 NOT NULL,
+            created timestamp NOT NULL,
+            calendarName tinytext NOT NULL,
+            PRIMARY KEY  (id)
+            ) $charset_collate;";
+        return $sql;
     }
 
     function addCategory($category) {
@@ -203,8 +221,8 @@ function __comcal_getAllEventRows(
     $endDate = null
 ) {
     global $wpdb;
-    $events = comcal_tableName_events();
-    $evt_cat = comcal_tableName_eventsVsCats();
+    $events = comcal_Event::getTableName();
+    $evt_cat = comcal_EventVsCategory::getTableName();
 
     $whereConditions = array();
     $whereConditions[] = "($events.calendarName='$calendarName' OR $events.calendarName='')";
@@ -219,13 +237,13 @@ function __comcal_getAllEventRows(
     }
 
     if ($category === null) {
-        $where = comcal_whereAnd($whereConditions);
+        $where = comcal_Database::whereAnd($whereConditions);
         $query = "SELECT * FROM $events $where ORDER BY date, time;";
     } else {
         $category_id = $category->getField('id');
         $whereConditions[] = "$evt_cat.category_id=$category_id";
 
-        $where = comcal_whereAnd($whereConditions);
+        $where = comcal_Database::whereAnd($whereConditions);
         $query = "SELECT $events.* FROM $events "
         ."INNER JOIN $evt_cat ON $evt_cat.event_id=$events.id "
         ."$where ORDER BY $events.date, $events.time;";

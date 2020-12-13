@@ -70,7 +70,7 @@ add_action('wp_print_styles', 'comcal_styles');
 
 function comcal_activation() {
 	// initialize/update database table on activation
-	comcal_initTables();
+	comcal_Database::initTables();
 }
 register_activation_hook( __FILE__, 'comcal_activation' );
 
