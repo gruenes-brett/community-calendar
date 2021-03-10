@@ -10,7 +10,7 @@
  *          -> Event details as raw text (for the edit form)
 */
 
-$comcal_RestRoute = 'comcal/v1/';
+$comcal_RestRoute = 'comcal/v1';
 
 function comcal_getShowEventBox() {
     return <<<XML
@@ -73,7 +73,8 @@ add_action('rest_api_init', function () {
         'eventDisplay/(?P<eventId>event:[a-f0-9]+)',
         array(
             'methods' => 'GET',
-            'callback' => 'comcal_queryEventDisplay'
+            'callback' => 'comcal_queryEventDisplay',
+            'permission_callback' => '__return_true',
         )
     );
 });
@@ -92,7 +93,8 @@ add_action('rest_api_init', function () {
         '/eventRaw/(?P<eventId>event:[a-f0-9]+)',
         array(
             'methods' => 'GET',
-            'callback' => 'comcal_queryEventRaw'
+            'callback' => 'comcal_queryEventRaw',
+            'permission_callback' => '__return_true',
         )
     );
 });

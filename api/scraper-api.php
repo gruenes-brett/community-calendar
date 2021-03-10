@@ -25,7 +25,8 @@ add_action('rest_api_init', function () {
         'import-event-url',
         array(
             'methods' => 'GET',
-            'callback' => 'comcal_api_importEventUrl'
+            'callback' => 'comcal_api_importEventUrl',
+            'permission_callback' => '__return_true',
         )
     );
 });
