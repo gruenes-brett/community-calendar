@@ -19,12 +19,14 @@ function comcal_table_func( $atts ) {
         'name' => '',
         'style' => 'table',
         'days' => null,  // number of days to show (excluding start day)
+        'categories' => true,  // show category buttons
     ), $atts );
 
     $calendarName = $a['name'];
     $style = $a['style'];
     $days = $a['days'];
     $start = $a['start'];
+    $showCategories = $a['categories'];
 
     // determine category
     $category = null;
@@ -67,7 +69,10 @@ function comcal_table_func( $atts ) {
     if (comcal_currentUserCanSetPublic()) {
         $allHtml .= comcal_getEditCategoriesDialog();
     }
-    return comcal_getCategoryButtons($category) . $allHtml;
+    if ($showCategories) {
+        $allHtml = comcal_getCategoryButtons($category) . $allHtml;
+    }
+    return $allHtml;
 }
 add_shortcode( 'community-calendar-table', 'comcal_table_func' );
 
