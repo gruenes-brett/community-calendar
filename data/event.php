@@ -111,40 +111,7 @@ class comcal_Event extends comcal_DbTable {
         }
         return $this->dateTime;
     }
-    function getHtml(): string {
-        $editControls = '';
-        if (comcal_currentUserCanSetPublic()) {
-            $editControls = "<a class='editEvent' eventId='{$this->getField('eventId')}'>"
-                            . "edit</a>";
-        }
-        $publicClass = '';
-        if ($this->getField('public') == 0) {
-            $publicClass = 'notPublic';
-        }
-        return <<<XML
-        <table class='event $publicClass' eventId="{$this->getField('eventId')}"><tbody>
-            <tr>
-                <td class='time'>{$this->getDateTime()->getPrettyTime()}</td>
-                <td class='title'>{$this->getField('title')}</td>
-            </tr>
-            <tr>
-                <td>$editControls</td>
-                <td class='organizer'>{$this->getField('organizer')}</td>
-            </tr>
-        </tbody></table>
-XML;
-    }
-    function getMarkdown() {
-        $dateTime = $this->getDateTime();
-        $md = '**' . $dateTime->getHumanizedTime() . '** ';
-        $md .= $this->getField('organizer');
-        $md .= ' | ';
-        $md .= $this->getField('title');
-        $md .= ' ';
-        $md .= $this->getField('url');
 
-        return $md;
-    }
     function getCategoriesDetails() {
         $result = array();
         foreach ($this->getCategories() as $c) {

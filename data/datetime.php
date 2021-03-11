@@ -106,8 +106,15 @@ class comcal_DateTime {
     }
 
     function getShortWeekdayAndDay() {
-        global $comcal_aWeekdayNamesDE;
-        return $this->dateTime->format('d ') . substr($comcal_aWeekdayNamesDE[$this->dateTime->format('w')], 0, 2);
+        return $this->getDayOfMonth() . ' ' . $this->getShortWeekday();
+    }
+
+    function getShortWeekday() {
+        return substr($this->getWeekday(), 0, 2);
+    }
+
+    function getDayOfMonth() {
+        return $this->dateTime->format('d');
     }
 
     function getDayClasses() {

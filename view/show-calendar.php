@@ -65,12 +65,13 @@ function comcal_table_func( $atts ) {
 
     $comcal_calendarAlreadyShown = true;
 
-    $allHtml = $output->getHtml() . comcal_getShowEventBox() . comcal_getEditForm($calendarName);
+    $allHtml = '';
+    if ($showCategories) {
+        $allHtml .= comcal_getCategoryButtons($category);
+    }
+    $allHtml .= $output->getHtml() . comcal_getShowEventBox() . comcal_getEditForm($calendarName);
     if (comcal_currentUserCanSetPublic()) {
         $allHtml .= comcal_getEditCategoriesDialog();
-    }
-    if ($showCategories) {
-        $allHtml = comcal_getCategoryButtons($category) . $allHtml;
     }
     return $allHtml;
 }
@@ -82,17 +83,19 @@ add_shortcode( 'community-calendar-table', 'comcal_table_func' );
  * (e.g., as HTML table, as Markdown, etc.)
  */
 abstract class comcal_EventsDisplayBuilder {
-    // var $earliestDate;
-    // var $latestDate;
-    // var $currentDate;
+    static $styles = array(
+        'table' => 'comcal_TableBuilder',
+        'markdown' => 'comcal_MarkdownBuilder',
+    );
+
+    static function addStyle($name, $className) {
+        comcal_EventsDisplayBuilder::$styles[$name] = $className;
+    }
+
     static function createDisplay($styleName, $eventsIterator, $earliestDate=null, $latestDate=null) {
         // Factory for display class instances
-        $styles = array(
-            'table' => 'comcal_TableBuilder',
-            'markdown' => 'comcal_MarkdownBuilder',
-        );
-        if (isset($styles[$styleName])) {
-            $clazz = $styles[$styleName];
+        if (isset(self::$styles[$styleName])) {
+            $clazz = self::$styles[$styleName];
         } else {
             $clazz = 'comcal_DefaultDisplayBuilder';
         }
@@ -139,23 +142,33 @@ class comcal_DefaultDisplayBuilder {
  */
 class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
     var $html = '';
+    var $eventRenderer = null;
+
+    function __construct($earliestDate=null, $latestDate=null) {
+        parent::__construct($earliestDate, $latestDate);
+        $this->eventRenderer = new comcal_TableEventRenderer();
+    }
 
     function getHtml() {
         $this->finishCurrentMonth();
         if (empty($this->html)) {
-            return '<h3 class="month-title comcal-no-entries">Keine Einträge vorhanden</h3>';
+            return '<h2 class="month-title comcal-no-entries">Keine Einträge vorhanden</h2>';
         } else {
             return $this->html;
         }
     }
 
+    protected function getTableHead($monthTitle) {
+        return "<h3 class='month-title'>$monthTitle</h3>\n"
+               . "<table class='community-calendar'><tbody>\n";
+    }
+
     protected function newMonth($date) {
         $this->finishCurrentMonth();
-        $this->html .= "<h3 class='month-title'>" . $date->getMonthTitle() . "</h3>\n"
-            . "<table class='community-calendar'><tbody>\n";
+        $this->html .= $this->getTableHead($date->getMonthTitle());
         if ($this->showFullMonth()) {
             $this->fillDaysBetween($date->getFirstOfMonthDateTime(), $date);
-        }    
+        }
     }
 
     protected function finishCurrentMonth() {
@@ -214,7 +227,7 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
         }
         $this->createDayRow(
             $event->getDateTime(),
-            $event->getHtml(),
+            $this->eventRenderer->render($event),
             !$event->getDateTime()->isSameDay($this->currentDate)
         );
     }
@@ -226,6 +239,13 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
  */
 class comcal_MarkdownBuilder extends comcal_EventsDisplayBuilder {
     var $html = '';
+    var $eventRenderer = null;
+
+    function __construct($earliestDate=null, $latestDate=null) {
+        parent::__construct($earliestDate, $latestDate);
+        $this->eventRenderer = new comcal_MarkdownEventRenderer();
+    }
+
     function getHtml() {
         if ($this->earliestDate !== null) {
             $prettyStart = $this->earliestDate->format('d.m.');
@@ -271,7 +291,7 @@ Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
             $this->currentDate = $event->getDateTime();
             $this->html .= $this->createNewDay($this->currentDate);
         }
-        $this->html .= $event->getMarkdown() . '
+        $this->html .= $this->eventRenderer->render($event) . '
 
 ';
         $this->currentDate = $event->getDateTime();
