@@ -1,11 +1,16 @@
 <?php
-/*
- * Functions for retrieving and updating events from the database
+/**
+ * Functions for retrieving and updating events from the database.
+ *
+ * @package CommunityCalendar
  */
 
+/**
+ * Event data from database.
+ */
 class comcal_Event extends comcal_DbTable {
-    var $dateTime = null;  // comcal_DateTime ... don't use directly, always use getDateTime()
-    var $categories = null;  // array of comcal_Category objects
+    var $dateTime = null;  // comcal_DateTime ... don't use directly, always use getDateTime().
+    var $categories = null;  // array of comcal_Category objects.
     const IDPREFIX = 'event:';
     static function DEFAULTS() {
         return array(
@@ -218,4 +223,3 @@ function __comcal_getAllEventRows(
     $rows = $wpdb->get_results($query);
     return $rows;
 }
-
