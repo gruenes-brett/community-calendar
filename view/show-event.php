@@ -3,7 +3,7 @@
 abstract class comcal_EventRenderer {
     abstract function render( comcal_Event $event) : string;
 
-    function getEditLink( $event ) {
+    function get_edit_link( $event ) {
         if ( comcal_currentUserCanSetPublic() ) {
             return "<a class='editEvent' eventId='{$event->getField('eventId')}'>edit</a> &mdash; ";
         }
@@ -18,7 +18,7 @@ class comcal_DefaultEventRenderer extends comcal_EventRenderer {
         $time      = $event->getDateTime()->getPrettyTime();
         $location  = $event->getField( 'location' );
         $url       = $event->getField( 'url' );
-        $edit_link = $this->getEditLink( $event );
+        $edit_link = $this->get_edit_link( $event );
         return <<<XML
       <article>
         <h2><a href="$url" target="_blank">$title</a></h2>
@@ -33,7 +33,7 @@ XML;
 class comcal_TableEventRenderer extends comcal_EventRenderer {
     function render( comcal_Event $event ) : string {
 
-        $editControls = $this->getEditLink( $event );
+        $editControls = $this->get_edit_link( $event );
         $publicClass = '';
         if ( $event->getField( 'public' ) == 0 ) {
             $publicClass = 'notPublic';

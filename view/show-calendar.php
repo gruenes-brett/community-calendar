@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Functions for rendering the events to a Wordpress page
+ * Functions for rendering the events to a WordPress page
  */
 
 $comcal_calendarAlreadyShown = false;
