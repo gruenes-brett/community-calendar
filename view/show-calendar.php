@@ -112,8 +112,8 @@ abstract class comcal_EventsDisplayBuilder {
         return $builder;
     }
 
-    abstract function add_event( $event);
-    abstract function get_html();
+    abstract public function add_event( $event );
+    abstract public function get_html();
 
     function __construct( $earliest_date = null, $latest_date = null ) {
         $this->earliest_date = $earliest_date;
@@ -133,22 +133,28 @@ abstract class comcal_EventsDisplayBuilder {
 /**
  * Fallback builder if a wrong or non-existent output builder has been selected
  */
-class comcal_DefaultDisplayBuilder {
-    function add_event( $event ) {
-    }
-    function get_html() {
-        return '<h3>specified display style not available!</h3>';
-    }
+class comcal_DefaultDisplayBuilder extends comcal_EventsDisplayBuilder {
+    var $html = '';
+    var $event_renderer = null;
 
+    function __construct( $earliest_date = null, $latest_date = null ) {
+        parent::__construct( $earliest_date, $latest_date );
+        $this->event_renderer = new comcal_DefaultEventRenderer();
+        $this->html = '';
+    }
+    public function add_event( $event ) {
+        $this->html .= $this->event_renderer->render( $event );
+    }
+    public function get_html() {
+        return $this->html;
+    }
 }
 
 
 /**
  * Creates HTML tables for each month that contains at least one event
  */
-class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
-    var $html = '';
-    var $event_renderer = null;
+class comcal_TableBuilder extends comcal_DefaultDisplayBuilder {
 
     function __construct( $earliest_date = null, $latest_date = null ) {
         parent::__construct( $earliest_date, $latest_date );
@@ -251,7 +257,7 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
 /**
  * Creates a Markdown overview of all events in the next week (starting monday)
  */
-class comcal_MarkdownBuilder extends comcal_EventsDisplayBuilder {
+class comcal_MarkdownBuilder extends comcal_DefaultDisplayBuilder {
     var $html = '';
     var $event_renderer = null;
 
