@@ -130,13 +130,17 @@ class comcal_DateTime {
         return $classes;
     }
 
-    function getMonthTitle() {
+    function get_month_title() {
         global $comcal_monthMap;
         $month = $monthEng = $this->dateTime->format('M');
         if (isset($comcal_monthMap[$monthEng])) {
             $month = $comcal_monthMap[$monthEng];
         }
         return $month . $this->dateTime->format(' Y');
+    }
+
+    function get_month_link() {
+        return $this->dateTime->format( 'M-Y' );
     }
 
     function getFirstOfMonthDateTime(): comcal_DateTime {
