@@ -35,7 +35,7 @@ function comcal_table_func( $atts ) {
     }
 
     // determine date range
-    $latestDate = null;
+    $latest_date = null;
     $startDate = null;
     if (strtolower($start) === 'today') {
         $startDate = comcal_DateTime::now();
@@ -49,7 +49,7 @@ function comcal_table_func( $atts ) {
         }
     }
     if ($days !== null && $startDate !== null) {
-        $latestDate = $startDate->getNextDay($days);
+        $latest_date = $startDate->getNextDay($days);
     }
 
     $isAdmin = comcal_currentUserCanSetPublic();
@@ -58,10 +58,10 @@ function comcal_table_func( $atts ) {
         $category,
         $calendarName,
         $startDate ? $startDate->getDateStr() : null,
-        $latestDate ? $latestDate->getDateStr() : null
+        $latest_date ? $latest_date->getDateStr() : null
     );
 
-    $output = comcal_EventsDisplayBuilder::createDisplay($style, $eventsIterator, $startDate, $latestDate);
+    $output = comcal_EventsDisplayBuilder::create_display($style, $eventsIterator, $startDate, $latest_date);
 
     $comcal_calendarAlreadyShown = true;
 
@@ -92,7 +92,7 @@ abstract class comcal_EventsDisplayBuilder {
         comcal_EventsDisplayBuilder::$styles[$name] = $className;
     }
 
-    static function createDisplay($styleName, $eventsIterator, $earliestDate=null, $latestDate=null) {
+    static function create_display($styleName, $eventsIterator, $earliest_date=null, $latest_date=null) {
         // Factory for display class instances
         if (isset(self::$styles[$styleName])) {
             $clazz = self::$styles[$styleName];
@@ -101,27 +101,27 @@ abstract class comcal_EventsDisplayBuilder {
         } else {
             $clazz = 'comcal_DefaultDisplayBuilder';
         }
-        $builder = new $clazz($earliestDate, $latestDate);
+        $builder = new $clazz($earliest_date, $latest_date);
         foreach ($eventsIterator as $event) {
             // $event->addCategory($ccc);
-            $builder->addEvent($event);
+            $builder->add_event($event);
         }
         return $builder;
     }
 
-    abstract function addEvent($event);
+    abstract function add_event($event);
     abstract function get_html();
 
-    function __construct($earliestDate=null, $latestDate=null) {
-        $this->earliestDate = $earliestDate;
-        $this->latestDate = $latestDate;
+    function __construct($earliest_date=null, $latest_date=null) {
+        $this->earliest_date = $earliest_date;
+        $this->latest_date = $latest_date;
         $this->current_date = null;
     }
 
-    function showFullMonth() {
+    function show_full_month() {
         /* show a full month when not starting at a specific date or
         if this is not the first month */
-        return $this->earliestDate === null || $this->current_date !== null;
+        return $this->earliest_date === null || $this->current_date !== null;
     }
 }
 
@@ -130,7 +130,7 @@ abstract class comcal_EventsDisplayBuilder {
  * Fallback builder if a wrong or non-existent output builder has been selected
  */
 class comcal_DefaultDisplayBuilder {
-    function addEvent($event) {
+    function add_event($event) {
     }
     function get_html() {
         return '<h3>specified display style not available!</h3>';
@@ -146,13 +146,13 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
     var $html = '';
     var $event_renderer = null;
 
-    function __construct($earliestDate=null, $latestDate=null) {
-        parent::__construct($earliestDate, $latestDate);
+    function __construct($earliest_date=null, $latest_date=null) {
+        parent::__construct($earliest_date, $latest_date);
         $this->event_renderer = new comcal_TableEventRenderer();
     }
 
     function get_html() {
-        $this->finishCurrentMonth();
+        $this->finish_current_month();
         if (empty($this->html)) {
             return '<h2 class="month-title comcal-no-entries">Keine Einträge vorhanden</h2>';
         } else {
@@ -173,28 +173,28 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
                . "<table class='community-calendar'><tbody>\n";
     }
 
-    protected function newMonth($date) {
-        $this->finishCurrentMonth();
+    protected function new_month($date) {
+        $this->finish_current_month();
         $this->html .= $this->get_table_head($date);
-        if ($this->showFullMonth()) {
-            $this->fillDaysBetween($date->getFirstOfMonthDateTime(), $date);
+        if ($this->show_full_month()) {
+            $this->fill_days_between($date->getFirstOfMonthDateTime(), $date);
         }
     }
 
-    protected function finishCurrentMonth() {
+    protected function finish_current_month() {
         if ($this->current_date !== null) {
-            $this->fillDaysAfter($this->current_date);
+            $this->fill_days_after($this->current_date);
             $this->html .= "</tbody></table>\n";
         }
     }
 
-    protected function fillDaysBetween($beginAtDate, $endBeforeDate) {
+    protected function fill_days_between($beginAtDate, $endBeforeDate) {
         foreach ($beginAtDate->getAllDatesUntil($endBeforeDate) as $thisDay) {
             $this->create_day_row($thisDay, '');
         }
     }
 
-    protected function fillDaysAfter($date) {
+    protected function fill_days_after($date) {
         foreach ($date->getNextDay()->getAllDatesUntil($date->getLastDayOfMonth()) as $thisDay) {
             $this->create_day_row($thisDay, '');
         }
@@ -210,30 +210,30 @@ class comcal_TableBuilder extends comcal_EventsDisplayBuilder {
         $this->current_date = $dateTime;
     }
 
-    function addEvent($event) {
-        if ($this->earliestDate !== null && $this->current_date === null
-                                         && !$event->getDateTime()->isSameDay($this->earliestDate)) {
+    function add_event($event) {
+        if ($this->earliest_date !== null && $this->current_date === null
+                                         && !$event->getDateTime()->isSameDay($this->earliest_date)) {
             // add an empty row for the earliest date
-            $this->newMonth($this->earliestDate);
-            $this->create_day_row($this->earliestDate, '');
+            $this->new_month($this->earliest_date);
+            $this->create_day_row($this->earliest_date, '');
         }
         if ($this->current_date === null || ! $this->current_date->isSameMonth($event->getDateTime())) {
             // new month
             if ($this->current_date !== null) {
                 while (true) {
                     // fill in empty months
-                    $nextMonth = $this->current_date->getLastDayOfMonth()->getNextDay();
-                    if ($nextMonth->isSameMonth($event->getDateTime())) {
+                    $next_month = $this->current_date->getLastDayOfMonth()->getNextDay();
+                    if ($next_month->isSameMonth($event->getDateTime())) {
                         break;
                     }
-                    $this->newMonth($nextMonth);
+                    $this->new_month($next_month);
                 }
             }
             // create month with this event
-            $this->newMonth($event->getDateTime());
+            $this->new_month($event->getDateTime());
         } else if ($this->current_date !== null) {
             // fill empty days between events
-            $this->fillDaysBetween($this->current_date->getNextDay(), $event->getDateTime());
+            $this->fill_days_between($this->current_date->getNextDay(), $event->getDateTime());
         }
         $this->create_day_row(
             $event->getDateTime(),
@@ -251,31 +251,31 @@ class comcal_MarkdownBuilder extends comcal_EventsDisplayBuilder {
     var $html = '';
     var $event_renderer = null;
 
-    function __construct($earliestDate=null, $latestDate=null) {
-        parent::__construct($earliestDate, $latestDate);
+    function __construct($earliest_date=null, $latest_date=null) {
+        parent::__construct($earliest_date, $latest_date);
         $this->event_renderer = new comcal_MarkdownEventRenderer();
     }
 
     function get_html() {
-        if ($this->earliestDate !== null) {
-            $prettyStart = $this->earliestDate->format('d.m.');
+        if ($this->earliest_date !== null) {
+            $pretty_start = $this->earliest_date->format('d.m.');
         } else {
-            $prettyStart = '??.??.';
+            $pretty_start = '??.??.';
         }
-        if ($this->latestDate !== null) {
-            $prettyEnd = $this->latestDate->format('d.m.');
+        if ($this->latest_date !== null) {
+            $pretty_end = $this->latest_date->format('d.m.');
         } else {
-            $prettyEnd = '??.??.';
+            $pretty_end = '??.??.';
         }
-        $header = "🗓 **Woche vom $prettyStart bis $prettyEnd:**
+        $header = "🗓 **Woche vom $pretty_start bis $pretty_end:**
 
 Hallo liebe Leser*innen von @input_dd, hier die Veranstaltungsempfehlungen der kommenden Woche!
 Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
 
 ";
 
-        if ($this->latestDate !== null && $this->current_date !== null) {
-            $this->fillDaysBetween($this->current_date->getNextDay(), $this->latestDate->getNextDay());
+        if ($this->latest_date !== null && $this->current_date !== null) {
+            $this->fill_days_between($this->current_date->getNextDay(), $this->latest_date->getNextDay());
         }
         $result = '<input id="comcal-copy-markdown" type="button" class="btn btn-primary" value="Copy to clipboard"/><br>';
         $result .= '<textarea id="comcal-markdown" style="width: 100%; height: 80vh;">' . $header . $this->html .
@@ -284,22 +284,22 @@ Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
         . '</textarea>';
         return $result;
     }
-    protected function fillDaysBetween($beginAtDate, $endBeforeDate) {
+    protected function fill_days_between($beginAtDate, $endBeforeDate) {
         foreach ($beginAtDate->getAllDatesUntil($endBeforeDate) as $thisDay) {
-            $this->html .= $this->createNewDay($thisDay) . '(bis jetzt leider nichts)
+            $this->html .= $this->create_new_day($thisDay) . '(bis jetzt leider nichts)
 
 ';
         }
     }
-    function addEvent($event) {
-        if ($this->current_date === null && $this->earliestDate !== null) {
-            $this->fillDaysBetween($this->earliestDate, $event->getDateTime());
+    function add_event($event) {
+        if ($this->current_date === null && $this->earliest_date !== null) {
+            $this->fill_days_between($this->earliest_date, $event->getDateTime());
         } else if ($this->current_date !== null) {
-            $this->fillDaysBetween($this->current_date->getNextDay(), $event->getDateTime());
+            $this->fill_days_between($this->current_date->getNextDay(), $event->getDateTime());
         }
         if ($this->current_date === null || !$this->current_date->isSameDay($event->getDateTime())) {
             $this->current_date = $event->getDateTime();
-            $this->html .= $this->createNewDay($this->current_date);
+            $this->html .= $this->create_new_day($this->current_date);
         }
         $this->html .= $this->event_renderer->render($event) . '
 
@@ -307,7 +307,7 @@ Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
         $this->current_date = $event->getDateTime();
     }
 
-    function createNewDay($dateTime) {
+    function create_new_day($dateTime) {
         return '🕑 **' . $dateTime->getHumanizedDate() . '**
 
 ';
