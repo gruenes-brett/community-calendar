@@ -96,6 +96,8 @@ abstract class comcal_EventsDisplayBuilder {
         // Factory for display class instances
         if (isset(self::$styles[$styleName])) {
             $clazz = self::$styles[$styleName];
+        } elseif ( static::class === $styleName ) {
+            $clazz = static::class;
         } else {
             $clazz = 'comcal_DefaultDisplayBuilder';
         }
