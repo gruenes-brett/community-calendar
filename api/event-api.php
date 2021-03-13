@@ -44,7 +44,7 @@ function comcal_convert_urls_to_links( $input ) {
 }
 
 function _comcal_query_event( $data ) {
-    $event = comcal_Event::queryByEntryId( $data['eventId'] );
+    $event = comcal_Event::query_by_entry_id( $data['eventId'] );
     if ( null === $event ) {
         return new WP_Error(
             'no_event',

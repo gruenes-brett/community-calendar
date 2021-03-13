@@ -5,7 +5,7 @@ abstract class comcal_EventRenderer {
 
     function get_edit_link( $event ) {
         if ( comcal_currentUserCanSetPublic() ) {
-            return "<a class='editEvent' eventId='{$event->getField('eventId')}'>edit</a> &mdash; ";
+            return "<a class='editEvent' eventId='{$event->get_field('eventId')}'>edit</a> &mdash; ";
         }
         return '';
     }
@@ -14,10 +14,10 @@ abstract class comcal_EventRenderer {
 
 class comcal_DefaultEventRenderer extends comcal_EventRenderer {
     public function render( comcal_Event $event ) : string {
-        $title     = $event->getField( 'title' );
+        $title     = $event->get_field( 'title' );
         $time      = $event->get_date_time()->get_pretty_time();
-        $location  = $event->getField( 'location' );
-        $url       = $event->getField( 'url' );
+        $location  = $event->get_field( 'location' );
+        $url       = $event->get_field( 'url' );
         $edit_link = $this->get_edit_link( $event );
         return <<<XML
       <article>
@@ -35,18 +35,18 @@ class comcal_TableEventRenderer extends comcal_EventRenderer {
 
         $editControls = $this->get_edit_link( $event );
         $publicClass = '';
-        if ( $event->getField( 'public' ) == 0 ) {
+        if ( $event->get_field( 'public' ) == 0 ) {
             $publicClass = 'notPublic';
         }
         return <<<XML
-        <table class='event $publicClass' eventId="{$event->getField('eventId')}"><tbody>
+        <table class='event $publicClass' eventId="{$event->get_field('eventId')}"><tbody>
             <tr>
                 <td class='time'>{$event->get_date_time()->get_pretty_time()}</td>
-                <td class='title'>{$event->getField('title')}</td>
+                <td class='title'>{$event->get_field('title')}</td>
             </tr>
             <tr>
                 <td>$editControls</td>
-                <td class='organizer'>{$event->getField('organizer')}</td>
+                <td class='organizer'>{$event->get_field('organizer')}</td>
             </tr>
         </tbody></table>
 XML;
@@ -59,11 +59,11 @@ class comcal_MarkdownEventRenderer extends comcal_EventRenderer {
     function render( comcal_Event $event ) : string {
         $date_time = $event->get_date_time();
         $md = '**' . $date_time->get_humanized_time() . '** ';
-        $md .= $event->getField( 'organizer' );
+        $md .= $event->get_field( 'organizer' );
         $md .= ' | ';
-        $md .= $event->getField( 'title' );
+        $md .= $event->get_field( 'title' );
         $md .= ' ';
-        $md .= $event->getField( 'url' );
+        $md .= $event->get_field( 'url' );
 
         return $md;
     }

@@ -2,8 +2,8 @@
 
 function _comcal_editCategoryForm($category, $index) {
     $suffix = "_$index";
-    $name = $category->getField('name');
-    $categoryId = $category->getField('categoryId');
+    $name = $category->get_field('name');
+    $categoryId = $category->get_field('categoryId');
     return <<<XML
     <div class="form-group">
         <input name="categoryId$suffix" id="categoryId$suffix" value="$categoryId" type="hidden">
@@ -18,7 +18,7 @@ XML;
 }
 
 function _comcal_allCategoryForms() {
-    $all = comcal_Category::getAll();
+    $all = comcal_Category::get_all();
     $out = '';
     $index = 0;
     foreach ($all as $c) {
@@ -84,7 +84,7 @@ function comcal_processEditCategories($post) {
     if (isset($post['name_new']) && !empty(trim($post['name_new']))) {
         $c = comcal_Category::create($post['name_new']);
         if ($c->store()) {
-            $messages[] = "Neue Kategorie '{$c->getField('name')}' mit ID {$c->getField('categoryId')} angelegt";
+            $messages[] = "Neue Kategorie '{$c->get_field('name')}' mit ID {$c->get_field('categoryId')} angelegt";
         } else {
             $messages[] = "Konnte Kategorie '{$post['name']}' nicht anlegen.";
         }
@@ -109,8 +109,8 @@ function comcal_processEditCategories($post) {
                 $result = 500;
             }
         } else {
-            $oldName = $c->getField('name');
-            if ($c->setField('name', $name)) {
+            $oldName = $c->get_field('name');
+            if ($c->set_field('name', $name)) {
                 if ($c->store()) {
                     $messages[] = "Kategorie umbenannt: '$oldName' -> $name'";
                 } else {

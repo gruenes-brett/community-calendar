@@ -77,7 +77,7 @@ XML;
 }
 
 function comcal_editEventCategories() {
-    $cats = comcal_Category::getAll();
+    $cats = comcal_Category::get_all();
 
     $checkBoxes = '';
 
@@ -86,8 +86,8 @@ function comcal_editEventCategories() {
         $suffix = "_$index";
         $checkBoxes .= <<<XML
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="category$suffix" id="eventCategory$suffix" value="{$c->getField('categoryId')}" unchecked>
-                <label class="form-check-label" for="eventCategory$suffix">{$c->getField('name')}</label>
+                <input class="form-check-input" type="checkbox" name="category$suffix" id="eventCategory$suffix" value="{$c->get_field('categoryId')}" unchecked>
+                <label class="form-check-label" for="eventCategory$suffix">{$c->get_field('name')}</label>
             </div>
 XML;
         $index++;
@@ -113,16 +113,16 @@ function comcal_getEditForm($calendarName='') {
 
     $adminAjaxUrl = admin_url('admin-ajax.php');
     $nonceField = wp_nonce_field('submit_new_event','verification-code-edit', true, false);
-    $organizer = $event->getField('organizer');
-    $location = $event->getField('location');
-    $title = $event->getField('title');
-    $date = $event->getField('date', date('Y-m-d'));
-    $time = $event->getField('time', '12:00:00');
-    $dateEnd = $event->getField('dateEnd', date('Y-m-d'));
-    $timeEnd = $event->getField('timeEnd', '20:00:00');
-    $url = $event->getField('url');
-    $description = $event->getField('description');
-    $public = $event->getField('public');
+    $organizer = $event->get_field('organizer');
+    $location = $event->get_field('location');
+    $title = $event->get_field('title');
+    $date = $event->get_field('date', date('Y-m-d'));
+    $time = $event->get_field('time', '12:00:00');
+    $dateEnd = $event->get_field('dateEnd', date('Y-m-d'));
+    $timeEnd = $event->get_field('timeEnd', '20:00:00');
+    $url = $event->get_field('url');
+    $description = $event->get_field('description');
+    $public = $event->get_field('public');
     $publicControl = comcal_getPublicControl($public);
     $deleteForm = comcal_getDeleteForm($adminAjaxUrl);
     $categories = comcal_editEventCategories();
@@ -315,7 +315,7 @@ function comcal_updateEventFromArray($data) {
 }
 
 function comcal_deleteEvent($eventId) {
-    $event = comcal_Event::queryByEntryId($eventId);
+    $event = comcal_Event::query_by_entry_id($eventId);
     if ($event == null) {
         return array(500, 'Event kann nicht gelöscht werden, da nicht vorhanden');
     }

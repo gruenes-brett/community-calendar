@@ -12,7 +12,7 @@ class comcal_Event extends comcal_DbTable {
     var $date_time = null;  // comcal_DateTimeWrapper ... don't use directly, always use get_date_time().
     var $categories = null;  // array of comcal_Category objects.
     const IDPREFIX = 'event:';
-    static function DEFAULTS() {
+    static function get_defaults() {
         return array(
         'date' => '2019-01-01',
         'time' => '12:00:00',
@@ -85,20 +85,20 @@ class comcal_Event extends comcal_DbTable {
     function get_public_fields() {
         /* returns fields and values for display */
         return array(
-            'eventId' => $this->getField('eventId'),
-            'date' => $this->getField('date'),
-            'time' => $this->getField('time'),
-            'dateEnd' => $this->getField('dateEnd'),
-            'timeEnd' => $this->getField('timeEnd'),
-            'organizer' => $this->getField('organizer'),
-            'location' => $this->getField('location'),
-            'title' => $this->getField('title'),
-            'description' => $this->getField('description'),
-            'url' => $this->getField('url'),
-            'public' => $this->getField('public'),
-            'created' => $this->getField('created'),
+            'eventId' => $this->get_field('eventId'),
+            'date' => $this->get_field('date'),
+            'time' => $this->get_field('time'),
+            'dateEnd' => $this->get_field('dateEnd'),
+            'timeEnd' => $this->get_field('timeEnd'),
+            'organizer' => $this->get_field('organizer'),
+            'location' => $this->get_field('location'),
+            'title' => $this->get_field('title'),
+            'description' => $this->get_field('description'),
+            'url' => $this->get_field('url'),
+            'public' => $this->get_field('public'),
+            'created' => $this->get_field('created'),
             'categories' => $this->getCategoriesDetails(),
-            'calendarName' => $this->getField('calendarName'),
+            'calendarName' => $this->get_field('calendarName'),
             'number_of_days' => $this->getNumberOfDays(),
         );
     }
@@ -107,12 +107,12 @@ class comcal_Event extends comcal_DbTable {
     }
 
     function get_date_str(): string {
-        return $this->getField('date');
+        return $this->get_field('date');
     }
     function get_date_time(): comcal_DateTimeWrapper {
         if ($this->date_time === null) {
             // initialize on first use
-            $this->date_time = comcal_DateTimeWrapper::from_date_str_time_str($this->getField('date'), $this->getField('time'));
+            $this->date_time = comcal_DateTimeWrapper::from_date_str_time_str($this->get_field('date'), $this->get_field('time'));
         }
         return $this->date_time;
     }
@@ -125,8 +125,8 @@ class comcal_Event extends comcal_DbTable {
         return $result;
     }
     function getNumberOfDays() {
-        $startDate = comcal_DateTimeWrapper::from_date_str_time_str($this->getField('date'), '00:00');
-        $endDate = comcal_DateTimeWrapper::from_date_str_time_str($this->getField('dateEnd'), '00:00');
+        $startDate = comcal_DateTimeWrapper::from_date_str_time_str($this->get_field('date'), '00:00');
+        $endDate = comcal_DateTimeWrapper::from_date_str_time_str($this->get_field('dateEnd'), '00:00');
         $diff = $endDate->get_date_time_difference($startDate);
         if ($diff->invert === 1) {
             return 1;
@@ -209,13 +209,13 @@ function __comcal_getAllEventRows(
     }
 
     if ($category === null) {
-        $where = comcal_Database::whereAnd($whereConditions);
+        $where = comcal_Database::where_and($whereConditions);
         $query = "SELECT * FROM $events $where ORDER BY date, time;";
     } else {
-        $category_id = $category->getField('id');
+        $category_id = $category->get_field('id');
         $whereConditions[] = "$evt_cat.category_id=$category_id";
 
-        $where = comcal_Database::whereAnd($whereConditions);
+        $where = comcal_Database::where_and($whereConditions);
         $query = "SELECT $events.* FROM $events "
         ."INNER JOIN $evt_cat ON $evt_cat.event_id=$events.id "
         ."$where ORDER BY $events.date, $events.time;";

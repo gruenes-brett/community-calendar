@@ -43,23 +43,23 @@ function comcal_categoryButton($categoryId, $label, $active) {
 }
 
 function comcal_getCategoryButtons($activeCategory=null) {
-    $cats = comcal_Category::getAll();
+    $cats = comcal_Category::get_all();
     $html = '<p class="comcal-categories">';
 
     $html .= comcal_categoryButton(null, 'Alles anzeigen', $activeCategory===null);
 
     $activeCategoryId = '';
     if ($activeCategory !== null) {
-        $activeCategoryId = $activeCategory->getField('categoryId');
+        $activeCategoryId = $activeCategory->get_field('categoryId');
     }
 
     foreach ($cats as $c) {
-        $categoryId = $c->getField('categoryId');
-        $name = $c->getField('name');
+        $categoryId = $c->get_field('categoryId');
+        $name = $c->get_field('name');
         $html .= comcal_categoryButton(
             $categoryId,
             $name,
-            $activeCategoryId === $c->getField('categoryId')
+            $activeCategoryId === $c->get_field('categoryId')
         );
     }
 

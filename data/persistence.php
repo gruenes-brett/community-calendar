@@ -1,117 +1,199 @@
 <?php
-/*
- * Database table description for events and categories
+/**
+ * Database helpers and table base class.
+ *
+ * @package CommunityCalendar
  */
 
-
+/**
+ * Database helper functions.
+ */
 class comcal_Database {
-    static function initTables() {
+    public static function init_tables() {
         global $wpdb;
         $wpdb->show_errors();
 
-        comcal_Event::createTable();
-        comcal_Category::createTable();
-        comcal_EventVsCategory::createTable();
+        comcal_Event::create_table();
+        comcal_Category::create_table();
+        comcal_EventVsCategory::create_table();
     }
 
-    static function deleteTables() {
+    public static function delete_tables() {
         global $wpdb;
         $wpdb->show_errors();
 
-        comcal_Event::dropTable();
-        comcal_Category::dropTable();
-        comcal_EventVsCategory::dropTable();
+        comcal_Event::drop_table();
+        comcal_Category::drop_table();
+        comcal_EventVsCategory::drop_table();
     }
 
-    static function whereAnd($conditions) {
-        if (empty($conditions)) {
+    public static function where_and( $conditions ) {
+        if ( empty( $conditions ) ) {
             return '';
         }
-        return 'WHERE ' . implode(' AND ', $conditions);
+        return 'WHERE ' . implode( ' AND ', $conditions );
     }
 
 }
 
+/**
+ * Base class for an object stored in a table.
+ *
+ * Besides the unique numeric id, which is used as primary key, the table may also
+ * contain a column for the 'element id' which is used to identify
+ * and adress the element on the application layer (specified by IDPREFIX
+ * and get_id_field_name()). This id is randomly created.
+ */
 abstract class comcal_DbTable {
-    /*
-     * Base class for an object stored in a table
-     */
-    var $data = null;  // stdClass
-    const IDPREFIX = 'x:';
 
-    /* abstract static methods */
-    abstract static function get_table_name();
-    abstract static function get_all_field_names();
-    abstract static function get_id_field_name();
+    /**
+     * Table row data.
+     *
+     * @var stdClass $data
+     */
+    protected $data = null;
+    const IDPREFIX  = 'x:';
+
+    /**
+     * Specifies table name.
+     */
+    abstract public static function get_table_name();
+
+    /**
+     * Specifies table column names.
+     */
+    abstract public static function get_all_field_names();
+
+
+    /**
+     * Specifies which field contains the element id.
+     */
+    abstract public static function get_id_field_name();
+
+    /**
+     * Specifies the SQL query for creating the table.
+     */
     abstract protected static function get_create_table_query();
 
-    /* database admin functions */
-    static function createTable() {
+    /**
+     * Creates the table.
+     */
+    public static function create_table() {
         $sql = static::get_create_table_query();
-        $sql = static::prepareQuery($sql);
-        dbDelta($sql);
-    }
-    static function dropTable() {
-        global $wpdb;
-        $wpdb->query(static::prepareQuery("DROP TABLE [T];"));
+        $sql = static::prepare_query( $sql );
+        dbDelta( $sql );
     }
 
-    /* static query helper functions */
-
-    static function prepareQuery($sql, $args=[]) {
+    /**
+     * Drops the table.
+     */
+    public static function drop_table() {
         global $wpdb;
-        $sql = str_replace('[T]', static::get_table_name(), $sql);
-        if (strpos($sql, '%') !== false) {
-            $sql = $wpdb->prepare($sql, $args);
+        $wpdb->query( static::prepare_query( 'DROP TABLE [T];' ) );
+    }
+
+    /**
+     * Prepares the query by replacing '[T]' with the table name.
+     *
+     * @param string $sql Query statement. May contain % placeholders.
+     * @param array  $args Query arguments. Values for the % placeholders.
+     * @return string Modified query.
+     */
+    public static function prepare_query( $sql, $args = array() ) {
+        global $wpdb;
+        $sql = str_replace( '[T]', static::get_table_name(), $sql );
+        $sql = str_replace( '[ID]', static::get_id_field_name(), $sql );
+        if ( strpos( $sql, '%' ) !== false ) {
+            $sql = $wpdb->prepare( $sql, $args );
         }
         return $sql;
     }
-    static function queryRow($sql, $args=[]) {
-        if (stripos($sql, ' limit ') === false) {
-            $sql = trim($sql, ';') . ' LIMIT 1;';
+
+    /**
+     * Gets one row from the database that matches the sql statement.
+     * 'LIMIT 1' will be added automatically.
+     *
+     * @param string $sql Query statement. May contain % placeholders.
+     * @param array  $args Query arguments. Values for the % placeholders.
+     * @return array Query result.
+     */
+    public static function query_row( $sql, $args = array() ) {
+        if ( stripos( $sql, ' limit ' ) === false ) {
+            $sql = trim( $sql, ';' ) . ' LIMIT 1;';
         }
-        $rows = static::query($sql, $args);
-        if (empty($rows)) {
+        $rows = static::query( $sql, $args );
+        if ( empty( $rows ) ) {
             return null;
         }
         return $rows[0];
     }
-    static function query($sql, $args=[]) {
+
+    /**
+     * Prepares and executes an SQL query
+     *
+     * @param string $sql Query statement. May contain % placeholders.
+     * @param array  $args Query arguments. Values for the % placeholders.
+     * @return array Query result.
+     */
+    public static function query( $sql, $args = array() ) {
         global $wpdb;
-        return $wpdb->get_results(static::prepareQuery($sql, $args));
+        return $wpdb->get_results( static::prepare_query( $sql, $args ) );
     }
-    static function getAll() {
+
+    /**
+     * Returns objects for all rows in the table.
+     *
+     * @return array Instances of this class for all rows.
+     */
+    public static function get_all() {
         global $wpdb;
-        $tableName = static::get_table_name();
-        $rows = $wpdb->get_results("SELECT * from $tableName;");
-        $all = array();
-        foreach ($rows as $row) {
-            $all[] = new static($row);
+        $rows = static::query( 'SELECT * from [T];' );
+        $all  = array();
+        foreach ( $rows as $row ) {
+            $all[] = new static( $row );
         }
         return $all;
     }
-    static function queryByEntryId($elementId) {
-        $idField = static::get_id_field_name();
-        $row = self::queryRow("SELECT * FROM [T] WHERE $idField=%s;", [$elementId]);
-        if (empty($row)) {
+
+    /**
+     * Returns an instance of this class for the given element id.
+     *
+     * @param any $element_id Element id of the desired object.
+     * @return object|null Instance of this class or null if not found.
+     */
+    public static function query_by_entry_id( $element_id ) {
+        $row = self::query_row( 'SELECT * FROM [T] WHERE [ID]=%s;', array( $element_id ) );
+        if ( empty( $row ) ) {
             return null;
         }
-        return new static($row);
+        return new static( $row );
     }
-    static function count($where=null, $args=[]) {
+
+    /**
+     * Cound how many rows match a specific condition.
+     *
+     * @param string|null $where SQL condition. May contain %-placeholders.
+     * @param array       $args Values for the %-placeholders.
+     * @return int Number of rows found.
+     */
+    public static function count( $where = null, $args = array() ) {
         global $wpdb;
         $sql = 'SELECT COUNT(*) FROM [T]';
-        if ($where) {
+        if ( $where ) {
             $sql .= " WHERE $where;";
         }
-        $sql = static::prepareQuery($sql, $args);
-        $count = $wpdb->get_var($sql);
+        $sql = static::prepare_query( $sql, $args );
+        $count = $wpdb->get_var( $sql );
         return $count;
     }
 
-    /* instance methods */
-    function __construct($data=array()) {
-        if (is_array($data)) {
+    /**
+     * Instantiate object. Optionally providing initialization data.
+     *
+     * @param array $data Array containing field values.
+     */
+    public function __construct( $data = array() ) {
+        if ( is_array( $data ) ) {
             $this->data = (object) $data;
         } else {
             $this->data = $data;
@@ -120,11 +202,15 @@ abstract class comcal_DbTable {
 
     /**
      * Checks if an entry with the current entry-ID exists in the database
+     *
+     * @return bool true if found in database.
      */
-    function exists() {
-        $idFieldName = $this->get_id_field_name();
-        $row = $this->queryRow("SELECT $idFieldName FROM [T] WHERE $idFieldName=%s;", [$this->getField($idFieldName)]);
-        return !empty($row);
+    public function exists() {
+        $row = $this->query_row(
+            'SELECT [ID] FROM [T] WHERE [ID]=%s;',
+            array( $this->get_entry_id() )
+        );
+        return ! empty( $row );
     }
 
     /**
@@ -133,86 +219,89 @@ abstract class comcal_DbTable {
      * with the current data.
      * If not, a new entry is created.
      */
-    function store() {
+    public function store() {
         global $wpdb;
-        $tableName = $this->get_table_name();
-        if ($this->exists()) {
-            $where = array($this->get_id_field_name() => $this->getEntryId());
-            $affectedRows = $wpdb->update(
-                $tableName,
-                $this->getFullData(),
+        $table_name = $this->get_table_name();
+        if ( $this->exists() ) {
+            $where = array( $this->get_id_field_name() => $this->get_entry_id() );
+            $affected_rows = $wpdb->update(
+                $table_name,
+                $this->get_full_data(),
                 $where
             );
         } else {
-            $affectedRows = $wpdb->insert($tableName, $this->getFullData());
+            $affected_rows = $wpdb->insert( $table_name, $this->get_full_data() );
         }
         $e = $wpdb->last_error;
-        return $affectedRows;
+        return $affected_rows;
     }
 
     /**
      * Deletes all entries with the current entry-ID
      */
-    function delete() {
+    public function delete() {
         global $wpdb;
-        $tableName = $this->get_table_name();
-        $result = $wpdb->delete($tableName, array($this->get_id_field_name() => $this->getEntryId()));
-        return $result !== false && $result;
+        $table_name = $this->get_table_name();
+        $result     = $wpdb->delete(
+            $table_name,
+            array( $this->get_id_field_name() => $this->get_entry_id() )
+        );
+        return false !== $result && $result;
     }
 
-    function getField($name, $default=null) {
-        if (strcmp($name, $this->get_id_field_name()) === 0) {
-            $this->initEntryId();
+    public function get_field( $name, $default = null ) {
+        if ( strcmp( $name, $this->get_id_field_name() ) === 0 ) {
+            $this->init_entry_id();
         }
-        if (isset($this->data->$name)) {
+        if ( isset( $this->data->$name ) ) {
             return $this->data->$name;
         }
-        if ($name === 'id') {
-            // update 'id' with value from database
-            $tempEntry = static::queryByEntryId($this->getEntryId());
-            if ($tempEntry !== null) {
-                $this->data->id = $tempEntry->getField('id');
+        if ( 'id' === $name ) {
+            // update 'id' with value from database.
+            $temp_entry = static::query_by_entry_id( $this->get_entry_id() );
+            if ( null !== $temp_entry ) {
+                $this->data->id = $temp_entry->get_field( 'id' );
                 return $this->data->id;
             }
         }
-        return $this->getDefault($name, $default);
+        return $this->get_default( $name, $default );
     }
 
-    function getEntryId() {
-        return $this->getField($this->get_id_field_name());
+    public function get_entry_id() {
+        return $this->get_field( $this->get_id_field_name() );
     }
-    function setField($name, $value) {
-        if ($this->data->$name !== $value) {
+    public function set_field( $name, $value ) {
+        if ( $this->data->$name !== $value ) {
             $this->data->$name = $value;
             return true;
         }
         return false;
     }
 
-    private function initEntryId() {
-        $idFieldName = $this->get_id_field_name();
-        if (!isset($this->data->$idFieldName) || strcmp($this->data->$idFieldName, '') === 0) {
-            $this->data->$idFieldName = uniqid(static::IDPREFIX);
+    private function init_entry_id() {
+        $id_field_name = $this->get_id_field_name();
+        if ( ! isset( $this->data->$id_field_name ) || 0 === strcmp( $this->data->$id_field_name, '' ) ) {
+            $this->data->$id_field_name = uniqid( static::IDPREFIX );
         }
     }
 
-    function getFullData() {
+    public function get_full_data() {
         $data = array();
-        foreach ($this->get_all_field_names() as $fieldName) {
-            $data[$fieldName] = $this->getField($fieldName);
+        foreach ( $this->get_all_field_names() as $field_name ) {
+            $data[ $field_name ] = $this->get_field( $field_name );
         }
         return $data;
     }
 
-    static function DEFAULTS() {
+    public static function get_defaults() {
         return array();
     }
-    function getDefault($name, $default=null) {
-        if ($default != null) {
+    public function get_default( $name, $default = null ) {
+        if ( null !== $default ) {
             return $default;
         }
-        if (isset(static::DEFAULTS()[$name])) {
-            return static::DEFAULTS()[$name];
+        if ( isset( static::get_defaults()[ $name ] ) ) {
+            return static::get_defaults()[ $name ];
         }
         return '';
     }

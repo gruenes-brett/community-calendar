@@ -36,7 +36,7 @@ class comcal_Category extends comcal_DbTable {
     }
 
     public static function query_from_name( $name ) {
-        $row = self::queryRow( 'SELECT * FROM [T] WHERE name=%s;', array( $name ) );
+        $row = self::query_row( 'SELECT * FROM [T] WHERE name=%s;', array( $name ) );
         if ( empty( $row ) ) {
             return null;
         }
@@ -44,7 +44,7 @@ class comcal_Category extends comcal_DbTable {
     }
 
     public static function query_from_category_id( $categoryId ) {
-        $row = self::queryRow( 'SELECT * FROM [T] WHERE categoryId=%s;', array( $categoryId ) );
+        $row = self::query_row( 'SELECT * FROM [T] WHERE categoryId=%s;', array( $categoryId ) );
         if ( empty( $row ) ) {
             return null;
         }
@@ -61,7 +61,7 @@ class comcal_Category extends comcal_DbTable {
     }
 
     public function get_public_fields() {
-        $data = $this->getFullData();
+        $data = $this->get_full_data();
         $data['html'] = comcal_categoryButton( $data['categoryId'], $data['name'], true );
         return $data;
     }
@@ -75,8 +75,8 @@ class comcal_EventVsCategory extends comcal_DbTable {
     public static function create( $event, $category ) {
         return new self(
             array(
-                'event_id' => $event->getField( 'id' ),
-                'category_id' => $category->getField( 'id' ),
+                'event_id' => $event->get_field( 'id' ),
+                'category_id' => $category->get_field( 'id' ),
             )
         );
     }
@@ -86,7 +86,7 @@ class comcal_EventVsCategory extends comcal_DbTable {
     public static function remove_event( $event ) {
         global $wpdb;
         $table_name = self::get_table_name();
-        $result     = $wpdb->delete( $table_name, array( 'event_id' => $event->getField( 'id' ) ) );
+        $result     = $wpdb->delete( $table_name, array( 'event_id' => $event->get_field( 'id' ) ) );
         return false !== $result && $result;
     }
 
@@ -115,12 +115,12 @@ class comcal_EventVsCategory extends comcal_DbTable {
     }
     public function exists() {
         $where = 'WHERE event_id=%d AND category_id=%d';
-        $row = self::queryRow( "SELECT id from [T] $where;", array( $this->getField( 'event_id' ), $this->getField( 'category_id' ) ) );
+        $row = self::query_row( "SELECT id from [T] $where;", array( $this->get_field( 'event_id' ), $this->get_field( 'category_id' ) ) );
         return ! empty( $row );
     }
     public static function get_categories( $event ) {
         $cats_table = comcal_Category::get_table_name();
-        $event_id   = $event->getField( 'id' );
+        $event_id   = $event->get_field( 'id' );
         $query      = "SELECT $cats_table.* FROM $cats_table "
         . "INNER JOIN [T] ON [T].category_id=$cats_table.id "
         . 'WHERE [T].event_id=%d;';
