@@ -23,7 +23,7 @@ function comcal_throttleEventSubmissions() {
     }
     $timeLimit = 5;
     $submitLimit = 10;
-    $count = comcal_Event::countEvents($timeLimit);
+    $count = comcal_Event::count_events($timeLimit);
     if ($count >= $submitLimit) {
         comcal_warning("Spam limit exceeded: $submitLimit submissions per $timeLimit minutes");
         sleep(3);
@@ -260,7 +260,7 @@ function comcal_filterPostData($data) {
         // Forbid to modify an existing event if not logged in
         $data['eventId'] = '';
     }
-    foreach (comcal_Event::getTextFieldNames() as $name) {
+    foreach (comcal_Event::get_text_field_names() as $name) {
         $data[$name] = comcal_prevent_html($data[$name]);
     }
     return $data;
@@ -296,9 +296,9 @@ function comcal_updateEventFromArray($data) {
             return array(500, 'Fehler beim Update des Event');
         }
     } else {
-        $event->removeAllCategories();
+        $event->remove_all_categories();
         foreach (comcal_filterCategories($data) as $cat) {
-            $event->addCategory($cat);
+            $event->add_category($cat);
         }
     }
 

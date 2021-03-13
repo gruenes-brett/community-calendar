@@ -15,7 +15,7 @@ abstract class comcal_EventRenderer {
 class comcal_DefaultEventRenderer extends comcal_EventRenderer {
     public function render( comcal_Event $event ) : string {
         $title     = $event->get_field( 'title' );
-        $time      = $event->get_date_time()->get_pretty_time();
+        $time      = $event->get_start_date_time()->get_pretty_time();
         $location  = $event->get_field( 'location' );
         $url       = $event->get_field( 'url' );
         $edit_link = $this->get_edit_link( $event );
@@ -41,7 +41,7 @@ class comcal_TableEventRenderer extends comcal_EventRenderer {
         return <<<XML
         <table class='event $publicClass' eventId="{$event->get_field('eventId')}"><tbody>
             <tr>
-                <td class='time'>{$event->get_date_time()->get_pretty_time()}</td>
+                <td class='time'>{$event->get_start_date_time()->get_pretty_time()}</td>
                 <td class='title'>{$event->get_field('title')}</td>
             </tr>
             <tr>
@@ -57,7 +57,7 @@ XML;
 
 class comcal_MarkdownEventRenderer extends comcal_EventRenderer {
     function render( comcal_Event $event ) : string {
-        $date_time = $event->get_date_time();
+        $date_time = $event->get_start_date_time();
         $md = '**' . $date_time->get_humanized_time() . '** ';
         $md .= $event->get_field( 'organizer' );
         $md .= ' | ';

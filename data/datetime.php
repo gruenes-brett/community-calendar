@@ -81,7 +81,7 @@ class comcal_DateTimeWrapper {
     public function get_time_str() {
         return $this->date_time->format( 'H:i' );
     }
-    public function get_date_time() {
+    public function get_start_date_time() {
         return $this->date_time;
     }
 
@@ -176,7 +176,7 @@ class comcal_DateTimeWrapper {
     }
 
     public function is_day_less_than( $other ) {
-        return strcmp( $this->date_time->format( 'Y-m-d' ), $other->get_date_time()->format( 'Y-m-d' ) ) < 0;
+        return strcmp( $this->date_time->format( 'Y-m-d' ), $other->get_start_date_time()->format( 'Y-m-d' ) ) < 0;
     }
 
     public function get_next_day( $number_of_days = 1 ) {
@@ -200,7 +200,7 @@ class comcal_DateTimeWrapper {
 
     public function get_date_time_difference( $other_date_time ) {
         $this_date_time = clone $this->date_time;
-        $diff           = $other_date_time->get_date_time()->diff( $this_date_time );
+        $diff           = $other_date_time->get_start_date_time()->diff( $this_date_time );
         return $diff;
     }
 

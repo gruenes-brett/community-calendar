@@ -74,7 +74,7 @@ function comcal_query_event_display( $data ) {
     $result['prettyDate'] = $datetime->get_pretty_date();
     $result['prettyTime'] = $datetime->get_pretty_time();
     $result['weekday']    = $datetime->get_weekday();
-    foreach ( comcal_Event::getTextFieldNames() as $name ) {
+    foreach ( comcal_Event::get_text_field_names() as $name ) {
         $result[ $name ] = nl2br( $result[ $name ] );
     }
     return $result;
@@ -104,7 +104,7 @@ add_action(
  */
 function comcal_query_event_raw( $data ) {
     $result = _comcal_query_event( $data );
-    foreach ( comcal_Event::getTextFieldNames() as $name ) {
+    foreach ( comcal_Event::get_text_field_names() as $name ) {
         $result[ $name ] = htmlspecialchars_decode( $result[ $name ] );
     }
     return $result;
