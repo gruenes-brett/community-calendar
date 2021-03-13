@@ -4,34 +4,34 @@
  * Functions for rendering the events to a WordPress page
  */
 
-$comcal_calendarAlreadyShown = false;
+$comcal_calendar_already_shown = false;
 
 /**
  * Shortcode [community-calendar-table]
  */
 function comcal_table_func( $atts ) {
-    global $comcal_calendarAlreadyShown;
-    if ( $comcal_calendarAlreadyShown ) {
+    global $comcal_calendar_already_shown;
+    if ( $comcal_calendar_already_shown ) {
         return comcal_makeErrorBox( 'Error: only a single calendar is allowed per page!' );
     }
     $a = shortcode_atts(
         array(
-            'start' => null,  // show events starting from ... 'today', 'next-monday', '2020-10-22', ...
-            'name' => '',
-            'style' => 'table',
-            'days' => null,  // number of days to show (excluding start day)
-            'categories' => true,  // show category buttons
+            'start'      => null,  // show events starting from ... 'today', 'next-monday', '2020-10-22', ...
+            'name'       => '',
+            'style'      => 'table',
+            'days'       => null,  // number of days to show (excluding start day).
+            'categories' => true,  // show category buttons.
         ),
         $atts
     );
 
-    $calendarName = $a['name'];
-    $style = $a['style'];
-    $days = $a['days'];
-    $start = $a['start'];
-    $showCategories = $a['categories'];
+    $calendar_name   = $a['name'];
+    $style           = $a['style'];
+    $days            = $a['days'];
+    $start           = $a['start'];
+    $show_categories = $a['categories'];
 
-    // determine category
+    // Determine category.
     $category = null;
     if ( isset( $_GET['comcal_category'] ) ) {
         $category = comcal_Category::query_from_category_id( $_GET['comcal_category'] );
@@ -59,20 +59,20 @@ function comcal_table_func( $atts ) {
     $eventsIterator = new comcal_EventIterator(
         ! $isAdmin,
         $category,
-        $calendarName,
+        $calendar_name,
         $startDate->get_date_str() ?? null,
         $latest_date->get_date_str() ?? null,
     );
 
     $output = comcal_EventsDisplayBuilder::create_display( $style, $eventsIterator, $startDate, $latest_date );
 
-    $comcal_calendarAlreadyShown = true;
+    $comcal_calendar_already_shown = true;
 
     $allHtml = '';
-    if ( $showCategories ) {
+    if ( $show_categories ) {
         $allHtml .= comcal_getCategoryButtons( $category );
     }
-    $allHtml .= $output->get_html() . comcal_get_show_event_box() . comcal_getEditForm( $calendarName );
+    $allHtml .= $output->get_html() . comcal_get_show_event_box() . comcal_getEditForm( $calendar_name );
     if ( comcal_currentUserCanSetPublic() ) {
         $allHtml .= comcal_getEditCategoriesDialog();
     }

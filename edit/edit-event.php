@@ -107,7 +107,7 @@ function comcal_getImportEventUrlControls() {
 XML;
 }
 
-function comcal_getEditForm($calendarName='') {
+function comcal_getEditForm($calendar_name='') {
     $event = new comcal_Event();
     $eventId = '';
 
@@ -143,7 +143,7 @@ function comcal_getEditForm($calendarName='') {
                     $nonceField
                     <input name="eventId" id="eventId" value="$eventId" type="hidden">
                     <input name="action" value="submit_new_event" type="hidden">
-                    <input name="calendarName" value="$calendarName" type="hidden">
+                    <input name="calendar_name" value="$calendar_name" type="hidden">
                     $publicControl
 
                     <div class="form-group">

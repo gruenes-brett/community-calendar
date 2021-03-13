@@ -43,8 +43,8 @@ class comcal_Category extends comcal_DbTable {
         return new self( $row );
     }
 
-    public static function query_from_category_id( $categoryId ) {
-        $row = self::query_row( 'SELECT * FROM [T] WHERE categoryId=%s;', array( $categoryId ) );
+    public static function query_from_category_id( $category_id ) {
+        $row = self::query_row( 'SELECT * FROM [T] WHERE categoryId=%s;', array( $category_id ) );
         if ( empty( $row ) ) {
             return null;
         }

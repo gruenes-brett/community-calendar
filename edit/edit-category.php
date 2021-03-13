@@ -3,14 +3,14 @@
 function _comcal_editCategoryForm($category, $index) {
     $suffix = "_$index";
     $name = $category->get_field('name');
-    $categoryId = $category->get_field('categoryId');
+    $category_id = $category->get_field('categoryId');
     return <<<XML
     <div class="form-group">
-        <input name="categoryId$suffix" id="categoryId$suffix" value="$categoryId" type="hidden">
+        <input name="categoryId$suffix" id="categoryId$suffix" value="$category_id" type="hidden">
         <label for="categoryName$suffix">Name</label>
         <input type="text" class="form-control" name="name$suffix" id="categoryName$suffix" placeholder="" value="$name" required>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="delete$suffix" id="categoryDelete$suffix" value="$categoryId" unchecked>
+            <input class="form-check-input" type="checkbox" name="delete$suffix" id="categoryDelete$suffix" value="$category_id" unchecked>
             <label class="form-check-label" for="categoryDelete$suffix">Kategorie löschen?</label>
         </div>
     </div>
@@ -98,9 +98,9 @@ function comcal_processEditCategories($post) {
             break;
         }
         $delete = isset($post["delete$suffix"]);
-        $categoryId = $post["categoryId$suffix"];
+        $category_id = $post["categoryId$suffix"];
         $name = $post["name$suffix"];
-        $c = comcal_Category::query_from_category_id($categoryId);
+        $c = comcal_Category::query_from_category_id($category_id);
         if ($delete) {
             if ($c->delete()) {
                 $messages[] = "Kategorie '$name' wurde gelöscht!";

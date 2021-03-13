@@ -143,14 +143,14 @@ class comcal_EventIterator implements Iterator {
     public function __construct(
         $publicOnly,
         $category = null,
-        $calendarName = '',
+        $calendar_name = '',
         $startDate = null,
         $endDate = null
     ) {
         $this->eventRows = __comcal_getAllEventRows(
             $publicOnly,
             $category,
-            $calendarName,
+            $calendar_name,
             $startDate,
             $endDate
         );
@@ -188,7 +188,7 @@ class comcal_EventIterator implements Iterator {
 function __comcal_getAllEventRows(
     $publicOnly = true,
     $category = null,
-    $calendarName = '',
+    $calendar_name = '',
     $startDate = null,
     $endDate = null
 ) {
@@ -197,7 +197,7 @@ function __comcal_getAllEventRows(
     $evt_cat = comcal_EventVsCategory::get_table_name();
 
     $whereConditions = array();
-    $whereConditions[] = "($events.calendarName='$calendarName' OR $events.calendarName='')";
+    $whereConditions[] = "($events.calendarName='$calendar_name' OR $events.calendarName='')";
     if ($publicOnly) {
         $whereConditions[] = "$events.public='1'";
     }
