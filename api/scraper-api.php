@@ -2,7 +2,7 @@
 /**
  * REST API endpoints for importing event data from e.g. Facebook.
  *
- * @package CommunityCalendar
+ * @package Community_Calendar
  */
 
 /**

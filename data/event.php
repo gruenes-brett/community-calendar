@@ -2,7 +2,7 @@
 /**
  * Functions for retrieving and updating events from the database.
  *
- * @package CommunityCalendar
+ * @package Community_Calendar
  */
 
 /**

@@ -2,7 +2,7 @@
 /**
  * Database helpers and table base class.
  *
- * @package CommunityCalendar
+ * @package Community_Calendar
  */
 
 /**

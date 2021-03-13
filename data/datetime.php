@@ -2,7 +2,7 @@
 /**
  * Functions for handling PHP DateTime objects
  *
- * @package CommunityCalendar
+ * @package Community_Calendar
  */
 
 $comcal_weekday_names_de = array(

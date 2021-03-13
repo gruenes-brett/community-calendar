@@ -11,7 +11,7 @@
  *      - example.com/wp-json/comcal/v1/eventRaw/event:1234abcd
  *          -> Event details as raw text (for the edit form)
  *
- * @package CommunityCalendar
+ * @package Community_Calendar
  */
 
 $comcal_rest_route = 'comcal/v1';

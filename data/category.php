@@ -2,7 +2,7 @@
 /**
  * Functions for retrieving and updating categories
  *
- * @package CommunityCalendar
+ * @package Community_Calendar
  */
 
 /**

@@ -2,7 +2,7 @@
 /**
  * Definition of floating buttons short code.
  *
- * @package CommunityCalendar
+ * @package Community_Calendar
  */
 
 /**
