@@ -256,7 +256,7 @@ class comcal_TableBuilder extends comcal_DefaultDisplayBuilder {
         $this->current_date = $date_time;
     }
 
-    function add_event( $event ) {
+    public function add_event( $event ) {
         if ( null !== $this->earliest_date && null === $this->current_date
                  && ! $event->get_start_date_time()->is_same_day( $this->earliest_date ) ) {
             // Add an empty row for the earliest date.
