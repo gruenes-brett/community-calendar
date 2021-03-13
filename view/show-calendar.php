@@ -64,8 +64,8 @@ function comcal_table_func( $atts ) {
         ! $is_admin,
         $category,
         $calendar_name,
-        $start_date->get_date_str() ?? null,
-        $latest_date->get_date_str() ?? null,
+        $start_date ? $start_date->get_date_str() : null,
+        $latest_date ? $latest_date->get_date_str() : null,
     );
 
     $output = comcal_EventsDisplayBuilder::create_display( $style, $events_iterator, $start_date, $latest_date );
