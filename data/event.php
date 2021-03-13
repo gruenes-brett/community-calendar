@@ -9,7 +9,7 @@
  * Event data from database.
  */
 class comcal_Event extends comcal_DbTable {
-    var $dateTime = null;  // comcal_DateTime ... don't use directly, always use getDateTime().
+    var $date_time = null;  // comcal_DateTimeWrapper ... don't use directly, always use get_date_time().
     var $categories = null;  // array of comcal_Category objects.
     const IDPREFIX = 'event:';
     static function DEFAULTS() {
@@ -27,25 +27,25 @@ class comcal_Event extends comcal_DbTable {
      * within the past X minutes.
      */
     static function countEvents($withinLastMinutes=5) {
-        $prevDateTime = comcal_DateTime::now()->getPrevMinutes($withinLastMinutes);
+        $prevDateTime = comcal_DateTimeWrapper::now()->get_prev_minutes($withinLastMinutes);
         return static::count("created >= %s", [$prevDateTime->format('Y-m-d H:i:s')]);
     }
 
     /* overridden static methods */
-    static function getIdFieldName() {
+    static function get_id_field_name() {
         return 'eventId';
     }
-    static function getAllFieldNames() {
+    static function get_all_field_names() {
         return array(
             'eventId', 'date', 'time', 'dateEnd', 'timeEnd', 'organizer', 'location',
             'title', 'description', 'url', 'public', 'created', 'calendarName',
         );
     }
-    static function getTableName() {
+    static function get_table_name() {
         global $wpdb;
         return $wpdb->prefix . 'comcal';
     }
-    protected static function getCreateTableQuery() {
+    protected static function get_create_table_query() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
         $sql = "CREATE TABLE [T] (
@@ -76,13 +76,13 @@ class comcal_Event extends comcal_DbTable {
         return comcal_EventVsCategory::isset($this, $category);
     }
     function removeAllCategories() {
-        comcal_EventVsCategory::removeEvent($this);
+        comcal_EventVsCategory::remove_event($this);
     }
-    function getCategories() {
-        return comcal_EventVsCategory::getCategories($this);
+    function get_categories() {
+        return comcal_EventVsCategory::get_categories($this);
     }
 
-    function getPublicFields() {
+    function get_public_fields() {
         /* returns fields and values for display */
         return array(
             'eventId' => $this->getField('eventId'),
@@ -99,35 +99,35 @@ class comcal_Event extends comcal_DbTable {
             'created' => $this->getField('created'),
             'categories' => $this->getCategoriesDetails(),
             'calendarName' => $this->getField('calendarName'),
-            'numberOfDays' => $this->getNumberOfDays(),
+            'number_of_days' => $this->getNumberOfDays(),
         );
     }
     static function getTextFieldNames() {
         return array('eventId', 'organizer', 'title', 'description', 'url');
     }
 
-    function getDateStr(): string {
+    function get_date_str(): string {
         return $this->getField('date');
     }
-    function getDateTime(): comcal_DateTime {
-        if ($this->dateTime === null) {
+    function get_date_time(): comcal_DateTimeWrapper {
+        if ($this->date_time === null) {
             // initialize on first use
-            $this->dateTime = comcal_DateTime::fromDateStrTimeStr($this->getField('date'), $this->getField('time'));
+            $this->date_time = comcal_DateTimeWrapper::from_date_str_time_str($this->getField('date'), $this->getField('time'));
         }
-        return $this->dateTime;
+        return $this->date_time;
     }
 
     function getCategoriesDetails() {
         $result = array();
-        foreach ($this->getCategories() as $c) {
-            $result[] = $c->getPublicFields();
+        foreach ($this->get_categories() as $c) {
+            $result[] = $c->get_public_fields();
         }
         return $result;
     }
     function getNumberOfDays() {
-        $startDate = comcal_DateTime::fromDateStrTimeStr($this->getField('date'), '00:00');
-        $endDate = comcal_DateTime::fromDateStrTimeStr($this->getField('dateEnd'), '00:00');
-        $diff = $endDate->getDateTimeDifference($startDate);
+        $startDate = comcal_DateTimeWrapper::from_date_str_time_str($this->getField('date'), '00:00');
+        $endDate = comcal_DateTimeWrapper::from_date_str_time_str($this->getField('dateEnd'), '00:00');
+        $diff = $endDate->get_date_time_difference($startDate);
         if ($diff->invert === 1) {
             return 1;
         }
@@ -193,8 +193,8 @@ function __comcal_getAllEventRows(
     $endDate = null
 ) {
     global $wpdb;
-    $events = comcal_Event::getTableName();
-    $evt_cat = comcal_EventVsCategory::getTableName();
+    $events = comcal_Event::get_table_name();
+    $evt_cat = comcal_EventVsCategory::get_table_name();
 
     $whereConditions = array();
     $whereConditions[] = "($events.calendarName='$calendarName' OR $events.calendarName='')";

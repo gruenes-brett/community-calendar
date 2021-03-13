@@ -1,18 +1,22 @@
 <?php
-/*
+/**
+ * REST API endpoints for event data.
+ *
  * Functions for showing the details of an event in a modal div
  * The event details can be queried as JSON via an REST API endpoint
  * E.g.:
- *      example.com/wp-json/comcal/v1/eventDisplay/event:1234abcd
+ *      - example.com/wp-json/comcal/v1/eventDisplay/event:1234abcd
  *          -> Prettified event details as HTML (for showing event details)
  *
- *      example.com/wp-json/comcal/v1/eventRaw/event:1234abcd
+ *      - example.com/wp-json/comcal/v1/eventRaw/event:1234abcd
  *          -> Event details as raw text (for the edit form)
-*/
+ *
+ * @package CommunityCalendar
+ */
 
-$comcal_RestRoute = 'comcal/v1';
+$comcal_rest_route = 'comcal/v1';
 
-function comcal_getShowEventBox() {
+function comcal_get_show_event_box() {
     return <<<XML
     <div class="comcal-modal-wrapper show-event">
         <div class="comcal-close">X</div>
@@ -34,67 +38,89 @@ XML;
 }
 
 
-function comcal_convertUrlsToLinks($input) {
+function comcal_convert_urls_to_links( $input ) {
     $pattern = '@[^\@](http(s)?://)?(([a-zA-Z])([-\w]+\.)+([^\s\.]+[^\s]*)+[^,.\s])@';
-    return preg_replace($pattern, '<a target="_blank" href="http$2://$3">$0</a>', $input);
+    return preg_replace( $pattern, '<a target="_blank" href="http$2://$3">$0</a>', $input );
 }
 
-function __comcal_queryEvent($data) {
-    $event = comcal_Event::queryByEntryId($data['eventId']);
-    if ($event === null) {
+function _comcal_query_event( $data ) {
+    $event = comcal_Event::queryByEntryId( $data['eventId'] );
+    if ( null === $event ) {
         return new WP_Error(
             'no_event',
             "Event {$data['eventId']} not found",
-            array('status' => 404)
+            array( 'status' => 404 )
         );
     }
-    return $event->getPublicFields();
+    return $event->get_public_fields();
 }
 
-function comcal_queryEventDisplay($data) {
-    $result = __comcal_queryEvent($data);
-    $result['description'] = comcal_convertUrlsToLinks($result['description']);
-    if (!empty($result['url'])) {
+/**
+ * API method that returns event data formatted for displaying it to the user.
+ *
+ * @param array $data JSON data containing an 'eventId' key.
+ *
+ * @return array Event JSON data.
+ */
+function comcal_query_event_display( $data ) {
+    $result = _comcal_query_event( $data );
+
+    $result['description'] = comcal_convert_urls_to_links( $result['description'] );
+    if ( ! empty( $result['url'] ) ) {
         $result['url'] = "<a href='{$result['url']}' target='blank'>Ursprungslink</a>";
     }
-    $datetime = comcal_DateTime::fromDateStrTimeStr($result['date'], $result['time']);
-    $result['prettyDate'] = $datetime->getPrettyDate();
-    $result['prettyTime'] = $datetime->getPrettyTime();
-    $result['weekday'] = $datetime->getWeekday();
-    foreach (comcal_Event::getTextFieldNames() as $name) {
-        $result[$name] = nl2br($result[$name]);
-    }
-    return $result;
-}
-add_action('rest_api_init', function () {
-    global $comcal_RestRoute;
-    register_rest_route(
-        $comcal_RestRoute,
-        'eventDisplay/(?P<eventId>event:[a-f0-9]+)',
-        array(
-            'methods' => 'GET',
-            'callback' => 'comcal_queryEventDisplay',
-            'permission_callback' => '__return_true',
-        )
-    );
-});
+    $datetime = comcal_DateTimeWrapper::from_date_str_time_str( $result['date'], $result['time'] );
 
-function comcal_queryEventRaw($data) {
-    $result = __comcal_queryEvent($data);
-    foreach (comcal_Event::getTextFieldNames() as $name) {
-        $result[$name] = htmlspecialchars_decode($result[$name]);
+    $result['prettyDate'] = $datetime->get_pretty_date();
+    $result['prettyTime'] = $datetime->get_pretty_time();
+    $result['weekday']    = $datetime->get_weekday();
+    foreach ( comcal_Event::getTextFieldNames() as $name ) {
+        $result[ $name ] = nl2br( $result[ $name ] );
     }
     return $result;
 }
-add_action('rest_api_init', function () {
-    global $comcal_RestRoute;
-    register_rest_route(
-        $comcal_RestRoute,
-        '/eventRaw/(?P<eventId>event:[a-f0-9]+)',
-        array(
-            'methods' => 'GET',
-            'callback' => 'comcal_queryEventRaw',
-            'permission_callback' => '__return_true',
-        )
-    );
-});
+add_action(
+    'rest_api_init',
+    function () {
+        global $comcal_rest_route;
+        register_rest_route(
+            $comcal_rest_route,
+            'eventDisplay/(?P<eventId>event:[a-f0-9]+)',
+            array(
+                'methods'             => 'GET',
+                'callback'            => 'comcal_query_event_display',
+                'permission_callback' => '__return_true',
+            )
+        );
+    }
+);
+
+/**
+ * API method that returns raw event data for usage in a form.
+ *
+ * @param array $data JSON data containing an 'eventId' key.
+ *
+ * @return array Event JSON data.
+ */
+function comcal_query_event_raw( $data ) {
+    $result = _comcal_query_event( $data );
+    foreach ( comcal_Event::getTextFieldNames() as $name ) {
+        $result[ $name ] = htmlspecialchars_decode( $result[ $name ] );
+    }
+    return $result;
+}
+add_action(
+    'rest_api_init',
+    function () {
+        global $comcal_rest_route;
+        register_rest_route(
+            $comcal_rest_route,
+            '/eventRaw/(?P<eventId>event:[a-f0-9]+)',
+            array(
+                'methods'             => 'GET',
+                'callback'            => 'comcal_query_event_raw',
+                'permission_callback' => '__return_true',
+            )
+        );
+    }
+);

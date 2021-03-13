@@ -40,14 +40,14 @@ abstract class comcal_DbTable {
     const IDPREFIX = 'x:';
 
     /* abstract static methods */
-    abstract static function getTableName();
-    abstract static function getAllFieldNames();
-    abstract static function getIdFieldName();
-    abstract protected static function getCreateTableQuery();
+    abstract static function get_table_name();
+    abstract static function get_all_field_names();
+    abstract static function get_id_field_name();
+    abstract protected static function get_create_table_query();
 
     /* database admin functions */
     static function createTable() {
-        $sql = static::getCreateTableQuery();
+        $sql = static::get_create_table_query();
         $sql = static::prepareQuery($sql);
         dbDelta($sql);
     }
@@ -60,7 +60,7 @@ abstract class comcal_DbTable {
 
     static function prepareQuery($sql, $args=[]) {
         global $wpdb;
-        $sql = str_replace('[T]', static::getTableName(), $sql);
+        $sql = str_replace('[T]', static::get_table_name(), $sql);
         if (strpos($sql, '%') !== false) {
             $sql = $wpdb->prepare($sql, $args);
         }
@@ -82,7 +82,7 @@ abstract class comcal_DbTable {
     }
     static function getAll() {
         global $wpdb;
-        $tableName = static::getTableName();
+        $tableName = static::get_table_name();
         $rows = $wpdb->get_results("SELECT * from $tableName;");
         $all = array();
         foreach ($rows as $row) {
@@ -91,7 +91,7 @@ abstract class comcal_DbTable {
         return $all;
     }
     static function queryByEntryId($elementId) {
-        $idField = static::getIdFieldName();
+        $idField = static::get_id_field_name();
         $row = self::queryRow("SELECT * FROM [T] WHERE $idField=%s;", [$elementId]);
         if (empty($row)) {
             return null;
@@ -122,22 +122,22 @@ abstract class comcal_DbTable {
      * Checks if an entry with the current entry-ID exists in the database
      */
     function exists() {
-        $idFieldName = $this->getIdFieldName();
+        $idFieldName = $this->get_id_field_name();
         $row = $this->queryRow("SELECT $idFieldName FROM [T] WHERE $idFieldName=%s;", [$this->getField($idFieldName)]);
         return !empty($row);
     }
 
     /**
      * Store this object to the table
-     * If the entry-ID is set and present in the tabel, the corresponding row will be updated 
+     * If the entry-ID is set and present in the tabel, the corresponding row will be updated
      * with the current data.
      * If not, a new entry is created.
      */
     function store() {
         global $wpdb;
-        $tableName = $this->getTableName();
+        $tableName = $this->get_table_name();
         if ($this->exists()) {
-            $where = array($this->getIdFieldName() => $this->getEntryId());
+            $where = array($this->get_id_field_name() => $this->getEntryId());
             $affectedRows = $wpdb->update(
                 $tableName,
                 $this->getFullData(),
@@ -155,13 +155,13 @@ abstract class comcal_DbTable {
      */
     function delete() {
         global $wpdb;
-        $tableName = $this->getTableName();
-        $result = $wpdb->delete($tableName, array($this->getIdFieldName() => $this->getEntryId()));
+        $tableName = $this->get_table_name();
+        $result = $wpdb->delete($tableName, array($this->get_id_field_name() => $this->getEntryId()));
         return $result !== false && $result;
     }
 
     function getField($name, $default=null) {
-        if (strcmp($name, $this->getIdFieldName()) === 0) {
+        if (strcmp($name, $this->get_id_field_name()) === 0) {
             $this->initEntryId();
         }
         if (isset($this->data->$name)) {
@@ -179,7 +179,7 @@ abstract class comcal_DbTable {
     }
 
     function getEntryId() {
-        return $this->getField($this->getIdFieldName());
+        return $this->getField($this->get_id_field_name());
     }
     function setField($name, $value) {
         if ($this->data->$name !== $value) {
@@ -190,7 +190,7 @@ abstract class comcal_DbTable {
     }
 
     private function initEntryId() {
-        $idFieldName = $this->getIdFieldName();
+        $idFieldName = $this->get_id_field_name();
         if (!isset($this->data->$idFieldName) || strcmp($this->data->$idFieldName, '') === 0) {
             $this->data->$idFieldName = uniqid(static::IDPREFIX);
         }
@@ -198,7 +198,7 @@ abstract class comcal_DbTable {
 
     function getFullData() {
         $data = array();
-        foreach ($this->getAllFieldNames() as $fieldName) {
+        foreach ($this->get_all_field_names() as $fieldName) {
             $data[$fieldName] = $this->getField($fieldName);
         }
         return $data;

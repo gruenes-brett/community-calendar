@@ -270,7 +270,7 @@ function comcal_filterCategories($data) {
     $cats = array();
     foreach ($data as $key => $value) {
         if (strpos($key, 'category_') === 0) {
-            $cats[] = comcal_Category::queryFromCategoryId($value);
+            $cats[] = comcal_Category::query_from_category_id($value);
         }
     }
     return $cats;

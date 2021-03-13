@@ -100,7 +100,7 @@ function comcal_processEditCategories($post) {
         $delete = isset($post["delete$suffix"]);
         $categoryId = $post["categoryId$suffix"];
         $name = $post["name$suffix"];
-        $c = comcal_Category::queryFromCategoryId($categoryId);
+        $c = comcal_Category::query_from_category_id($categoryId);
         if ($delete) {
             if ($c->delete()) {
                 $messages[] = "Kategorie '$name' wurde gelöscht!";

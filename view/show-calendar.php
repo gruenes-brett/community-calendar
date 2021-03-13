@@ -34,25 +34,25 @@ function comcal_table_func( $atts ) {
     // determine category
     $category = null;
     if ( isset( $_GET['comcal_category'] ) ) {
-        $category = comcal_Category::queryFromCategoryId( $_GET['comcal_category'] );
+        $category = comcal_Category::query_from_category_id( $_GET['comcal_category'] );
     }
 
     // determine date range
     $latest_date = null;
     $startDate = null;
     if ( strtolower( $start ) === 'today' ) {
-        $startDate = comcal_DateTime::now();
+        $startDate = comcal_DateTimeWrapper::now();
     } else if ( strtolower( $start ) === 'next-monday' ) {
-        $startDate = comcal_DateTime::nextMonday();
+        $startDate = comcal_DateTimeWrapper::next_monday();
     } else if ( $start !== null ) {
         try {
-            $startDate = comcal_DateTime::fromDateStrTimeStr( $start, '00:00:00' );
+            $startDate = comcal_DateTimeWrapper::from_date_str_time_str( $start, '00:00:00' );
         } catch ( Exception $e ) {
             return comcal_makeErrorBox( "Error in 'start' attribute:<br>{$e->getMessage()}" );
         }
     }
     if ( $days !== null && $startDate !== null ) {
-        $latest_date = $startDate->getNextDay( $days );
+        $latest_date = $startDate->get_next_day( $days );
     }
 
     $isAdmin = comcal_currentUserCanSetPublic();
@@ -60,8 +60,8 @@ function comcal_table_func( $atts ) {
         ! $isAdmin,
         $category,
         $calendarName,
-        $startDate ? $startDate->getDateStr() : null,
-        $latest_date ? $latest_date->getDateStr() : null
+        $startDate->get_date_str() ?? null,
+        $latest_date->get_date_str() ?? null,
     );
 
     $output = comcal_EventsDisplayBuilder::create_display( $style, $eventsIterator, $startDate, $latest_date );
@@ -72,7 +72,7 @@ function comcal_table_func( $atts ) {
     if ( $showCategories ) {
         $allHtml .= comcal_getCategoryButtons( $category );
     }
-    $allHtml .= $output->get_html() . comcal_getShowEventBox() . comcal_getEditForm( $calendarName );
+    $allHtml .= $output->get_html() . comcal_get_show_event_box() . comcal_getEditForm( $calendarName );
     if ( comcal_currentUserCanSetPublic() ) {
         $allHtml .= comcal_getEditCategoriesDialog();
     }
@@ -173,11 +173,11 @@ class comcal_TableBuilder extends comcal_DefaultDisplayBuilder {
     /**
      * Returns HTML for the beginning of a month table.
      *
-     * @param comcal_DateTime $date Date object for this month.
+     * @param comcal_DateTimeWrapper $date Date object for this month.
      *
      * @return string HTML.
      */
-    protected function get_table_head( comcal_DateTime $date ) {
+    protected function get_table_head( comcal_DateTimeWrapper $date ) {
         $month_title = $date->get_month_title();
         return "<h3 class='month-title'>$month_title</h3>\n"
                . "<table class='community-calendar'><tbody>\n";
@@ -187,7 +187,7 @@ class comcal_TableBuilder extends comcal_DefaultDisplayBuilder {
         $this->finish_current_month();
         $this->html .= $this->get_table_head( $date );
         if ( $this->show_full_month() ) {
-            $this->fill_days_between( $date->getFirstOfMonthDateTime(), $date );
+            $this->fill_days_between( $date->get_first_of_month_date_time(), $date );
         }
     }
 
@@ -199,56 +199,56 @@ class comcal_TableBuilder extends comcal_DefaultDisplayBuilder {
     }
 
     protected function fill_days_between( $beginAtDate, $endBeforeDate ) {
-        foreach ( $beginAtDate->getAllDatesUntil( $endBeforeDate ) as $thisDay ) {
+        foreach ( $beginAtDate->get_all_dates_until( $endBeforeDate ) as $thisDay ) {
             $this->create_day_row( $thisDay, '' );
         }
     }
 
     protected function fill_days_after( $date ) {
-        foreach ( $date->getNextDay()->getAllDatesUntil( $date->getLastDayOfMonth() ) as $thisDay ) {
+        foreach ( $date->get_next_day()->get_all_dates_until( $date->get_last_day_of_month() ) as $thisDay ) {
             $this->create_day_row( $thisDay, '' );
         }
     }
 
-    protected function create_day_row( $dateTime, $text, $isNewDay = true ) {
-        $dateStr = $isNewDay ? $dateTime->getShortWeekdayAndDay() : '';
+    protected function create_day_row( $date_time, $text, $isNewDay = true ) {
+        $date_str = $isNewDay ? $date_time->get_short_weekday_and_day() : '';
         $trClass = $isNewDay ? '' : 'sameDay';
         $dateClass = ( $text === '' ) ? 'has-no-events' : 'has-events';
-        $this->html .= "<tr class='{$dateTime->getDayClasses()} $trClass day'>";
-        $this->html .= "<td class='date $dateClass'>$dateStr</td>";
+        $this->html .= "<tr class='{$date_time->get_day_classes()} $trClass day'>";
+        $this->html .= "<td class='date $dateClass'>$date_str</td>";
         $this->html .= "<td class='event'>$text</td></tr>\n";
-        $this->current_date = $dateTime;
+        $this->current_date = $date_time;
     }
 
     function add_event( $event ) {
         if ( $this->earliest_date !== null && $this->current_date === null
-                                         && ! $event->getDateTime()->isSameDay( $this->earliest_date ) ) {
+                                         && ! $event->get_date_time()->is_same_day( $this->earliest_date ) ) {
             // add an empty row for the earliest date
             $this->new_month( $this->earliest_date );
             $this->create_day_row( $this->earliest_date, '' );
         }
-        if ( $this->current_date === null || ! $this->current_date->isSameMonth( $event->getDateTime() ) ) {
+        if ( $this->current_date === null || ! $this->current_date->is_same_month( $event->get_date_time() ) ) {
             // new month
             if ( $this->current_date !== null ) {
                 while ( true ) {
                     // fill in empty months
-                    $next_month = $this->current_date->getLastDayOfMonth()->getNextDay();
-                    if ( $next_month->isSameMonth( $event->getDateTime() ) ) {
+                    $next_month = $this->current_date->get_last_day_of_month()->get_next_day();
+                    if ( $next_month->is_same_month( $event->get_date_time() ) ) {
                         break;
                     }
                     $this->new_month( $next_month );
                 }
             }
             // create month with this event
-            $this->new_month( $event->getDateTime() );
+            $this->new_month( $event->get_date_time() );
         } else if ( $this->current_date !== null ) {
             // fill empty days between events
-            $this->fill_days_between( $this->current_date->getNextDay(), $event->getDateTime() );
+            $this->fill_days_between( $this->current_date->get_next_day(), $event->get_date_time() );
         }
         $this->create_day_row(
-            $event->getDateTime(),
+            $event->get_date_time(),
             $this->event_renderer->render( $event ),
-            ! $event->getDateTime()->isSameDay( $this->current_date )
+            ! $event->get_date_time()->is_same_day( $this->current_date )
         );
     }
 }
@@ -285,7 +285,7 @@ Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
 ";
 
         if ( $this->latest_date !== null && $this->current_date !== null ) {
-            $this->fill_days_between( $this->current_date->getNextDay(), $this->latest_date->getNextDay() );
+            $this->fill_days_between( $this->current_date->get_next_day(), $this->latest_date->get_next_day() );
         }
         $result = '<input id="comcal-copy-markdown" type="button" class="btn btn-primary" value="Copy to clipboard"/><br>';
         $result .= '<textarea id="comcal-markdown" style="width: 100%; height: 80vh;">' . $header . $this->html .
@@ -295,7 +295,7 @@ Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
         return $result;
     }
     protected function fill_days_between( $beginAtDate, $endBeforeDate ) {
-        foreach ( $beginAtDate->getAllDatesUntil( $endBeforeDate ) as $thisDay ) {
+        foreach ( $beginAtDate->get_all_dates_until( $endBeforeDate ) as $thisDay ) {
             $this->html .= $this->create_new_day( $thisDay ) . '(bis jetzt leider nichts)
 
 ';
@@ -303,22 +303,22 @@ Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
     }
     function add_event( $event ) {
         if ( $this->current_date === null && $this->earliest_date !== null ) {
-            $this->fill_days_between( $this->earliest_date, $event->getDateTime() );
+            $this->fill_days_between( $this->earliest_date, $event->get_date_time() );
         } else if ( $this->current_date !== null ) {
-            $this->fill_days_between( $this->current_date->getNextDay(), $event->getDateTime() );
+            $this->fill_days_between( $this->current_date->get_next_day(), $event->get_date_time() );
         }
-        if ( $this->current_date === null || ! $this->current_date->isSameDay( $event->getDateTime() ) ) {
-            $this->current_date = $event->getDateTime();
+        if ( $this->current_date === null || ! $this->current_date->is_same_day( $event->get_date_time() ) ) {
+            $this->current_date = $event->get_date_time();
             $this->html .= $this->create_new_day( $this->current_date );
         }
         $this->html .= $this->event_renderer->render( $event ) . '
 
 ';
-        $this->current_date = $event->getDateTime();
+        $this->current_date = $event->get_date_time();
     }
 
-    function create_new_day( $dateTime ) {
-        return '🕑 **' . $dateTime->getHumanizedDate() . '**
+    function create_new_day( $date_time ) {
+        return '🕑 **' . $date_time->get_humanized_date() . '**
 
 ';
     }

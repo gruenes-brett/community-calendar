@@ -1,13 +1,21 @@
 <?php
-
-/*
+/**
  * Functions for handling PHP DateTime objects
+ *
+ * @package CommunityCalendar
  */
 
-$comcal_aWeekdayNamesDE = [
-    'Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'
-];
-$comcal_monthMap = array(
+$comcal_weekday_names_de = array(
+    'Sonntag',
+    'Montag',
+    'Dienstag',
+    'Mittwoch',
+    'Donnerstag',
+    'Freitag',
+    'Samstag',
+);
+
+$comcal_month_map = array(
     'Jan' => 'Januar',
     'Feb' => 'Februar',
     'Mar' => 'März',
@@ -23,186 +31,195 @@ $comcal_monthMap = array(
 );
 
 
-class comcal_DateTime {
-    /*
-     * Wrapper for a PHP DateTime object with convenience functions
-     */
-    var $dateTime = null;
+/**
+ * Wrapper for a PHP DateTime object with convenience functions
+ */
+class comcal_DateTimeWrapper {
 
-    public static function fromDateTimeStr($dateTimeStr) {
-        $instance = new self();
-        $instance->dateTime = new DateTime($dateTimeStr);
+    /**
+     * Actual DateTime object.
+     *
+     * @var DateTime $date_time Basic DateTime object.
+     */
+    protected $date_time = null;
+
+    public static function from_date_time_str( $date_time_str ) {
+        $instance            = new self();
+        $instance->date_time = new DateTime( $date_time_str );
         return $instance;
     }
-    public static function fromDateStrTimeStr($dateStr, $timeStr) {
-        $instance = new self();
-        $instance->dateTime = new DateTime($dateStr . 'T' . $timeStr);
+    public static function from_date_str_time_str( $date_str, $time_str ) {
+        $instance            = new self();
+        $instance->date_time = new DateTime( $date_str . 'T' . $time_str );
         return $instance;
     }
-    public static function fromDateTime($dateTime) {
-        $instance = new self();
-        $instance->dateTime = $dateTime;
+    public static function from_date_time( $date_time ) {
+        $instance            = new self();
+        $instance->date_time = $date_time;
         return $instance;
     }
     public static function now() {
-        $instance = new self();
-        $instance->dateTime = new DateTime();
+        $instance            = new self();
+        $instance->date_time = new DateTime();
         return $instance;
     }
-    public static function nextMonday() {
+    public static function next_monday() {
         $instance = static::now();
-        while (!$instance->isMonday()) {
-            $instance = $instance->getNextDay();
+        while ( ! $instance->is_monday() ) {
+            $instance = $instance->get_next_day();
         }
         return $instance;
     }
 
-    function format($fmt) {
-        return $this->dateTime->format($fmt);
+    public function format( $fmt ) {
+        return $this->date_time->format( $fmt );
     }
 
-    function getTimestamp() {
-        return $this->dateTime->getTimestamp();
+    public function get_date_str() {
+        return $this->date_time->format( 'Y-m-d' );
     }
-    function getDateStr() {
-        return $this->dateTime->format('Y-m-d');
+    public function get_time_str() {
+        return $this->date_time->format( 'H:i' );
     }
-    function getTimeStr() {
-        return $this->dateTime->format('H:i');
-    }
-    function getDateTime() {
-        return $this->dateTime;
+    public function get_date_time() {
+        return $this->date_time;
     }
 
-    function getPrettyTime() {
-        return $this->dateTime->format('H:i') . ' Uhr';
+    public function get_pretty_time() {
+        return $this->date_time->format( 'H:i' ) . ' Uhr';
     }
 
-    function getHumanizedTime() {
-        $hour = $this->dateTime->format('G');
-        $minute = $this->dateTime->format('i');
-        $time = $hour;
-        if ($minute !== '00') {
+    public function get_humanized_time() {
+        $hour   = $this->date_time->format( 'G' );
+        $minute = $this->date_time->format( 'i' );
+        $time   = $hour;
+        if ( '00' !== $minute ) {
             $time .= ":$minute";
         }
         return $time . ' Uhr';
     }
 
-    function getPrettyDate() {
-        return $this->dateTime->format('d.m.Y');
+    public function get_pretty_date() {
+        return $this->date_time->format( 'd.m.Y' );
     }
 
-    function getHumanizedDate() {
-        $weekday = $this->getWeekday();
-        return "$weekday, " . $this->dateTime->format('d.m.');
+    public function get_humanized_date() {
+        $weekday = $this->get_weekday();
+        return "$weekday, " . $this->date_time->format( 'd.m.' );
     }
 
-    function getWeekday() {
-        global $comcal_aWeekdayNamesDE;
-        return $comcal_aWeekdayNamesDE[$this->dateTime->format('w')];
+    public function get_weekday() {
+        global $comcal_weekday_names_de;
+        return $comcal_weekday_names_de[ $this->date_time->format( 'w' ) ];
     }
-    function isMonday() {
-        return $this->dateTime->format('N') == 1;
-    }
-
-    function getShortWeekdayAndDay() {
-        return $this->getDayOfMonth() . ' ' . $this->getShortWeekday();
+    public function is_monday() {
+        return 1 === $this->date_time->format( 'N' );
     }
 
-    function getShortWeekday() {
-        return substr($this->getWeekday(), 0, 2);
+    public function get_short_weekday_and_day() {
+        return $this->get_day_of_month() . ' ' . $this->get_short_weekday();
     }
 
-    function getDayOfMonth() {
-        return $this->dateTime->format('d');
+    public function get_short_weekday() {
+        return substr( $this->get_weekday(), 0, 2 );
     }
 
-    function getDayClasses() {
+    public function get_day_of_month() {
+        return $this->date_time->format( 'd' );
+    }
+
+    public function get_day_classes() {
         $classes = '';
-        switch ($this->dateTime->format('w')) {
+        switch ( $this->date_time->format( 'w' ) ) {
             case 0:
             case 6:
                 $classes .= 'weekend';
         }
-        if (strcmp($this->getDateStr(), date('Y-m-d')) == 0) {
+        if ( 0 === strcmp( $this->get_date_str(), date( 'Y-m-d' ) ) ) {
             $classes .= ' today';
         }
         return $classes;
     }
 
-    function get_month_title() {
-        global $comcal_monthMap;
-        $month = $monthEng = $this->dateTime->format('M');
-        if (isset($comcal_monthMap[$monthEng])) {
-            $month = $comcal_monthMap[$monthEng];
+    public function get_month_title() {
+        global $comcal_month_map;
+        $month_en = $this->date_time->format( 'M' );
+        $month    = $month_en;
+        if ( isset( $comcal_month_map[ $month_en ] ) ) {
+            $month = $comcal_month_map[ $month_en ];
         }
-        return $month . $this->dateTime->format(' Y');
+        return $month . $this->date_time->format( ' Y' );
     }
 
-    function get_month_link() {
-        return $this->dateTime->format( 'M-Y' );
+    public function get_month_link() {
+        return $this->date_time->format( 'M-Y' );
     }
 
-    function getFirstOfMonthDateTime(): comcal_DateTime {
-        $dt = new DateTime($this->dateTime->format('Y-m-01\TH:i:s'));
-        return self::fromDateTime($dt);
+    public function get_first_of_month_date_time(): comcal_DateTimeWrapper {
+        $dt = new DateTime( $this->date_time->format( 'Y-m-01\TH:i:s' ) );
+        return self::from_date_time( $dt );
     }
 
-    function getYearMonth() {
-        return $this->dateTime->format('Y-m');
+    public function get_year_month() {
+        return $this->date_time->format( 'Y-m' );
     }
 
-    function isSameMonth($dateTime) {
-        return strcmp($dateTime->getYearMonth(), $this->getYearMonth()) == 0;
+    public function is_same_month( $date_time ) {
+        return 0 === strcmp( $date_time->get_year_month(), $this->get_year_month() );
     }
 
-    function isSameDay($dateTime) {
-        if ($dateTime === null) {
+    public function is_same_day( $date_time ) {
+        if ( null === $date_time ) {
             return false;
         }
-        return strcmp($dateTime->getDateStr(), $this->getDateStr()) == 0;
+        return 0 === strcmp( $date_time->get_date_str(), $this->get_date_str() );
     }
 
-    function isDayLessThan($other) {
-        return strcmp($this->dateTime->format('Y-m-d'), $other->getDateTime()->format('Y-m-d')) < 0;
+    public function is_day_less_than( $other ) {
+        return strcmp( $this->date_time->format( 'Y-m-d' ), $other->get_date_time()->format( 'Y-m-d' ) ) < 0;
     }
 
-    function getNextDay($numberOfDays=1) {
-        $nextDay = clone $this->dateTime;
-        $nextDay->add(new DateInterval("P${numberOfDays}D"));
-        return self::fromDateTime($nextDay);
+    public function get_next_day( $number_of_days = 1 ) {
+        $next_day = clone $this->date_time;
+        $next_day->add( new DateInterval( "P${number_of_days}D" ) );
+        return self::from_date_time( $next_day );
     }
 
-    function getPrevMinutes($minutes) {
-        $prevMinutesDate = clone $this->dateTime;
-        $prevMinutesDate->sub(new DateInterval("PT${minutes}M"));
-        return self::fromDateTime($prevMinutesDate);
+    /**
+     * Creates a new comcal_DateTimeWrapper that is $minutes before the current.
+     *
+     * @param int $minutes How many minutes to subtract.
+     *
+     * @return newly created comcal_DateTimeWrapper
+     */
+    public function get_prev_minutes( $minutes ) {
+        $prev_minutes_date = clone $this->date_time;
+        $prev_minutes_date->sub( new DateInterval( "PT${minutes}M" ) );
+        return self::from_date_time( $prev_minutes_date );
     }
 
-    function getDateTimeDifference($otherDateTime) {
-        $thisDateTime = clone $this->dateTime;
-        $diff = $otherDateTime->getDateTime()->diff($thisDateTime);
+    public function get_date_time_difference( $other_date_time ) {
+        $this_date_time = clone $this->date_time;
+        $diff           = $other_date_time->get_date_time()->diff( $this_date_time );
         return $diff;
     }
 
-    function getAllDatesUntil($endDateTime) {
-        $dates = [];
+    public function get_all_dates_until( $end_date_time ) {
+        $dates   = array();
         $current = $this;
-        while ($current->isDayLessThan($endDateTime)) {
+        while ( $current->is_day_less_than( $end_date_time ) ) {
             $dates[] = $current;
-            $current = $current->getNextDay();
+            $current = $current->get_next_day();
         }
         return $dates;
     }
 
-    function getLastDayOfMonth() {
-        $nextDay = $this;
+    public function get_last_day_of_month() {
+        $next_day = $this;
         do {
-            $previousDay = $nextDay;
-            $nextDay = $nextDay->getNextDay();
-        } while ($previousDay->isSameMonth($nextDay));
-        return $nextDay;
+            $previous_day = $next_day;
+            $next_day     = $next_day->get_next_day();
+        } while ( $previous_day->is_same_month( $next_day ) );
+        return $next_day;
     }
-
-
 }
