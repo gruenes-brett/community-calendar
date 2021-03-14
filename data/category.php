@@ -1,25 +1,29 @@
 <?php
-/*
+/**
  * Functions for retrieving and updating categories
+ *
+ * @package Community_Calendar
  */
 
+/**
+ * Category definition.
+ */
 class comcal_Category extends comcal_DbTable {
     const IDPREFIX = 'category:';
 
-
-    static function getIdFieldName() {
+    public static function get_id_field_name() {
         return 'categoryId';
     }
-    static function getAllFieldNames() {
-        return array('categoryId', 'name');
+    public static function get_all_field_names() {
+        return array( 'categoryId', 'name' );
     }
 
-    static function getTableName() {
+    public static function get_table_name() {
         global $wpdb;
         return $wpdb->prefix . 'comcal_cats';
     }
 
-    protected static function getCreateTableQuery() {
+    protected static function get_create_table_query() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
         $sql = "CREATE TABLE [T] (
@@ -31,61 +35,69 @@ class comcal_Category extends comcal_DbTable {
         return $sql;
     }
 
-    static function queryFromName($name) {
-        $row = self::queryRow("SELECT * FROM [T] WHERE name=%s;", [$name]);
-        if (empty($row)) {
+    public static function query_from_name( $name ) {
+        $row = self::query_row( 'SELECT * FROM [T] WHERE name=%s;', array( $name ) );
+        if ( empty( $row ) ) {
             return null;
         }
-        return new self($row);
+        return new self( $row );
     }
 
-    static function queryFromCategoryId($categoryId) {
-        $row = self::queryRow("SELECT * FROM [T] WHERE categoryId=%s;", [$categoryId]);
-        if (empty($row)) {
+    public static function query_from_category_id( $category_id ) {
+        $row = self::query_row( 'SELECT * FROM [T] WHERE categoryId=%s;', array( $category_id ) );
+        if ( empty( $row ) ) {
             return null;
         }
-        return new self($row);
+        return new self( $row );
     }
 
-    static function create($name) {
-        return new self(array(
-            'name' => $name,
-            'categoryId' => uniqid(self::IDPREFIX),
-        ));
+    public static function create( $name ) {
+        return new self(
+            array(
+                'name'       => $name,
+                'categoryId' => uniqid( self::IDPREFIX ),
+            )
+        );
     }
 
-    function getPublicFields() {
-        $data = $this->getFullData();
-        $data['html'] = comcal_categoryButton($data['categoryId'], $data['name'], true);
+    public function get_public_fields() {
+        $data         = $this->get_full_data();
+        $data['html'] = comcal_category_button( $data['categoryId'], $data['name'], true );
         return $data;
     }
 }
 
 
+/**
+ * NxM correlation table for events and categories.
+ */
 class comcal_EventVsCategory extends comcal_DbTable {
-    static function create($event, $category) {
-        return new self(array(
-            'event_id' => $event->getField('id'),
-            'category_id' => $category->getField('id'),
-        ));
+    public static function create( $event, $category ) {
+        return new self(
+            array(
+                'event_id' => $event->get_field( 'id' ),
+                'category_id' => $category->get_field( 'id' ),
+            )
+        );
     }
-    static function isset($event, $category) {
-        return self::create($event, $category)->exists();
+    public static function isset( $event, $category ) {
+        return self::create( $event, $category )->exists();
     }
-    static function removeEvent($event) {
+    public static function remove_event( $event ) {
         global $wpdb;
-        $tableName = self::getTableName();
-        $result = $wpdb->delete($tableName, array('event_id' => $event->getField('id')));
-        return $result !== false && $result;
+        $table_name = self::get_table_name();
+        $result     = $wpdb->delete( $table_name, array( 'event_id' => $event->get_field( 'id' ) ) );
+        return false !== $result && $result;
     }
 
-    static function getTableName() {
+    public static function get_table_name() {
         global $wpdb;
         return $wpdb->prefix . 'comcal_evt_vs_cats';
     }
-    protected static function getCreateTableQuery() {
+    protected static function get_create_table_query() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
+
         $sql = "CREATE TABLE [T] (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             event_id mediumint(9) NOT NULL,
@@ -94,28 +106,29 @@ class comcal_EventVsCategory extends comcal_DbTable {
             ) $charset_collate;";
         return $sql;
     }
-    static function getAllFieldNames() {
-        return array('event_id', 'category_id');
+    public static function get_all_field_names() {
+        return array( 'event_id', 'category_id' );
     }
-    static function getIdFieldName() {
-        // no specific id-field
+    public static function get_id_field_name() {
+        // no specific id-field.
         return 'id';
     }
-    function exists() {
-        $where = "WHERE event_id=%d AND category_id=%d";
-        $row = self::queryRow("SELECT id from [T] $where;", [$this->getField('event_id'), $this->getField('category_id')]);
-        return !empty($row);
+    public function exists() {
+        $where = 'WHERE event_id=%d AND category_id=%d';
+        $row = self::query_row( "SELECT id from [T] $where;", array( $this->get_field( 'event_id' ), $this->get_field( 'category_id' ) ) );
+        return ! empty( $row );
     }
-    static function getCategories($event) {
-        $catsTable = comcal_Category::getTableName();
-        $event_id = $event->getField('id');
-        $query = "SELECT $catsTable.* FROM $catsTable "
-        . "INNER JOIN [T] ON [T].category_id=$catsTable.id "
-        . "WHERE [T].event_id=%d;";
+    public static function get_categories( $event ) {
+        $cats_table = comcal_Category::get_table_name();
+        $event_id   = $event->get_field( 'id' );
+        $query      = "SELECT $cats_table.* FROM $cats_table "
+        . "INNER JOIN [T] ON [T].category_id=$cats_table.id "
+        . 'WHERE [T].event_id=%d;';
+
         $cats = array();
-        $rows = static::query($query, [$event_id]);
-        foreach ($rows as $row) {
-            $cats[] = new comcal_Category($row);
+        $rows = static::query( $query, array( $event_id ) );
+        foreach ( $rows as $row ) {
+            $cats[] = new comcal_Category( $row );
         }
         return $cats;
     }

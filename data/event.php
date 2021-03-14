@@ -2,50 +2,69 @@
 /**
  * Functions for retrieving and updating events from the database.
  *
- * @package CommunityCalendar
+ * @package Community_Calendar
  */
 
 /**
  * Event data from database.
  */
 class comcal_Event extends comcal_DbTable {
-    var $dateTime = null;  // comcal_DateTime ... don't use directly, always use getDateTime().
-    var $categories = null;  // array of comcal_Category objects.
+    /**
+     * Event date and time. Don't use directly, always use get_start_date_time().
+     *
+     * @var comcal_DateTimeWrapper
+     */
+    private $start_date_time = null;
+
     const IDPREFIX = 'event:';
-    static function DEFAULTS() {
+
+    public static function get_defaults() {
         return array(
-        'date' => '2019-01-01',
-        'time' => '12:00:00',
-        'eventId' => '',
-        'public' => 0,
-        'created' => current_time('mysql'),
+            'date'    => '2019-01-01',
+            'time'    => '12:00:00',
+            'eventId' => '',
+            'public'  => 0,
+            'created' => current_time( 'mysql' ),
         );
     }
 
     /**
      * Returns how many Events have been added to the database
      * within the past X minutes.
+     *
+     * @param int $within_last_minutes How many minutes to look back.
+     * @return int Number of events.
      */
-    static function countEvents($withinLastMinutes=5) {
-        $prevDateTime = comcal_DateTime::now()->getPrevMinutes($withinLastMinutes);
-        return static::count("created >= %s", [$prevDateTime->format('Y-m-d H:i:s')]);
+    public static function count_events( $within_last_minutes = 5 ) {
+        $prev_date_time = comcal_DateTimeWrapper::now()->get_prev_minutes( $within_last_minutes );
+        return static::count( 'created >= %s', array( $prev_date_time->format( 'Y-m-d H:i:s' ) ) );
     }
 
-    /* overridden static methods */
-    static function getIdFieldName() {
+    public static function get_id_field_name() {
         return 'eventId';
     }
-    static function getAllFieldNames() {
+    public static function get_all_field_names() {
         return array(
-            'eventId', 'date', 'time', 'dateEnd', 'timeEnd', 'organizer', 'location',
-            'title', 'description', 'url', 'public', 'created', 'calendarName',
+            'eventId',
+            'date',
+            'time',
+            'dateEnd',
+            'timeEnd',
+            'organizer',
+            'location',
+            'title',
+            'description',
+            'url',
+            'public',
+            'created',
+            'calendarName',
         );
     }
-    static function getTableName() {
+    public static function get_table_name() {
         global $wpdb;
         return $wpdb->prefix . 'comcal';
     }
-    protected static function getCreateTableQuery() {
+    protected static function get_create_table_query() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
         $sql = "CREATE TABLE [T] (
@@ -68,67 +87,67 @@ class comcal_Event extends comcal_DbTable {
         return $sql;
     }
 
-    function addCategory($category) {
-        $vs = comcal_EventVsCategory::create($this, $category);
+    public function add_category( $category ) {
+        $vs = comcal_EventVsCategory::create( $this, $category );
         $vs->store();
     }
-    function hasCategory($category) {
-        return comcal_EventVsCategory::isset($this, $category);
+    public function has_category( $category ) {
+        return comcal_EventVsCategory::isset( $this, $category );
     }
-    function removeAllCategories() {
-        comcal_EventVsCategory::removeEvent($this);
+    public function remove_all_categories() {
+        comcal_EventVsCategory::remove_event( $this );
     }
-    function getCategories() {
-        return comcal_EventVsCategory::getCategories($this);
+    public function get_categories() {
+        return comcal_EventVsCategory::get_categories( $this );
     }
 
-    function getPublicFields() {
+    public function get_public_fields() {
         /* returns fields and values for display */
         return array(
-            'eventId' => $this->getField('eventId'),
-            'date' => $this->getField('date'),
-            'time' => $this->getField('time'),
-            'dateEnd' => $this->getField('dateEnd'),
-            'timeEnd' => $this->getField('timeEnd'),
-            'organizer' => $this->getField('organizer'),
-            'location' => $this->getField('location'),
-            'title' => $this->getField('title'),
-            'description' => $this->getField('description'),
-            'url' => $this->getField('url'),
-            'public' => $this->getField('public'),
-            'created' => $this->getField('created'),
-            'categories' => $this->getCategoriesDetails(),
-            'calendarName' => $this->getField('calendarName'),
-            'numberOfDays' => $this->getNumberOfDays(),
+            'eventId' => $this->get_field( 'eventId' ),
+            'date' => $this->get_field( 'date' ),
+            'time' => $this->get_field( 'time' ),
+            'dateEnd' => $this->get_field( 'dateEnd' ),
+            'timeEnd' => $this->get_field( 'timeEnd' ),
+            'organizer' => $this->get_field( 'organizer' ),
+            'location' => $this->get_field( 'location' ),
+            'title' => $this->get_field( 'title' ),
+            'description' => $this->get_field( 'description' ),
+            'url' => $this->get_field( 'url' ),
+            'public' => $this->get_field( 'public' ),
+            'created' => $this->get_field( 'created' ),
+            'categories' => $this->get_categories_details(),
+            'calendarName' => $this->get_field( 'calendarName' ),
+            'number_of_days' => $this->getNumberOfDays(),
         );
     }
-    static function getTextFieldNames() {
-        return array('eventId', 'organizer', 'title', 'description', 'url');
+    public static function get_text_field_names() {
+        return array( 'eventId', 'organizer', 'title', 'description', 'url' );
     }
 
-    function getDateStr(): string {
-        return $this->getField('date');
+    public function get_date_str(): string {
+        return $this->get_field( 'date' );
     }
-    function getDateTime(): comcal_DateTime {
-        if ($this->dateTime === null) {
-            // initialize on first use
-            $this->dateTime = comcal_DateTime::fromDateStrTimeStr($this->getField('date'), $this->getField('time'));
+    public function get_start_date_time(): comcal_DateTimeWrapper {
+        if ( null === $this->start_date_time ) {
+            // Initialize on first use.
+            $this->start_date_time = comcal_DateTimeWrapper::from_date_str_time_str( $this->get_field( 'date' ), $this->get_field( 'time' ) );
         }
-        return $this->dateTime;
+        return $this->start_date_time;
     }
 
-    function getCategoriesDetails() {
+    public function get_categories_details() {
         $result = array();
-        foreach ($this->getCategories() as $c) {
-            $result[] = $c->getPublicFields();
+        foreach ( $this->get_categories() as $c ) {
+            $result[] = $c->get_public_fields();
         }
         return $result;
     }
-    function getNumberOfDays() {
-        $startDate = comcal_DateTime::fromDateStrTimeStr($this->getField('date'), '00:00');
-        $endDate = comcal_DateTime::fromDateStrTimeStr($this->getField('dateEnd'), '00:00');
-        $diff = $endDate->getDateTimeDifference($startDate);
-        if ($diff->invert === 1) {
+    public function getNumberOfDays() {
+        $start_date = comcal_DateTimeWrapper::from_date_str_time_str( $this->get_field( 'date' ), '00:00' );
+        $end_date   = comcal_DateTimeWrapper::from_date_str_time_str( $this->get_field( 'dateEnd' ), '00:00' );
+        $diff       = $end_date->get_date_time_difference( $start_date );
+        if ( 1 === $diff->invert ) {
             return 1;
         }
         return $diff->days + 1;
@@ -136,23 +155,49 @@ class comcal_Event extends comcal_DbTable {
 }
 
 
+/**
+ * Loads events from the database and allows to iterate over
+ * them as comcal_Event instances.
+ */
 class comcal_EventIterator implements Iterator {
-    private $positition = -1;
-    public $eventRows = null;
 
+    /**
+     * Current position.
+     *
+     * @var int
+     */
+    private $positition = -1;
+    /**
+     * All loaded rows.
+     *
+     * @var array()
+     */
+    public $event_rows = null;
+
+    /**
+     * Query database and initalize iterator.
+     *
+     * @param bool                   $public_only Only show events that are set public.
+     * @param comcal_Category        $category Only a certain category.
+     * @param string                 $calendar_name Name of the calendar.
+     * @param comcal_DateTimeWrapper $start_date Range start - null for all.
+     * @param comcal_DateTimeWrapper $end_date Range end - null for all.
+     *
+     * @return array Database query result.
+     */
     public function __construct(
-        $publicOnly,
+        $public_only,
         $category = null,
-        $calendarName = '',
-        $startDate = null,
-        $endDate = null
+        $calendar_name = '',
+        $start_date = null,
+        $end_date = null
     ) {
-        $this->eventRows = __comcal_getAllEventRows(
-            $publicOnly,
+        $this->event_rows = _comcal_getAllEventRows(
+            $public_only,
             $category,
-            $calendarName,
-            $startDate,
-            $endDate
+            $calendar_name,
+            $start_date,
+            $end_date
         );
         $this->positition = 0;
     }
@@ -162,10 +207,10 @@ class comcal_EventIterator implements Iterator {
     }
 
     public function current() {
-        if ($this->positition == -1) {
+        if ( -1 === $this->positition ) {
             return null;
         }
-        return new comcal_Event($this->eventRows[$this->positition]);
+        return new comcal_Event( $this->event_rows[ $this->positition ] );
     }
 
     public function key() {
@@ -177,49 +222,57 @@ class comcal_EventIterator implements Iterator {
     }
 
     public function valid() {
-        return isset($this->eventRows[$this->positition]);
+        return isset( $this->event_rows[ $this->positition ] );
     }
 }
 
 
 /**
- * Query events from database
+ * Query events from database.
+ *
+ * @param bool                   $public_only Only show events that are set public.
+ * @param comcal_Category        $category Only a certain category.
+ * @param string                 $calendar_name Name of the calendar.
+ * @param comcal_DateTimeWrapper $start_date Range start.
+ * @param comcal_DateTimeWrapper $end_date Range end.
+ *
+ * @return array Database query result.
  */
-function __comcal_getAllEventRows(
-    $publicOnly = true,
+function _comcal_getAllEventRows(
+    $public_only = true,
     $category = null,
-    $calendarName = '',
-    $startDate = null,
-    $endDate = null
+    $calendar_name = '',
+    $start_date = null,
+    $end_date = null
 ) {
     global $wpdb;
-    $events = comcal_Event::getTableName();
-    $evt_cat = comcal_EventVsCategory::getTableName();
+    $events_table  = comcal_Event::get_table_name();
+    $evt_cat_table = comcal_EventVsCategory::get_table_name();
 
-    $whereConditions = array();
-    $whereConditions[] = "($events.calendarName='$calendarName' OR $events.calendarName='')";
-    if ($publicOnly) {
-        $whereConditions[] = "$events.public='1'";
+    $where_conditions   = array();
+    $where_conditions[] = "($events_table.calendarName='$calendar_name' OR $events_table.calendarName='')";
+    if ( $public_only ) {
+        $where_conditions[] = "$events_table.public='1'";
     }
-    if ($startDate !== null) {
-        $whereConditions[] = "$events.date >= '$startDate'";
+    if ( null !== $start_date ) {
+        $where_conditions[] = "$events_table.date >= '$start_date'";
     }
-    if ($endDate !== null) {
-        $whereConditions[] = "$events.date <= '$endDate'";
+    if ( null !== $end_date ) {
+        $where_conditions[] = "$events_table.date <= '$end_date'";
     }
 
-    if ($category === null) {
-        $where = comcal_Database::whereAnd($whereConditions);
-        $query = "SELECT * FROM $events $where ORDER BY date, time;";
+    if ( null === $category ) {
+        $where = comcal_Database::where_and( $where_conditions );
+        $query = "SELECT * FROM $events_table $where ORDER BY date, time;";
     } else {
-        $category_id = $category->getField('id');
-        $whereConditions[] = "$evt_cat.category_id=$category_id";
+        $category_id        = $category->get_field( 'id' );
+        $where_conditions[] = "$evt_cat_table.category_id=$category_id";
 
-        $where = comcal_Database::whereAnd($whereConditions);
-        $query = "SELECT $events.* FROM $events "
-        ."INNER JOIN $evt_cat ON $evt_cat.event_id=$events.id "
-        ."$where ORDER BY $events.date, $events.time;";
+        $where = comcal_Database::where_and( $where_conditions );
+        $query = "SELECT $events_table.* FROM $events_table "
+        . "INNER JOIN $evt_cat_table ON $evt_cat_table.event_id=$events_table.id "
+        . "$where ORDER BY $events_table.date, $events_table.time;";
     }
-    $rows = $wpdb->get_results($query);
+    $rows = $wpdb->get_results( $query );
     return $rows;
 }

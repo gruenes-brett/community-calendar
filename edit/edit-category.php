@@ -1,47 +1,69 @@
 <?php
+/**
+ * Functions for showing the category edit form.
+ *
+ * @package Community_Calendar
+ */
 
-function _comcal_editCategoryForm($category, $index) {
-    $suffix = "_$index";
-    $name = $category->getField('name');
-    $categoryId = $category->getField('categoryId');
+/**
+ * Creates a form for editing one category.
+ *
+ * @param comcal_Category $category Category instance.
+ * @param int             $index Number that is used as a suffix to the name and id fields.
+ * @return string HTML of the form.
+ */
+function _comcal_edit_category_form( $category, $index ) {
+    $suffix      = "_$index";
+    $name        = $category->get_field( 'name' );
+    $category_id = $category->get_field( 'categoryId' );
     return <<<XML
     <div class="form-group">
-        <input name="categoryId$suffix" id="categoryId$suffix" value="$categoryId" type="hidden">
+        <input name="categoryId$suffix" id="categoryId$suffix" value="$category_id" type="hidden">
         <label for="categoryName$suffix">Name</label>
         <input type="text" class="form-control" name="name$suffix" id="categoryName$suffix" placeholder="" value="$name" required>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="delete$suffix" id="categoryDelete$suffix" value="$categoryId" unchecked>
+            <input class="form-check-input" type="checkbox" name="delete$suffix" id="categoryDelete$suffix" value="$category_id" unchecked>
             <label class="form-check-label" for="categoryDelete$suffix">Kategorie löschen?</label>
         </div>
     </div>
 XML;
 }
 
-function _comcal_allCategoryForms() {
-    $all = comcal_Category::getAll();
-    $out = '';
+/**
+ * Produces a form that contains all existing categories.
+ *
+ * @return string HTML of the form.
+ */
+function _comcal_all_category_forms() {
+    $all   = comcal_Category::get_all();
+    $out   = '';
     $index = 0;
-    foreach ($all as $c) {
-        $out .= _comcal_editCategoryForm($c, $index);
+    foreach ( $all as $c ) {
+        $out .= _comcal_edit_category_form( $c, $index );
         $index++;
     }
     return $out;
 }
 
-function comcal_getEditCategoriesDialog() {
-    $postUrl = admin_url('admin-ajax.php');
-    $nonceField = wp_nonce_field('comcal_edit_categories','verification-code-categories', true, false);
-    $allForms = _comcal_allCategoryForms();
+/**
+ * Produces div that contains the forms for editing all categories.
+ *
+ * @return string HTML of the dialog box.
+ */
+function comcal_get_edit_categories_dialog() {
+    $post_url    = admin_url( 'admin-ajax.php' );
+    $nonce_field = wp_nonce_field( 'comcal_edit_categories', 'verification-code-categories', true, false );
+    $all_forms   = _comcal_all_category_forms();
     return <<<XML
     <div class="comcal-modal-wrapper edit-cats-dialog">
         <div class="comcal-close">X</div>
         <div class="form-popup" id="editCategories">
             <h2>Kategorien bearbeiten</h2>
-            <form id="editCategories" action="$postUrl" method="post">
+            <form id="editCategories" action="$post_url" method="post">
                 <fieldset>
                     <input name="action" value="comcal_edit_categories" type="hidden">
-                    $nonceField
-                    $allForms
+                    $nonce_field
+                    $all_forms
 
                     <div class="form-group">
                         <label for="categoryName_new">Neue Kategorie</label>
@@ -58,71 +80,90 @@ function comcal_getEditCategoriesDialog() {
 XML;
 }
 
-
-function comcal_submitEditCategories_func() {
-    if ( empty($_POST) || !wp_verify_nonce($_POST['verification-code-categories'], 'comcal_edit_categories') ) {
+/**
+ * Handles the edit categories form submission.
+ */
+function comcal_submit_edit_categories_func() {
+    $nonce_field = 'verification-code-categories';
+    $action      = 'comcal_edit_categories';
+    $valid_nonce = isset( $_POST[ $nonce_field ] ) && wp_verify_nonce(
+        sanitize_text_field( wp_unslash( $_POST[ $nonce_field ] ) ),
+        $action
+    );
+    if ( ! $valid_nonce ) {
         echo 'You targeted the right function, but sorry, your nonce did not verify.';
-        wp_die('You targeted the right function, but sorry, your nonce did not verify.', 'Error in submission',
-            array('response' => 500));
+        wp_die(
+            'You targeted the right function, but sorry, your nonce did not verify.',
+            'Error in submission',
+            array( 'response' => 500 )
+        );
     } else {
-        $res = comcal_processEditCategories($_POST);
-        if ($res[0] == 200) {
-            wp_die($res[1], 'Success', array('response' => $res[0]));
+        $res = comcal_process_edit_categories( $_POST );
+        if ( 200 === $res[0] ) {
+            wp_die( $res[1], 'Success', array( 'response' => $res[0] ) );
         } else {
-            wp_die($res[1], 'Error', array('response' => $res[0]));
+            wp_die( $res[1], 'Error', array( 'response' => $res[0] ) );
         }
     }
 }
-add_action('wp_ajax_comcal_edit_categories', 'comcal_submitEditCategories_func');
+add_action( 'wp_ajax_comcal_edit_categories', 'comcal_submit_edit_categories_func' );
 
-
-function comcal_processEditCategories($post) {
+/**
+ * Validates and processes data from the edit categories form.
+ *
+ * @param array $post The posted data.
+ * @return array with two elements:
+ *               [0]: int    result
+ *               [1]: string Message that describes what was changed.
+ */
+function comcal_process_edit_categories( $post ) {
     $messages = array();
-    $result = 200;
+    $result   = 200;
 
-    // Create new
-    if (isset($post['name_new']) && !empty(trim($post['name_new']))) {
-        $c = comcal_Category::create($post['name_new']);
-        if ($c->store()) {
-            $messages[] = "Neue Kategorie '{$c->getField('name')}' mit ID {$c->getField('categoryId')} angelegt";
+    // Create new category.
+    if ( isset( $post['name_new'] ) && ! empty( trim( $post['name_new'] ) ) ) {
+        $c = comcal_Category::create( $post['name_new'] );
+        if ( $c->store() ) {
+            $messages[] = "Neue Kategorie '{$c->get_field('name')}' mit ID {$c->get_field('categoryId')} angelegt";
         } else {
             $messages[] = "Konnte Kategorie '{$post['name']}' nicht anlegen.";
         }
     }
 
-    // Modify existing
+    // Modify existing category.
     $index = 0;
-    while (true) {
+    while ( true ) {
         $suffix = "_$index";
-        if (!isset($post["name$suffix"])) {
+        if ( ! isset( $post[ "name$suffix" ] ) ) {
+            // No more category data in the form.
             break;
         }
-        $delete = isset($post["delete$suffix"]);
-        $categoryId = $post["categoryId$suffix"];
-        $name = $post["name$suffix"];
-        $c = comcal_Category::queryFromCategoryId($categoryId);
-        if ($delete) {
-            if ($c->delete()) {
+        $delete      = isset( $post[ "delete$suffix" ] );
+        $category_id = $post[ "categoryId$suffix" ];
+        $name        = $post[ "name$suffix" ];
+        $c           = comcal_Category::query_from_category_id( $category_id );
+        if ( $delete ) {
+            if ( $c->delete() ) {
                 $messages[] = "Kategorie '$name' wurde gelöscht!";
             } else {
                 $messages[] = "Kategorie '$name' konnte nicht gelöscht werden!";
-                $result = 500;
+                $result     = 500;
             }
         } else {
-            $oldName = $c->getField('name');
-            if ($c->setField('name', $name)) {
-                if ($c->store()) {
-                    $messages[] = "Kategorie umbenannt: '$oldName' -> $name'";
+            $old_name = $c->get_field( 'name' );
+            if ( $c->set_field( 'name', $name ) ) {
+                if ( $c->store() ) {
+                    $messages[] = "Kategorie umbenannt: '$old_name' -> $name'";
                 } else {
-                    $messages[] = "Kategorie '$oldName' konnte nicht in '$name' umbenannt werden!";
+                    $messages[] = "Kategorie '$old_name' konnte nicht in '$name' umbenannt werden!";
                     $result = 500;
                 }
             }
         }
         $index++;
     }
-    if (empty($messages)) {
+    if ( empty( $messages ) ) {
         $messages[] = 'Keine Aktion';
     }
-    return array($result, implode('<br>', $messages));
+    return array( $result, implode( '<br>', $messages ) );
 }

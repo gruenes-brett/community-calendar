@@ -1,23 +1,39 @@
 <?php
+/**
+ * Functions for rendering events.
+ *
+ * @package Community_Calendar
+ */
 
+/**
+ * Base class for event renderes.
+ */
 abstract class comcal_EventRenderer {
-    abstract function render( comcal_Event $event) : string;
+    abstract public function render( comcal_Event $event ) : string;
 
-    function get_edit_link( $event ) {
-        if ( comcal_currentUserCanSetPublic() ) {
-            return "<a class='editEvent' eventId='{$event->getField('eventId')}'>edit</a> &mdash; ";
+    /**
+     * Produces a button that shows the edit event dialog.
+     *
+     * @param comcal_Event $event Event instance.
+     * @return string HTML.
+     */
+    protected function get_edit_link( $event ) {
+        if ( comcal_current_user_can_set_public() ) {
+            return "<a class='editEvent' eventId='{$event->get_field('eventId')}'>edit</a> &mdash; ";
         }
         return '';
     }
 }
 
-
+/**
+ * Simple event renderer.
+ */
 class comcal_DefaultEventRenderer extends comcal_EventRenderer {
     public function render( comcal_Event $event ) : string {
-        $title     = $event->getField( 'title' );
-        $time      = $event->getDateTime()->getPrettyTime();
-        $location  = $event->getField( 'location' );
-        $url       = $event->getField( 'url' );
+        $title     = $event->get_field( 'title' );
+        $time      = $event->get_start_date_time()->get_pretty_time();
+        $location  = $event->get_field( 'location' );
+        $url       = $event->get_field( 'url' );
         $edit_link = $this->get_edit_link( $event );
         return <<<XML
       <article>
@@ -30,23 +46,25 @@ XML;
     }
 }
 
+/**
+ * Renders an event as table.
+ */
 class comcal_TableEventRenderer extends comcal_EventRenderer {
-    function render( comcal_Event $event ) : string {
-
-        $editControls = $this->get_edit_link( $event );
-        $publicClass = '';
-        if ( $event->getField( 'public' ) == 0 ) {
-            $publicClass = 'notPublic';
+    public function render( comcal_Event $event ) : string {
+        $edit_controls = $this->get_edit_link( $event );
+        $public_class  = '';
+        if ( $event->get_field( 'public' ) == 0 ) {
+            $public_class = 'notPublic';
         }
         return <<<XML
-        <table class='event $publicClass' eventId="{$event->getField('eventId')}"><tbody>
+        <table class='event $public_class' eventId="{$event->get_field('eventId')}"><tbody>
             <tr>
-                <td class='time'>{$event->getDateTime()->getPrettyTime()}</td>
-                <td class='title'>{$event->getField('title')}</td>
+                <td class='time'>{$event->get_start_date_time()->get_pretty_time()}</td>
+                <td class='title'>{$event->get_field('title')}</td>
             </tr>
             <tr>
-                <td>$editControls</td>
-                <td class='organizer'>{$event->getField('organizer')}</td>
+                <td>$edit_controls</td>
+                <td class='organizer'>{$event->get_field('organizer')}</td>
             </tr>
         </tbody></table>
 XML;
@@ -54,16 +72,19 @@ XML;
 
 }
 
-
+/**
+ * Renders event as markdown.
+ */
 class comcal_MarkdownEventRenderer extends comcal_EventRenderer {
-    function render( comcal_Event $event ) : string {
-        $dateTime = $event->getDateTime();
-        $md = '**' . $dateTime->getHumanizedTime() . '** ';
-        $md .= $event->getField( 'organizer' );
+    public function render( comcal_Event $event ) : string {
+        $date_time = $event->get_start_date_time();
+
+        $md  = '**' . $date_time->get_humanized_time() . '** ';
+        $md .= $event->get_field( 'organizer' );
         $md .= ' | ';
-        $md .= $event->getField( 'title' );
+        $md .= $event->get_field( 'title' );
         $md .= ' ';
-        $md .= $event->getField( 'url' );
+        $md .= $event->get_field( 'url' );
 
         return $md;
     }

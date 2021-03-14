@@ -1,44 +1,54 @@
 <?php
-
 /**
  * Functions for showing an edit event form in a modal div
+ *
+ * @package Community_Calendar
  */
-
 
 /**
  * Checks if the currently logged in user may edit/delete events and
  * other superior stuff.
+ *
+ * @return bool true if logged in.
  */
-function comcal_currentUserCanSetPublic() {
-    return current_user_can('edit_others_posts');
+function comcal_current_user_can_set_public() {
+    return current_user_can( 'edit_others_posts' );
 }
 
 /**
  * Spam protection:
  * Checks if the limit 'events submitted per time' have been surpassed
+ *
+ * @return bool
  */
-function comcal_throttleEventSubmissions() {
-    if (comcal_currentUserCanSetPublic()) {
+function comcal_throttle_event_submissions() {
+    if ( comcal_current_user_can_set_public() ) {
         return true;
     }
-    $timeLimit = 5;
-    $submitLimit = 10;
-    $count = comcal_Event::countEvents($timeLimit);
-    if ($count >= $submitLimit) {
-        comcal_warning("Spam limit exceeded: $submitLimit submissions per $timeLimit minutes");
-        sleep(3);
-        return "Aktion aktuell nicht möglich. Bitte in $timeLimit Minuten erneut versuchen.";
+    $time_limit   = 5;
+    $submit_limit = 10;
+    $count        = comcal_Event::count_events( $time_limit );
+    if ( $count >= $submit_limit ) {
+        comcal_warning( "Spam limit exceeded: $submit_limit submissions per $time_limit minutes" );
+        sleep( 3 );
+        return "Aktion aktuell nicht möglich. Bitte in $time_limit Minuten erneut versuchen.";
     }
-    if ($count >= $submitLimit/2) {
-        // Slow down submission if nearing the limit
-        sleep(3);
+    if ( $count >= $submit_limit / 2 ) {
+        // Slow down submission if nearing the limit.
+        sleep( 3 );
     }
     return true;
 }
 
-function comcal_getPublicControl($public) {
-    if (comcal_currentUserCanSetPublic()) {
-        $checked = $public == 1 ? 'checked' : 'unchecked';
+/**
+ * If loggedin, a checkbox for setting events public is created.
+ *
+ * @param bool $public Current 'public' state of the event.
+ * @return string HTML form elements.
+ */
+function comcal_get_public_control( $public ) {
+    if ( comcal_current_user_can_set_public() ) {
+        $checked = 1 === $public ? 'checked' : 'unchecked';
         return <<<XML
             <div class="form-group">
                 <div class="form-check">
@@ -55,14 +65,20 @@ XML;
     }
 }
 
-function comcal_getDeleteForm($adminAjaxUrl) {
-    if (comcal_currentUserCanSetPublic()) {
-        $deleteNonceField = wp_nonce_field('delete_event','verification-code-delete', true, false);
+/**
+ * If logged in, creates a form for deleting the event.
+ *
+ * @param string $admin_ajax_url AJAX URL.
+ * @return string HTML form.
+ */
+function comcal_delete_form( $admin_ajax_url ) {
+    if ( comcal_current_user_can_set_public() ) {
+        $delete_nonce_field = wp_nonce_field( 'delete_event', 'verification-code-delete', true, false );
         return <<<XML
-            <form id="deleteEvent" action="$adminAjaxUrl" method="post">
+            <form id="deleteEvent" action="$admin_ajax_url" method="post">
                 <br/> <br/>
                 <fieldset>
-                    $deleteNonceField
+                    $delete_nonce_field
                     <input name="eventId" id="eventId_delete" value="" type="hidden">
                     <input name="action" value="delete_event" type="hidden">
                     <div class="btn-group">
@@ -76,18 +92,21 @@ XML;
     }
 }
 
-function comcal_editEventCategories() {
-    $cats = comcal_Category::getAll();
-
-    $checkBoxes = '';
-
-    $index = 0;
-    foreach ($cats as $c) {
-        $suffix = "_$index";
-        $checkBoxes .= <<<XML
+/**
+ * Creates form elements for setting event categories.
+ *
+ * @return string HTML form elements.
+ */
+function comcal_edit_event_categories() {
+    $cats        = comcal_Category::get_all();
+    $check_boxes = '';
+    $index       = 0;
+    foreach ( $cats as $c ) {
+        $suffix       = "_$index";
+        $check_boxes .= <<<XML
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="category$suffix" id="eventCategory$suffix" value="{$c->getField('categoryId')}" unchecked>
-                <label class="form-check-label" for="eventCategory$suffix">{$c->getField('name')}</label>
+                <input class="form-check-input" type="checkbox" name="category$suffix" id="eventCategory$suffix" value="{$c->get_field('categoryId')}" unchecked>
+                <label class="form-check-label" for="eventCategory$suffix">{$c->get_field('name')}</label>
             </div>
 XML;
         $index++;
@@ -96,37 +115,49 @@ XML;
     return <<<XML
     <div class="form-group">
         <label for="eventCategories">Kategorien</label>
-        $checkBoxes
+        $check_boxes
     </div>
 XML;
 }
 
-function comcal_getImportEventUrlControls() {
+/**
+ * Creates form elements for importing an event URL.
+ */
+function comcal_get_import_event_url_controls() {
     return <<<XML
         <input type="button" class="btn btn-info comcal-import-event-url" value="Event von URL importieren">
 XML;
 }
 
-function comcal_getEditForm($calendarName='') {
-    $event = new comcal_Event();
-    $eventId = '';
+/**
+ * Produces the event edit form.
+ *
+ * @param string $calendar_name Name of the calendar.
+ */
+function comcal_get_edit_form( $calendar_name = '' ) {
 
-    $adminAjaxUrl = admin_url('admin-ajax.php');
-    $nonceField = wp_nonce_field('submit_new_event','verification-code-edit', true, false);
-    $organizer = $event->getField('organizer');
-    $location = $event->getField('location');
-    $title = $event->getField('title');
-    $date = $event->getField('date', date('Y-m-d'));
-    $time = $event->getField('time', '12:00:00');
-    $dateEnd = $event->getField('dateEnd', date('Y-m-d'));
-    $timeEnd = $event->getField('timeEnd', '20:00:00');
-    $url = $event->getField('url');
-    $description = $event->getField('description');
-    $public = $event->getField('public');
-    $publicControl = comcal_getPublicControl($public);
-    $deleteForm = comcal_getDeleteForm($adminAjaxUrl);
-    $categories = comcal_editEventCategories();
-    $importEventUrl = comcal_getImportEventUrlControls();
+    // By default, the form is initialized with empty event data.
+    // The form will be filled dynamically in edit.js.
+    $event    = new comcal_Event();
+    $event_id = '';
+
+    $admin_ajax_url = admin_url( 'admin-ajax.php' );
+    $nonce_field    = wp_nonce_field( 'submit_new_event', 'verification-code-edit', true, false );
+    $organizer      = $event->get_field( 'organizer' );
+    $location       = $event->get_field( 'location' );
+    $title          = $event->get_field( 'title' );
+    $date           = $event->get_field( 'date', date( 'Y-m-d' ) );
+    $time           = $event->get_field( 'time', '12:00:00' );
+    $date_end       = $event->get_field( 'dateEnd', date( 'Y-m-d' ) );
+    $time_end       = $event->get_field( 'timeEnd', '20:00:00' );
+    $url            = $event->get_field( 'url' );
+    $description    = $event->get_field( 'description' );
+    $public         = $event->get_field( 'public' );
+    $public_control = comcal_get_public_control( $public );
+    $delete_form    = comcal_delete_form( $admin_ajax_url );
+    $categories     = comcal_edit_event_categories();
+
+    $import_event_url_controls = comcal_get_import_event_url_controls();
 
     return <<<XML
     <div class="comcal-modal-wrapper edit-dialog">
@@ -134,17 +165,17 @@ function comcal_getEditForm($calendarName='') {
         <div class="form-popup" id="editEvent">
             <h2></h2>
             <p><small>Pflichtfelder sind gelb, fehlerhafte Felder rosa hinterlegt</small><p>
-            $importEventUrl
+            $import_event_url_controls
 
             <div class="alert alert-warning hide fade" role="alert"></div>
 
-            <form id="editEvent" action="$adminAjaxUrl" method="post">
+            <form id="editEvent" action="$admin_ajax_url" method="post">
                 <fieldset>
-                    $nonceField
-                    <input name="eventId" id="eventId" value="$eventId" type="hidden">
+                    $nonce_field
+                    <input name="eventId" id="eventId" value="$event_id" type="hidden">
                     <input name="action" value="submit_new_event" type="hidden">
-                    <input name="calendarName" value="$calendarName" type="hidden">
-                    $publicControl
+                    <input name="calendar_name" value="$calendar_name" type="hidden">
+                    $public_control
 
                     <div class="form-group">
                         <label for="eventTitle">Titel der Veranstaltung</label>
@@ -176,8 +207,8 @@ function comcal_getEditForm($calendarName='') {
                     <div class="form-group">
                         <label for="eventDateTimeEnd">Ende</label>
                         <div class="input-group" id="eventDateTimeEnd" aria-describedby="eventDateTimeEndHelp">
-                            <input type="date" value="$dateEnd" class="form-control" name="dateEnd" id="eventDateEnd">
-                            <input type="time" value="$timeEnd" class="form-control" name="timeEnd" id="eventTimeEnd">
+                            <input type="date" value="$date_end" class="form-control" name="dateEnd" id="eventDateEnd">
+                            <input type="time" value="$time_end" class="form-control" name="timeEnd" id="eventTimeEnd">
                         </div>
                         <small id="eventDateTimeEndHelp" class="form-text">Wann endet die Veranstaltung?</small>
                     </div>
@@ -204,7 +235,7 @@ function comcal_getEditForm($calendarName='') {
                 </fieldset>
             </form>
 
-            $deleteForm
+            $delete_form
 
             <div class="alert alert-warning hide fade" role="alert"></div>
         </div>
@@ -212,116 +243,161 @@ function comcal_getEditForm($calendarName='') {
 XML;
 }
 
-
-// handle new event request
-function comcal_submitNewEvent_func() {
-    if ( empty($_POST) || !wp_verify_nonce($_POST['verification-code-edit'], 'submit_new_event') ) {
-        echo 'You targeted the right function, but sorry, your nonce did not verify.';
-        wp_die('You targeted the right function, but sorry, your nonce did not verify.', 'Error in submission',
-            array('response' => 500));
+/**
+ * Handle new event form submission.
+ */
+function comcal_submit_new_event_func() {
+    $nonce_field = 'verification-code-edit';
+    $action      = 'submit_new_event';
+    $valid_nonce = isset( $_POST[ $nonce_field ] ) && wp_verify_nonce(
+        sanitize_text_field( wp_unslash( $_POST[ $nonce_field ] ) ),
+        $action
+    );
+    if ( ! $valid_nonce ) {
+        $message = 'You targeted the right function, but sorry, your nonce did not verify.';
+        echo $message;
+        wp_die(
+            $message,
+            'Error in submission',
+            array( 'response' => 500 )
+        );
     } else {
-        $res = comcal_updateEventFromArray($_POST);
-        if ($res[0] == 200) {
-            wp_die($res[1], 'Datenübertragung erfolgreich');
+        $res = comcal_update_event_from_array( $_POST );
+        if ( 200 === $res[0] ) {
+            wp_die( $res[1], 'Datenübertragung erfolgreich' );
         } else {
-            wp_die($res[1], 'Fehler', array('response' => $res[0]));
+            wp_die( $res[1], 'Error', array( 'response' => $res[0] ) );
         }
     }
 }
-add_action('wp_ajax_nopriv_submit_new_event', 'comcal_submitNewEvent_func');
-add_action('wp_ajax_submit_new_event', 'comcal_submitNewEvent_func');
+add_action( 'wp_ajax_nopriv_submit_new_event', 'comcal_submit_new_event_func' );
+add_action( 'wp_ajax_submit_new_event', 'comcal_submit_new_event_func' );
 
-function comcal_deleteEvent_func() {
-    if ( empty($_POST) || !wp_verify_nonce($_POST['verification-code-delete'], 'delete_event') ) {
+/**
+ * Handles delete event form submissions.
+ */
+function comcal_delete_event_func() {
+    $nonce_field = 'verification-code-delete';
+    $action      = 'delete_event';
+    $valid_nonce = isset( $_POST[ $nonce_field ] ) && wp_verify_nonce(
+        sanitize_text_field( wp_unslash( $_POST[ $nonce_field ] ) ),
+        $action
+    );
+    if ( ! $valid_nonce ) {
         echo 'You targeted the right function, but sorry, your nonce did not verify.';
-        wp_die('You targeted the right function, but sorry, your nonce did not verify.', 'Error in submission',
-            array('response' => 500));
-    } else {
-        $res = comcal_deleteEvent($_POST['eventId']);
-        if ($res[0] == 200) {
-            wp_die($res[1], 'Event wurde gelöscht');
+        wp_die(
+            'You targeted the right function, but sorry, your nonce did not verify.',
+            'Error in submission',
+            array( 'response' => 500 )
+        );
+    } elseif ( isset( $_POST['eventId'] ) ) {
+        $res = comcal_delete_event( sanitize_text_field( wp_unslash( $_POST['eventId'] ) ) );
+        if ( 200 === $res[0] ) {
+            wp_die( $res[1], 'Event wurde gelöscht' );
         } else {
-            wp_die($res[1], 'Fehler', array('response' => $res[0]));
+            wp_die( $res[1], 'Error', array( 'response' => $res[0] ) );
         }
+    } else {
+        wp_die( 'eventId not specified', 'Error', array( 'response' => 500 ) );
     }
 }
-add_action('wp_ajax_nopriv_delete_event', 'comcal_deleteEvent_func');
-add_action('wp_ajax_delete_event', 'comcal_deleteEvent_func');
+add_action( 'wp_ajax_nopriv_delete_event', 'comcal_delete_event_func' );
+add_action( 'wp_ajax_delete_event', 'comcal_delete_event_func' );
 
 
-function comcal_prevent_html($str) {
-    return stripslashes(htmlspecialchars($str));
+function comcal_prevent_html( $str ) {
+    return stripslashes( htmlspecialchars( $str ) );
 }
 
-function comcal_filterPostData($data) {
-    if (!comcal_currentUserCanSetPublic()) {
-        // Forbid to set an event public if not logged in
+/**
+ * Make sure the post data does not contain invalid data. Such as
+ * trying to modify an existing event.
+ *
+ * @param array $data Post data.
+ * @return array Sanitized post data.
+ */
+function comcal_sanitize_post_data( $data ) {
+    if ( ! comcal_current_user_can_set_public() ) {
+        // Forbid to set an event public if not logged in.
         $data['public'] = 0;
-        // Forbid to modify an existing event if not logged in
+        // Forbid to modify an existing event if not logged in.
         $data['eventId'] = '';
     }
-    foreach (comcal_Event::getTextFieldNames() as $name) {
-        $data[$name] = comcal_prevent_html($data[$name]);
+    foreach ( comcal_Event::get_text_field_names() as $name ) {
+        $data[ $name ] = comcal_prevent_html( $data[ $name ] );
     }
     return $data;
 }
 
-function comcal_filterCategories($data) {
+/**
+ * Instantiates category instances for each category found in data.
+ *
+ * @param array $data Post data.
+ */
+function comcal_filter_categories( $data ) {
     $cats = array();
-    foreach ($data as $key => $value) {
-        if (strpos($key, 'category_') === 0) {
-            $cats[] = comcal_Category::queryFromCategoryId($value);
+    foreach ( $data as $key => $value ) {
+        if ( strpos( $key, 'category_' ) === 0 ) {
+            $cats[] = comcal_Category::query_from_category_id( $value );
         }
     }
     return $cats;
 }
 
-function comcal_updateEventFromArray($data) {
-    $data = comcal_filterPostData($data);
-    $event = new comcal_Event($data);
-    $isNewEvent = !$event->exists();
-    if (!comcal_currentUserCanSetPublic() && !$isNewEvent) {
-        return array(500, 'Keine Berechtigung um ein Event zu aktualisieren!');
+/**
+ * Updates an event from given data.
+ *
+ * @param array $data Post data.
+ */
+function comcal_update_event_from_array( $data ) {
+    $data         = comcal_sanitize_post_data( $data );
+    $event        = new comcal_Event( $data );
+    $is_new_event = ! $event->exists();
+    if ( ! comcal_current_user_can_set_public() && ! $is_new_event ) {
+        return array( 500, 'Keine Berechtigung um ein Event zu aktualisieren!' );
     }
 
-    $allowSubmission = comcal_throttleEventSubmissions();
-    if ($allowSubmission !== true) {
-        return array(403, $allowSubmission);
+    $allow_submission = comcal_throttle_event_submissions();
+    if ( true !== $allow_submission ) {
+        return array( 403, $allow_submission );
     }
 
-    if (!$event->store()) {
-        if ($isNewEvent) {
-            return array(500, 'Event konnte nicht angelegt werden. Fehlerhafte Informationen?');
+    if ( ! $event->store() ) {
+        if ( $is_new_event ) {
+            return array( 500, 'Event konnte nicht angelegt werden. Fehlerhafte Informationen?' );
         } else {
-            return array(500, 'Fehler beim Update des Event');
+            return array( 500, 'Fehler beim Update des Event' );
         }
     } else {
-        $event->removeAllCategories();
-        foreach (comcal_filterCategories($data) as $cat) {
-            $event->addCategory($cat);
+        $event->remove_all_categories();
+        foreach ( comcal_filter_categories( $data ) as $cat ) {
+            $event->add_category( $cat );
         }
     }
 
-    if ($isNewEvent) {
-        if (comcal_currentUserCanSetPublic()) {
-            return array(200, 'Event wurde angelegt.');
+    if ( $is_new_event ) {
+        if ( comcal_current_user_can_set_public() ) {
+            return array( 200, 'Event wurde angelegt.' );
         } else {
-            return array(200, 'Vielen Dank für deinen Eintrag! Nach einer Prüfung werden wir ihn '
-                . 'so schnell wie möglich bei uns aufnehmen.');
+            return array(
+                200,
+                'Vielen Dank für deinen Eintrag! Nach einer Prüfung werden wir ihn '
+                                    . 'so schnell wie möglich bei uns aufnehmen.',
+            );
         }
     }
 
-    return array(200, 'Event wurde aktualisiert.');
+    return array( 200, 'Event wurde aktualisiert.' );
 }
 
-function comcal_deleteEvent($eventId) {
-    $event = comcal_Event::queryByEntryId($eventId);
-    if ($event == null) {
-        return array(500, 'Event kann nicht gelöscht werden, da nicht vorhanden');
+function comcal_delete_event( $event_id ) {
+    $event = comcal_Event::query_by_entry_id( $event_id );
+    if ( null === $event ) {
+        return array( 500, 'Event kann nicht gelöscht werden, da nicht vorhanden' );
     }
-    if ($event->delete()) {
-        return array(200, 'Event gelöscht');
+    if ( $event->delete() ) {
+        return array( 200, 'Event gelöscht' );
     } else {
-        return array(500, 'Fehler beim Löschen des Event');
+        return array( 500, 'Fehler beim Löschen des Event' );
     }
 }
