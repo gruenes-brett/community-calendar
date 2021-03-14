@@ -16,7 +16,7 @@ $comcal_calendar_already_shown = false;
 function comcal_table_func( $atts ) {
     global $comcal_calendar_already_shown;
     if ( $comcal_calendar_already_shown ) {
-        return comcal_makeErrorBox( 'Error: only a single calendar is allowed per page!' );
+        return comcal_make_error_box( 'Error: only a single calendar is allowed per page!' );
     }
     $a = shortcode_atts(
         array(
@@ -52,7 +52,7 @@ function comcal_table_func( $atts ) {
         try {
             $start_date = comcal_DateTimeWrapper::from_date_str_time_str( $start, '00:00:00' );
         } catch ( Exception $e ) {
-            return comcal_makeErrorBox( "Error in 'start' attribute:<br>{$e->getMessage()}" );
+            return comcal_make_error_box( "Error in 'start' attribute:<br>{$e->getMessage()}" );
         }
     }
     if ( null !== $days && null !== $start_date ) {
