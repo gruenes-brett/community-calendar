@@ -59,7 +59,7 @@ function comcal_table_func( $atts ) {
         $latest_date = $start_date->get_next_day( $days );
     }
 
-    $is_admin        = comcal_currentUserCanSetPublic();
+    $is_admin        = comcal_current_user_can_set_public();
     $events_iterator = new comcal_EventIterator(
         ! $is_admin,
         $category,
@@ -74,11 +74,11 @@ function comcal_table_func( $atts ) {
 
     $all_html = '';
     if ( $show_categories ) {
-        $all_html .= comcal_getCategoryButtons( $category );
+        $all_html .= comcal_get_category_buttons( $category );
     }
-    $all_html .= $output->get_html() . comcal_get_show_event_box() . comcal_getEditForm( $calendar_name );
-    if ( comcal_currentUserCanSetPublic() ) {
-        $all_html .= comcal_getEditCategoriesDialog();
+    $all_html .= $output->get_html() . comcal_get_show_event_box() . comcal_get_edit_form( $calendar_name );
+    if ( comcal_current_user_can_set_public() ) {
+        $all_html .= comcal_get_edit_categories_dialog();
     }
     return $all_html;
 }

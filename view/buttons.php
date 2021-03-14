@@ -21,7 +21,7 @@ function comcal_floating_buttons_func( $atts, $content = null ) {
 
     $out            = "<div class='comcal-floating-button-container'>";
     $button_classes = array( 'addEvent', 'scrollToToday' );
-    if ( comcal_currentUserCanSetPublic() ) {
+    if ( comcal_current_user_can_set_public() ) {
         $button_classes[] = 'editCategories';
     }
     $index = 0;

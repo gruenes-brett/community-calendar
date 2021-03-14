@@ -54,15 +54,15 @@ class comcal_Category extends comcal_DbTable {
     public static function create( $name ) {
         return new self(
             array(
-                'name' => $name,
+                'name'       => $name,
                 'categoryId' => uniqid( self::IDPREFIX ),
             )
         );
     }
 
     public function get_public_fields() {
-        $data = $this->get_full_data();
-        $data['html'] = comcal_categoryButton( $data['categoryId'], $data['name'], true );
+        $data         = $this->get_full_data();
+        $data['html'] = comcal_category_button( $data['categoryId'], $data['name'], true );
         return $data;
     }
 }
