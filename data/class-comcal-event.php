@@ -58,6 +58,7 @@ class Comcal_Event extends Comcal_Database_Table {
             'public',
             'created',
             'calendarName',
+            'imageUrl',
         );
     }
     public static function get_table_name() {
@@ -67,6 +68,7 @@ class Comcal_Event extends Comcal_Database_Table {
     protected static function get_create_table_query() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
+
         $sql = "CREATE TABLE [T] (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             eventId tinytext NOT NULL,
@@ -82,6 +84,7 @@ class Comcal_Event extends Comcal_Database_Table {
             public tinyint(2) DEFAULT 0 NOT NULL,
             created timestamp NOT NULL,
             calendarName tinytext NOT NULL,
+            imageUrl varchar(1300) NOT NULL,
             PRIMARY KEY  (id)
             ) $charset_collate;";
         return $sql;
@@ -104,21 +107,22 @@ class Comcal_Event extends Comcal_Database_Table {
     public function get_public_fields() {
         /* returns fields and values for display */
         return array(
-            'eventId' => $this->get_field( 'eventId' ),
-            'date' => $this->get_field( 'date' ),
-            'time' => $this->get_field( 'time' ),
-            'dateEnd' => $this->get_field( 'dateEnd' ),
-            'timeEnd' => $this->get_field( 'timeEnd' ),
-            'organizer' => $this->get_field( 'organizer' ),
-            'location' => $this->get_field( 'location' ),
-            'title' => $this->get_field( 'title' ),
-            'description' => $this->get_field( 'description' ),
-            'url' => $this->get_field( 'url' ),
-            'public' => $this->get_field( 'public' ),
-            'created' => $this->get_field( 'created' ),
-            'categories' => $this->get_categories_details(),
-            'calendarName' => $this->get_field( 'calendarName' ),
-            'number_of_days' => $this->getNumberOfDays(),
+            'eventId'        => $this->get_field( 'eventId' ),
+            'date'           => $this->get_field( 'date' ),
+            'time'           => $this->get_field( 'time' ),
+            'dateEnd'        => $this->get_field( 'dateEnd' ),
+            'timeEnd'        => $this->get_field( 'timeEnd' ),
+            'organizer'      => $this->get_field( 'organizer' ),
+            'location'       => $this->get_field( 'location' ),
+            'title'          => $this->get_field( 'title' ),
+            'description'    => $this->get_field( 'description' ),
+            'url'            => $this->get_field( 'url' ),
+            'public'         => $this->get_field( 'public' ),
+            'created'        => $this->get_field( 'created' ),
+            'categories'     => $this->get_categories_details(),
+            'calendarName'   => $this->get_field( 'calendarName' ),
+            'imageUrl'       => $this->get_field( 'imageUrl' ),
+            'number_of_days' => $this->get_number_of_days(),
         );
     }
     public static function get_text_field_names() {
@@ -143,7 +147,7 @@ class Comcal_Event extends Comcal_Database_Table {
         }
         return $result;
     }
-    public function getNumberOfDays() {
+    public function get_number_of_days() {
         $start_date = Comcal_Date_Time::from_date_str_time_str( $this->get_field( 'date' ), '00:00' );
         $end_date   = Comcal_Date_Time::from_date_str_time_str( $this->get_field( 'dateEnd' ), '00:00' );
         $diff       = $end_date->get_date_time_difference( $start_date );
@@ -177,9 +181,9 @@ class Comcal_Event_Iterator implements Iterator {
     /**
      * Query database and initalize iterator.
      *
-     * @param bool                   $public_only Only show events that are set public.
-     * @param Comcal_Category        $category Only a certain category.
-     * @param string                 $calendar_name Name of the calendar.
+     * @param bool             $public_only Only show events that are set public.
+     * @param Comcal_Category  $category Only a certain category.
+     * @param string           $calendar_name Name of the calendar.
      * @param Comcal_Date_Time $start_date Range start - null for all.
      * @param Comcal_Date_Time $end_date Range end - null for all.
      *
@@ -230,9 +234,9 @@ class Comcal_Event_Iterator implements Iterator {
 /**
  * Query events from database.
  *
- * @param bool                   $public_only Only show events that are set public.
- * @param Comcal_Category        $category Only a certain category.
- * @param string                 $calendar_name Name of the calendar.
+ * @param bool             $public_only Only show events that are set public.
+ * @param Comcal_Category  $category Only a certain category.
+ * @param string           $calendar_name Name of the calendar.
  * @param Comcal_Date_Time $start_date Range start.
  * @param Comcal_Date_Time $end_date Range end.
  *

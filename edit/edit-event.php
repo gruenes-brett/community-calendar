@@ -152,6 +152,7 @@ function comcal_get_edit_form( $calendar_name = '' ) {
     $time_end       = $event->get_field( 'timeEnd', '20:00:00' );
     $url            = $event->get_field( 'url' );
     $description    = $event->get_field( 'description' );
+    $image_url      = $event->get_field( 'imageUrl' );
     $public         = $event->get_field( 'public' );
     $public_control = comcal_get_public_control( $public );
     $delete_form    = comcal_delete_form( $admin_ajax_url );
@@ -226,6 +227,14 @@ function comcal_get_edit_form( $calendar_name = '' ) {
                     </div>
 
                     $categories
+
+                    <div class="form-group">
+                        <label for="eventImageUrl">Veranstaltungsbild</label>
+                        <!-- <input type="file" class="form-control" name="imageUrl" id="eventImageUrl" accept="image/jpeg,image/png" placeholder="Bitte Bild zum Hochladen auswählen"> -->
+                        <!-- <small id="eventImageUrlHelp" class="form-text">Bitte Bild zum Hochladen auswählen</small> -->
+                        <input type="url" value="$image_url" class="form-control" name="imageUrl" id="eventImageUrl" placeholder="https://...">
+                        <small id="eventImageUrlHelp" class="form-text">URL des Veranstaltungsbildes</small>
+                    </div>
 
                     <div class="btn-group">
                         <input type="button" class="btn btn-secondary comcal-cancel" value="Zurück">

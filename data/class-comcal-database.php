@@ -251,6 +251,7 @@ abstract class Comcal_Database_Table {
 
     public function get_field( $name, $default = null ) {
         if ( strcmp( $name, $this->get_id_field_name() ) === 0 ) {
+            // Make sure we have a valid id.
             $this->init_entry_id();
         }
         if ( isset( $this->data->$name ) ) {
@@ -270,6 +271,7 @@ abstract class Comcal_Database_Table {
     public function get_entry_id() {
         return $this->get_field( $this->get_id_field_name() );
     }
+
     public function set_field( $name, $value ) {
         if ( $this->data->$name !== $value ) {
             $this->data->$name = $value;
@@ -278,6 +280,9 @@ abstract class Comcal_Database_Table {
         return false;
     }
 
+    /**
+     * Initialize the id field with a random id, if not already set.
+     */
     private function init_entry_id() {
         $id_field_name = $this->get_id_field_name();
         if ( ! isset( $this->data->$id_field_name ) || 0 === strcmp( $this->data->$id_field_name, '' ) ) {
