@@ -27,7 +27,7 @@ function comcal_throttle_event_submissions() {
     }
     $time_limit   = 5;
     $submit_limit = 10;
-    $count        = comcal_Event::count_events( $time_limit );
+    $count        = Comcal_Event::count_events( $time_limit );
     if ( $count >= $submit_limit ) {
         comcal_warning( "Spam limit exceeded: $submit_limit submissions per $time_limit minutes" );
         sleep( 3 );
@@ -98,7 +98,7 @@ XML;
  * @return string HTML form elements.
  */
 function comcal_edit_event_categories() {
-    $cats        = comcal_Category::get_all();
+    $cats        = Comcal_Category::get_all();
     $check_boxes = '';
     $index       = 0;
     foreach ( $cats as $c ) {
@@ -138,7 +138,7 @@ function comcal_get_edit_form( $calendar_name = '' ) {
 
     // By default, the form is initialized with empty event data.
     // The form will be filled dynamically in edit.js.
-    $event    = new comcal_Event();
+    $event    = new Comcal_Event();
     $event_id = '';
 
     $admin_ajax_url = admin_url( 'admin-ajax.php' );
@@ -323,7 +323,7 @@ function comcal_sanitize_post_data( $data ) {
         // Forbid to modify an existing event if not logged in.
         $data['eventId'] = '';
     }
-    foreach ( comcal_Event::get_text_field_names() as $name ) {
+    foreach ( Comcal_Event::get_text_field_names() as $name ) {
         $data[ $name ] = comcal_prevent_html( $data[ $name ] );
     }
     return $data;
@@ -338,7 +338,7 @@ function comcal_filter_categories( $data ) {
     $cats = array();
     foreach ( $data as $key => $value ) {
         if ( strpos( $key, 'category_' ) === 0 ) {
-            $cats[] = comcal_Category::query_from_category_id( $value );
+            $cats[] = Comcal_Category::query_from_category_id( $value );
         }
     }
     return $cats;
@@ -351,7 +351,7 @@ function comcal_filter_categories( $data ) {
  */
 function comcal_update_event_from_array( $data ) {
     $data         = comcal_sanitize_post_data( $data );
-    $event        = new comcal_Event( $data );
+    $event        = new Comcal_Event( $data );
     $is_new_event = ! $event->exists();
     if ( ! comcal_current_user_can_set_public() && ! $is_new_event ) {
         return array( 500, 'Keine Berechtigung um ein Event zu aktualisieren!' );
@@ -391,7 +391,7 @@ function comcal_update_event_from_array( $data ) {
 }
 
 function comcal_delete_event( $event_id ) {
-    $event = comcal_Event::query_by_entry_id( $event_id );
+    $event = Comcal_Event::query_by_entry_id( $event_id );
     if ( null === $event ) {
         return array( 500, 'Event kann nicht gelöscht werden, da nicht vorhanden' );
     }

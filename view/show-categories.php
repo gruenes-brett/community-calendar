@@ -49,7 +49,7 @@ function comcal_category_button( $category_id, $label, $active ) {
 }
 
 function comcal_get_category_buttons( $active_category = null ) {
-    $cats = comcal_Category::get_all();
+    $cats = Comcal_Category::get_all();
     $html = '<p class="comcal-categories">';
 
     $html .= comcal_category_button( null, 'Alles anzeigen', null === $active_category );

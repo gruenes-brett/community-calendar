@@ -38,19 +38,19 @@ function comcal_table_func( $atts ) {
     // Determine category.
     $category = null;
     if ( isset( $_GET['comcal_category'] ) ) {
-        $category = comcal_Category::query_from_category_id( $_GET['comcal_category'] );
+        $category = Comcal_Category::query_from_category_id( $_GET['comcal_category'] );
     }
 
     // Determine date range.
     $latest_date = null;
     $start_date  = null;
     if ( strtolower( $start ) === 'today' ) {
-        $start_date = comcal_DateTimeWrapper::now();
+        $start_date = Comcal_Date_Time::now();
     } elseif ( strtolower( $start ) === 'next-monday' ) {
-        $start_date = comcal_DateTimeWrapper::next_monday();
+        $start_date = Comcal_Date_Time::next_monday();
     } elseif ( null !== $start ) {
         try {
-            $start_date = comcal_DateTimeWrapper::from_date_str_time_str( $start, '00:00:00' );
+            $start_date = Comcal_Date_Time::from_date_str_time_str( $start, '00:00:00' );
         } catch ( Exception $e ) {
             return comcal_make_error_box( "Error in 'start' attribute:<br>{$e->getMessage()}" );
         }
@@ -60,7 +60,7 @@ function comcal_table_func( $atts ) {
     }
 
     $is_admin        = comcal_current_user_can_set_public();
-    $events_iterator = new comcal_EventIterator(
+    $events_iterator = new Comcal_Event_Iterator(
         ! $is_admin,
         $category,
         $calendar_name,
@@ -68,7 +68,7 @@ function comcal_table_func( $atts ) {
         $latest_date ? $latest_date->get_date_str() : null,
     );
 
-    $output = comcal_EventsDisplayBuilder::create_display( $style, $events_iterator, $start_date, $latest_date );
+    $output = Comcal_Events_Display_Builder::create_display( $style, $events_iterator, $start_date, $latest_date );
 
     $comcal_calendar_already_shown = true;
 
@@ -89,7 +89,7 @@ add_shortcode( 'community-calendar-table', 'comcal_table_func' );
  * Base class for objects that output the calendar and events in different formats
  * (e.g., as HTML table, as Markdown, etc.)
  */
-abstract class comcal_EventsDisplayBuilder {
+abstract class Comcal_Events_Display_Builder {
 
     /**
      * Declares style shorthands for DisplayBuilder classes.
@@ -97,8 +97,8 @@ abstract class comcal_EventsDisplayBuilder {
      * @var array
      */
     public static $styles = array(
-        'table' => 'comcal_TableBuilder',
-        'markdown' => 'comcal_MarkdownBuilder',
+        'table' => 'Comcal_Table_Builder',
+        'markdown' => 'Comcal_Markdown_Builder',
     );
 
     public static function add_style( $name, $class_name ) {
@@ -112,7 +112,7 @@ abstract class comcal_EventsDisplayBuilder {
         } elseif ( static::class === $style_name ) {
             $clazz = static::class;
         } else {
-            $clazz = 'comcal_DefaultDisplayBuilder';
+            $clazz = 'Comcal_Default_Display_Builder';
         }
         $builder = new $clazz( $earliest_date, $latest_date );
         foreach ( $events_iterator as $event ) {
@@ -124,7 +124,7 @@ abstract class comcal_EventsDisplayBuilder {
     /**
      * Called by create_display() for each event that is loaded from the database.
      *
-     * @param comcal_Event $event Event that is to be rendered.
+     * @param Comcal_Event $event Event that is to be rendered.
      */
     abstract public function add_event( $event );
 
@@ -156,7 +156,7 @@ abstract class comcal_EventsDisplayBuilder {
 /**
  * Fallback builder if a wrong or non-existent output builder has been selected
  */
-class comcal_DefaultDisplayBuilder extends comcal_EventsDisplayBuilder {
+class Comcal_Default_Display_Builder extends Comcal_Events_Display_Builder {
     /**
      * Resulting HTML.
      *
@@ -167,13 +167,13 @@ class comcal_DefaultDisplayBuilder extends comcal_EventsDisplayBuilder {
     /**
      * Event renderer instance.
      *
-     * @var comcal_EventRenderer
+     * @var Comcal_Event_Renderer
      */
     protected $event_renderer = null;
 
     protected function __construct( $earliest_date = null, $latest_date = null ) {
         parent::__construct( $earliest_date, $latest_date );
-        $this->event_renderer = new comcal_DefaultEventRenderer();
+        $this->event_renderer = new Comcal_Default_Event_Renderer();
         $this->html           = '';
     }
 
@@ -190,11 +190,11 @@ class comcal_DefaultDisplayBuilder extends comcal_EventsDisplayBuilder {
 /**
  * Creates HTML tables for each month that contains at least one event
  */
-class comcal_TableBuilder extends comcal_DefaultDisplayBuilder {
+class Comcal_Table_Builder extends Comcal_Default_Display_Builder {
 
     protected function __construct( $earliest_date = null, $latest_date = null ) {
         parent::__construct( $earliest_date, $latest_date );
-        $this->event_renderer = new comcal_TableEventRenderer();
+        $this->event_renderer = new Comcal_Table_Event_Renderer();
     }
 
     public function get_html() {
@@ -209,11 +209,11 @@ class comcal_TableBuilder extends comcal_DefaultDisplayBuilder {
     /**
      * Returns HTML for the beginning of a month table.
      *
-     * @param comcal_DateTimeWrapper $date Date object for this month.
+     * @param Comcal_Date_Time $date Date object for this month.
      *
      * @return string HTML.
      */
-    protected function get_table_head( comcal_DateTimeWrapper $date ) {
+    protected function get_table_head( Comcal_Date_Time $date ) {
         $month_title = $date->get_month_title();
         return "<h3 class='month-title'>$month_title</h3>\n"
                . "<table class='community-calendar'><tbody>\n";
@@ -293,11 +293,11 @@ class comcal_TableBuilder extends comcal_DefaultDisplayBuilder {
 /**
  * Creates a Markdown overview of all events in the next week (starting monday)
  */
-class comcal_MarkdownBuilder extends comcal_DefaultDisplayBuilder {
+class Comcal_Markdown_Builder extends Comcal_Default_Display_Builder {
 
     public function __construct( $earliest_date = null, $latest_date = null ) {
         parent::__construct( $earliest_date, $latest_date );
-        $this->event_renderer = new comcal_MarkdownEventRenderer();
+        $this->event_renderer = new Comcal_Markdown_Event_Renderer();
     }
 
     public function get_html() {

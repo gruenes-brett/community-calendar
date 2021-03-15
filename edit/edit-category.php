@@ -8,7 +8,7 @@
 /**
  * Creates a form for editing one category.
  *
- * @param comcal_Category $category Category instance.
+ * @param Comcal_Category $category Category instance.
  * @param int             $index Number that is used as a suffix to the name and id fields.
  * @return string HTML of the form.
  */
@@ -35,7 +35,7 @@ XML;
  * @return string HTML of the form.
  */
 function _comcal_all_category_forms() {
-    $all   = comcal_Category::get_all();
+    $all   = Comcal_Category::get_all();
     $out   = '';
     $index = 0;
     foreach ( $all as $c ) {
@@ -122,7 +122,7 @@ function comcal_process_edit_categories( $post ) {
 
     // Create new category.
     if ( isset( $post['name_new'] ) && ! empty( trim( $post['name_new'] ) ) ) {
-        $c = comcal_Category::create( $post['name_new'] );
+        $c = Comcal_Category::create( $post['name_new'] );
         if ( $c->store() ) {
             $messages[] = "Neue Kategorie '{$c->get_field('name')}' mit ID {$c->get_field('categoryId')} angelegt";
         } else {
@@ -141,7 +141,7 @@ function comcal_process_edit_categories( $post ) {
         $delete      = isset( $post[ "delete$suffix" ] );
         $category_id = $post[ "categoryId$suffix" ];
         $name        = $post[ "name$suffix" ];
-        $c           = comcal_Category::query_from_category_id( $category_id );
+        $c           = Comcal_Category::query_from_category_id( $category_id );
         if ( $delete ) {
             if ( $c->delete() ) {
                 $messages[] = "Kategorie '$name' wurde gelöscht!";

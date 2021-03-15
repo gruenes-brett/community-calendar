@@ -4,4 +4,4 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     die;
 }
 
-comcal_Database::delete_tables();
+Comcal_Database::delete_tables();

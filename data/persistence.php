@@ -8,23 +8,23 @@
 /**
  * Database helper functions.
  */
-class comcal_Database {
+class Comcal_Database {
     public static function init_tables() {
         global $wpdb;
         $wpdb->show_errors();
 
-        comcal_Event::create_table();
-        comcal_Category::create_table();
-        comcal_EventVsCategory::create_table();
+        Comcal_Event::create_table();
+        Comcal_Category::create_table();
+        Comcal_Event_Vs_Category::create_table();
     }
 
     public static function delete_tables() {
         global $wpdb;
         $wpdb->show_errors();
 
-        comcal_Event::drop_table();
-        comcal_Category::drop_table();
-        comcal_EventVsCategory::drop_table();
+        Comcal_Event::drop_table();
+        Comcal_Category::drop_table();
+        Comcal_Event_Vs_Category::drop_table();
     }
 
     public static function where_and( $conditions ) {
@@ -44,7 +44,7 @@ class comcal_Database {
  * and adress the element on the application layer (specified by IDPREFIX
  * and get_id_field_name()). This id is randomly created.
  */
-abstract class comcal_DbTable {
+abstract class Comcal_Database_Table {
 
     /**
      * Table row data.

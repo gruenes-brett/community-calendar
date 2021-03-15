@@ -8,7 +8,7 @@
 /**
  * Category definition.
  */
-class comcal_Category extends comcal_DbTable {
+class Comcal_Category extends Comcal_Database_Table {
     const IDPREFIX = 'category:';
 
     public static function get_id_field_name() {
@@ -71,7 +71,7 @@ class comcal_Category extends comcal_DbTable {
 /**
  * NxM correlation table for events and categories.
  */
-class comcal_EventVsCategory extends comcal_DbTable {
+class Comcal_Event_Vs_Category extends Comcal_Database_Table {
     public static function create( $event, $category ) {
         return new self(
             array(
@@ -119,7 +119,7 @@ class comcal_EventVsCategory extends comcal_DbTable {
         return ! empty( $row );
     }
     public static function get_categories( $event ) {
-        $cats_table = comcal_Category::get_table_name();
+        $cats_table = Comcal_Category::get_table_name();
         $event_id   = $event->get_field( 'id' );
         $query      = "SELECT $cats_table.* FROM $cats_table "
         . "INNER JOIN [T] ON [T].category_id=$cats_table.id "
@@ -128,7 +128,7 @@ class comcal_EventVsCategory extends comcal_DbTable {
         $cats = array();
         $rows = static::query( $query, array( $event_id ) );
         foreach ( $rows as $row ) {
-            $cats[] = new comcal_Category( $row );
+            $cats[] = new Comcal_Category( $row );
         }
         return $cats;
     }
