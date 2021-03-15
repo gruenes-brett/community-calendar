@@ -32,16 +32,16 @@ define( 'EVTCAL__PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 // model.
-require_once EVTCAL__PLUGIN_DIR . 'data/datetime.php';
-require_once EVTCAL__PLUGIN_DIR . 'data/persistence.php';
-require_once EVTCAL__PLUGIN_DIR . 'data/event.php';
-require_once EVTCAL__PLUGIN_DIR . 'data/category.php';
+require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-date-time.php';
+require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-database.php';
+require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-event.php';
+require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-category.php';
 
 // view.
 require_once EVTCAL__PLUGIN_DIR . 'view/view-common.php';
 require_once EVTCAL__PLUGIN_DIR . 'view/buttons.php';
-require_once EVTCAL__PLUGIN_DIR . 'view/show-event.php';
-require_once EVTCAL__PLUGIN_DIR . 'view/show-calendar.php';
+require_once EVTCAL__PLUGIN_DIR . 'view/class-comcal-events-display-builder.php';
+require_once EVTCAL__PLUGIN_DIR . 'view/class-comcal-event-renderer.php';
 require_once EVTCAL__PLUGIN_DIR . 'view/show-categories.php';
 
 // controller.
