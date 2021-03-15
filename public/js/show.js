@@ -2,6 +2,9 @@
 
 $(document).ready(function(){
     prepareShowEvent();
+
+    // put functions into global namespace
+    window.comcal_showEventById = showEventById;
 });
 
 function prepareShowEvent() {
@@ -18,7 +21,7 @@ function hideShowEvent() {
     $('.comcal-modal-wrapper.show-event').hide();
 }
 
-function showShowEvent() {
+function displayShowEvent() {
     $('.comcal-modal-wrapper.show-event').css({ "z-index": 200 })
     $('.comcal-modal-wrapper.show-event').show(200);
     $('.comcal-modal-wrapper.show-event').scrollTop(0);
@@ -31,15 +34,23 @@ function findEventId(element) {
     return table.attr('eventId');
 }
 
-function showEvent(e) {
-    let eventId = findEventId(e.currentTarget);
-    showShowEvent();
+function showEventById(e, eventId, preventDefault) {
+    displayShowEvent();
     queryEventData(eventId, 'Display', function (result) {
         updateContent(result);
     }).done(function(){
         $('.comcal-modal-wrapper.show-event #loading').removeClass('pulse-animation');
         $('.comcal-modal-wrapper.show-event #content').show();
     });
+
+    if (preventDefault) {
+        e.preventDefault();
+    }
+}
+
+function showEvent(e) {
+    let eventId = findEventId(e.currentTarget);
+    showEventById(eventId);
 }
 
 function updateContent(json) {

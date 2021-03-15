@@ -23,6 +23,17 @@ abstract class Comcal_Event_Renderer {
         }
         return '';
     }
+
+    /**
+     * Returns a JavaScript call that initiates the event display popup.
+     *
+     * @param Comcal_Event $event Event instance.
+     * @param bool         $prevent_default Prevent default click action.
+     * @return string JavaScript function call.
+     */
+    public function get_show_popup_javascript_call( $event, $prevent_default = true ) {
+        return "comcal_showEventById(event, '{$event->get_field('eventId')}', {$prevent_default});";
+    }
 }
 
 /**
