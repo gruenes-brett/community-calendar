@@ -44,7 +44,7 @@ function comcal_convert_urls_to_links( $input ) {
 }
 
 function _comcal_query_event( $data ) {
-    $event = comcal_Event::query_by_entry_id( $data['eventId'] );
+    $event = Comcal_Event::query_by_entry_id( $data['eventId'] );
     if ( null === $event ) {
         return new WP_Error(
             'no_event',
@@ -69,12 +69,12 @@ function comcal_query_event_display( $data ) {
     if ( ! empty( $result['url'] ) ) {
         $result['url'] = "<a href='{$result['url']}' target='blank'>Ursprungslink</a>";
     }
-    $datetime = comcal_DateTimeWrapper::from_date_str_time_str( $result['date'], $result['time'] );
+    $datetime = Comcal_Date_Time::from_date_str_time_str( $result['date'], $result['time'] );
 
     $result['prettyDate'] = $datetime->get_pretty_date();
     $result['prettyTime'] = $datetime->get_pretty_time();
     $result['weekday']    = $datetime->get_weekday();
-    foreach ( comcal_Event::get_text_field_names() as $name ) {
+    foreach ( Comcal_Event::get_text_field_names() as $name ) {
         $result[ $name ] = nl2br( $result[ $name ] );
     }
     return $result;
@@ -104,7 +104,7 @@ add_action(
  */
 function comcal_query_event_raw( $data ) {
     $result = _comcal_query_event( $data );
-    foreach ( comcal_Event::get_text_field_names() as $name ) {
+    foreach ( Comcal_Event::get_text_field_names() as $name ) {
         $result[ $name ] = htmlspecialchars_decode( $result[ $name ] );
     }
     return $result;

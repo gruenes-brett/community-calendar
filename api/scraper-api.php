@@ -49,8 +49,8 @@ add_action(
 );
 
 function _comcal_transform_imported_event_json( $json ) {
-    $start = comcal_DateTimeWrapper::from_date_time_str( $json->startDate );
-    $end   = comcal_DateTimeWrapper::from_date_time_str( $json->endDate );
+    $start = Comcal_Date_Time::from_date_time_str( $json->startDate );
+    $end   = Comcal_Date_Time::from_date_time_str( $json->endDate );
     return array(
         'title'       => $json->name ?? '',
         // 'organizer' ...

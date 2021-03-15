@@ -34,7 +34,7 @@ $comcal_month_map = array(
 /**
  * Wrapper for a PHP DateTime object with convenience functions
  */
-class comcal_DateTimeWrapper {
+class Comcal_Date_Time {
 
     /**
      * Actual DateTime object.
@@ -155,7 +155,7 @@ class comcal_DateTimeWrapper {
         return $this->date_time->format( 'M-Y' );
     }
 
-    public function get_first_of_month_date_time(): comcal_DateTimeWrapper {
+    public function get_first_of_month_date_time(): Comcal_Date_Time {
         $dt = new DateTime( $this->date_time->format( 'Y-m-01\TH:i:s' ) );
         return self::from_date_time( $dt );
     }
@@ -186,11 +186,11 @@ class comcal_DateTimeWrapper {
     }
 
     /**
-     * Creates a new comcal_DateTimeWrapper that is $minutes before the current.
+     * Creates a new Comcal_Date_Time that is $minutes before the current.
      *
      * @param int $minutes How many minutes to subtract.
      *
-     * @return newly created comcal_DateTimeWrapper
+     * @return newly created Comcal_Date_Time
      */
     public function get_prev_minutes( $minutes ) {
         $prev_minutes_date = clone $this->date_time;

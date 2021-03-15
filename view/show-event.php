@@ -8,13 +8,13 @@
 /**
  * Base class for event renderes.
  */
-abstract class comcal_EventRenderer {
-    abstract public function render( comcal_Event $event ) : string;
+abstract class Comcal_Event_Renderer {
+    abstract public function render( Comcal_Event $event ) : string;
 
     /**
      * Produces a button that shows the edit event dialog.
      *
-     * @param comcal_Event $event Event instance.
+     * @param Comcal_Event $event Event instance.
      * @return string HTML.
      */
     protected function get_edit_link( $event ) {
@@ -28,8 +28,8 @@ abstract class comcal_EventRenderer {
 /**
  * Simple event renderer.
  */
-class comcal_DefaultEventRenderer extends comcal_EventRenderer {
-    public function render( comcal_Event $event ) : string {
+class Comcal_Default_Event_Renderer extends Comcal_Event_Renderer {
+    public function render( Comcal_Event $event ) : string {
         $title     = $event->get_field( 'title' );
         $time      = $event->get_start_date_time()->get_pretty_time();
         $location  = $event->get_field( 'location' );
@@ -49,8 +49,8 @@ XML;
 /**
  * Renders an event as table.
  */
-class comcal_TableEventRenderer extends comcal_EventRenderer {
-    public function render( comcal_Event $event ) : string {
+class Comcal_Table_Event_Renderer extends Comcal_Event_Renderer {
+    public function render( Comcal_Event $event ) : string {
         $edit_controls = $this->get_edit_link( $event );
         $public_class  = '';
         if ( $event->get_field( 'public' ) == 0 ) {
@@ -75,8 +75,8 @@ XML;
 /**
  * Renders event as markdown.
  */
-class comcal_MarkdownEventRenderer extends comcal_EventRenderer {
-    public function render( comcal_Event $event ) : string {
+class Comcal_Markdown_Event_Renderer extends Comcal_Event_Renderer {
+    public function render( Comcal_Event $event ) : string {
         $date_time = $event->get_start_date_time();
 
         $md  = '**' . $date_time->get_humanized_time() . '** ';
