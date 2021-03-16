@@ -57,11 +57,11 @@ require_once EVTCAL__PLUGIN_DIR . 'api/event-api.php';
  */
 function comcal_scripts() {
     $script_version = EVTCAL_VERSION . '-' . time();
-    wp_enqueue_script( 'comcal_event_js', EVTCAL__PLUGIN_URL . 'public/js/event.js', array( 'jquery', 'jquery-form' ), $script_version, true );
-    wp_enqueue_script( 'comcal_edit_js', EVTCAL__PLUGIN_URL . 'public/js/edit.js', array( 'jquery', 'jquery-form' ), $script_version, true );
-    wp_enqueue_script( 'comcal_show_js', EVTCAL__PLUGIN_URL . 'public/js/show.js', array( 'jquery', 'jquery-form' ), $script_version, true );
-    wp_enqueue_script( 'comcal_editcats_js', EVTCAL__PLUGIN_URL . 'public/js/editcats.js', array( 'jquery', 'jquery-form' ), $script_version, true );
-    wp_enqueue_script( 'comcal_calendar_js', EVTCAL__PLUGIN_URL . 'public/js/calendar.js', array( 'jquery', 'jquery-form' ), $script_version, true );
+    wp_enqueue_script( 'comcal_event_api_js', EVTCAL__PLUGIN_URL . 'public/js/event-api.js', array( 'jquery', 'jquery-form' ), $script_version, true );
+    wp_enqueue_script( 'comcal_edit_event_js', EVTCAL__PLUGIN_URL . 'public/js/edit-event.js', array( 'jquery', 'jquery-form' ), $script_version, true );
+    wp_enqueue_script( 'comcal_popup_event_js', EVTCAL__PLUGIN_URL . 'public/js/popup-event.js', array( 'jquery', 'jquery-form' ), $script_version, true );
+    wp_enqueue_script( 'comcal_edit_categories_js', EVTCAL__PLUGIN_URL . 'public/js/edit-categories.js', array( 'jquery', 'jquery-form' ), $script_version, true );
+    wp_enqueue_script( 'comcal_comcal_basic_js', EVTCAL__PLUGIN_URL . 'public/js/comcal-basic.js', array( 'jquery', 'jquery-form' ), $script_version, true );
 }
 add_action( 'wp_enqueue_scripts', 'comcal_scripts' );
 

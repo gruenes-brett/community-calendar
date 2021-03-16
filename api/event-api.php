@@ -16,6 +16,9 @@
 
 $comcal_rest_route = 'comcal/v1';
 
+/**
+ * Specifies the HTML for the event popup.
+ */
 function comcal_get_show_event_box() {
     return <<<XML
     <div class="comcal-modal-wrapper show-event">

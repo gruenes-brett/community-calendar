@@ -4,11 +4,10 @@ $(document).ready(function(){
     prepareShowEvent();
 
     // put functions into global namespace
-    window.comcal_showEventById = showEventById;
+    window.comcal_showEventPopup = showEventPopup;
 });
 
 function prepareShowEvent() {
-    // $('.comcal-modal-wrapper.show-event').appendTo('#page-wrapper');
     hideShowEvent();
     $('.show-event .comcal-close').click(function() {
         hideShowEvent();
@@ -34,9 +33,9 @@ function findEventId(element) {
     return table.attr('eventId');
 }
 
-function showEventById(e, eventId, preventDefault) {
+function showEventPopup(e, eventId, preventDefault) {
     displayShowEvent();
-    queryEventData(eventId, 'Display', function (result) {
+    comcal_api_queryEventData(eventId, 'Display', function (result) {
         updateContent(result);
     }).done(function(){
         $('.comcal-modal-wrapper.show-event #loading').removeClass('pulse-animation');
@@ -50,7 +49,7 @@ function showEventById(e, eventId, preventDefault) {
 
 function showEvent(e) {
     let eventId = findEventId(e.currentTarget);
-    showEventById(eventId);
+    showEventPopup(eventId);
 }
 
 function updateContent(json) {

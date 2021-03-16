@@ -9,6 +9,13 @@
  * Base class for event renderes.
  */
 abstract class Comcal_Event_Renderer {
+
+    /**
+     * Returns HTML for the given event.
+     *
+     * @param Comcal_Event $event Event instance.
+     * @return string HTML.
+     */
     abstract public function render( Comcal_Event $event ) : string;
 
     /**
@@ -32,7 +39,7 @@ abstract class Comcal_Event_Renderer {
      * @return string JavaScript function call.
      */
     public function get_show_popup_javascript_call( $event, $prevent_default = true ) {
-        return "comcal_showEventById(event, '{$event->get_field('eventId')}', {$prevent_default});";
+        return "comcal_showEventPopup(event, '{$event->get_field('eventId')}', {$prevent_default});";
     }
 }
 

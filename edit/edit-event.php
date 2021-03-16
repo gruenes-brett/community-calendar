@@ -137,7 +137,7 @@ XML;
 function comcal_get_edit_form( $calendar_name = '' ) {
 
     // By default, the form is initialized with empty event data.
-    // The form will be filled dynamically in edit.js.
+    // The form will be filled dynamically in edit-event.js.
     $event    = new Comcal_Event();
     $event_id = '';
 

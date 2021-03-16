@@ -51,7 +51,7 @@ function editEvent(event) {
 }
 
 function fillEditFormWithEventData(eventId) {
-    return queryEventData(eventId, 'Raw', __fillEditFormFields);
+    return comcal_api_queryEventData(eventId, 'Raw', __fillEditFormFields);
 }
 
 function __fillEditFormFields(data) {
