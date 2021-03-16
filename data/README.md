@@ -4,7 +4,7 @@ Each data table in the database has a corresponding class that is
 used to access the database data in a structured way.
 
 Generic functionality for instantiating these classes and storing
-data back to the tables is provided by the base class `comcal_DbTable`. Besides
+data back to the tables is provided by the base class `comcal_Database_Table`. Besides
 the numeric identfier `id` for each table row, entries have a unique identifier
 that is mainly used to identify a certain object (e.g., `event:1234abcd`, `category:caffee00`).
 This approach allows to potentially store multiple revisions of the same object in

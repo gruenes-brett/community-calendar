@@ -12,7 +12,6 @@ function prepareShowEvent() {
     $('.show-event .comcal-close').click(function() {
         hideShowEvent();
     });
-    $('table.event td.title, table.event td.organizer').click(showEvent);
 }
 
 function hideShowEvent() {
@@ -28,11 +27,6 @@ function displayShowEvent() {
     $('.comcal-modal-wrapper.show-event #loading').addClass('pulse-animation');
 }
 
-function findEventId(element) {
-    let table = $(element).parents('table.event');
-    return table.attr('eventId');
-}
-
 function showEventPopup(e, eventId, preventDefault) {
     displayShowEvent();
     comcal_api_queryEventData(eventId, 'Display', function (result) {
@@ -45,11 +39,6 @@ function showEventPopup(e, eventId, preventDefault) {
     if (preventDefault) {
         e.preventDefault();
     }
-}
-
-function showEvent(e) {
-    let eventId = findEventId(e.currentTarget);
-    showEventPopup(eventId);
 }
 
 function updateContent(json) {

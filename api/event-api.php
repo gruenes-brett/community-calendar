@@ -16,30 +16,6 @@
 
 $comcal_rest_route = 'comcal/v1';
 
-/**
- * Specifies the HTML for the event popup.
- */
-function comcal_get_show_event_box() {
-    return <<<XML
-    <div class="comcal-modal-wrapper show-event">
-        <div class="comcal-close">X</div>
-        <div class="show-event-content">
-            <span id="loading">Informationen werden abgerufen</span>
-            <div id="content">
-                <h4 id="title">no title</h4>
-                <p><span id="weekday"></span>, <span id="prettyDate"></span> um <span id="prettyTime"></span></p>
-                <p>Ort: <span id="location"></span></p>
-                <p>Veranstalter: <span id="organizer"></span></p>
-                <p><a id="url" target="_blank"></a></p>
-                <b>Beschreibung:</b>
-                <p id="description"></b>
-                <p id="categories" class="comcal-categories"></p>
-            </div>
-        </div>
-    </div>
-XML;
-}
-
 
 function comcal_convert_urls_to_links( $input ) {
     $pattern = '@[^\@](http(s)?://)?(([a-zA-Z])([-\w]+\.)+([^\s\.]+[^\s]*)+[^,.\s])@';

@@ -48,14 +48,16 @@ abstract class Comcal_Event_Renderer {
  */
 class Comcal_Default_Event_Renderer extends Comcal_Event_Renderer {
     public function render( Comcal_Event $event ) : string {
-        $title     = $event->get_field( 'title' );
-        $time      = $event->get_start_date_time()->get_pretty_time();
-        $location  = $event->get_field( 'location' );
-        $url       = $event->get_field( 'url' );
-        $edit_link = $this->get_edit_link( $event );
+        $title    = $event->get_field( 'title' );
+        $time     = $event->get_start_date_time()->get_pretty_time();
+        $location = $event->get_field( 'location' );
+
+        $edit_link  = $this->get_edit_link( $event );
+        $show_popup = $this->get_show_popup_javascript_call( $event );
+
         return <<<XML
       <article>
-        <h2><a href="$url" target="_blank">$title</a></h2>
+        <h2><a href="" onclick="$show_popup">$title</a></h2>
         <section class="meta">
           $edit_link $time, $location
         </section>
@@ -69,22 +71,26 @@ XML;
  */
 class Comcal_Table_Event_Renderer extends Comcal_Event_Renderer {
     public function render( Comcal_Event $event ) : string {
-        $edit_controls = $this->get_edit_link( $event );
-        $public_class  = '';
-        if ( $event->get_field( 'public' ) == 0 ) {
+        $edit_link    = $this->get_edit_link( $event );
+        $show_popup   = $this->get_show_popup_javascript_call( $event );
+        $public_class = '';
+        if ( 0 === $event->get_field( 'public' ) ) {
             $public_class = 'notPublic';
         }
         return <<<XML
-        <table class='event $public_class' eventId="{$event->get_field('eventId')}"><tbody>
-            <tr>
-                <td class='time'>{$event->get_start_date_time()->get_pretty_time()}</td>
-                <td class='title'>{$event->get_field('title')}</td>
-            </tr>
-            <tr>
-                <td>$edit_controls</td>
-                <td class='organizer'>{$event->get_field('organizer')}</td>
-            </tr>
-        </tbody></table>
+        <table class='event $public_class' eventId="{$event->get_field('eventId')}"
+               onclick="$show_popup">
+            <tbody>
+                <tr>
+                    <td class='time'>{$event->get_start_date_time()->get_pretty_time()}</td>
+                    <td class='title'>{$event->get_field('title')}</td>
+                </tr>
+                <tr>
+                    <td>$edit_link</td>
+                    <td class='organizer'>{$event->get_field('organizer')}</td>
+                </tr>
+            </tbody>
+        </table>
 XML;
     }
 

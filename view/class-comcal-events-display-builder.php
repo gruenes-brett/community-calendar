@@ -76,7 +76,7 @@ function comcal_table_func( $atts ) {
     if ( $show_categories ) {
         $all_html .= comcal_get_category_buttons( $category );
     }
-    $all_html .= $output->get_html() . comcal_get_show_event_box() . comcal_get_edit_form( $calendar_name );
+    $all_html .= $output->get_html() . Comcal_Basic_Event_Popup::get_popup_html() . comcal_get_edit_form( $calendar_name );
     if ( comcal_current_user_can_set_public() ) {
         $all_html .= comcal_get_edit_categories_dialog();
     }
