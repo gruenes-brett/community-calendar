@@ -24,7 +24,7 @@ abstract class Comcal_Event_Renderer {
      * @param Comcal_Event $event Event instance.
      * @return string HTML.
      */
-    protected function get_edit_link( $event ) {
+    protected static function get_edit_link( $event ) {
         if ( comcal_current_user_can_set_public() ) {
             return "<a class='editEvent' eventId='{$event->get_field('eventId')}'>edit</a> &mdash; ";
         }
@@ -38,7 +38,7 @@ abstract class Comcal_Event_Renderer {
      * @param bool         $prevent_default Prevent default click action.
      * @return string JavaScript function call.
      */
-    public function get_show_popup_javascript_call( $event, $prevent_default = true ) {
+    public static function get_show_popup_javascript_call( $event, $prevent_default = true ) {
         return "comcal_showEventPopup(event, '{$event->get_field('eventId')}', {$prevent_default});";
     }
 }

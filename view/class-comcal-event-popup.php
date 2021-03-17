@@ -17,7 +17,7 @@ abstract class Comcal_Event_Popup {
      */
     public static function get_popup_html( $css_class = '' ) : string {
         $instance = new static();
-        $content = $instance->render();
+        $content  = $instance->render();
         return <<<XML
         <div class="comcal-modal-wrapper show-event $css_class">
             <div class="comcal-close">X</div>
@@ -32,9 +32,14 @@ XML;
     }
 
     /**
-     * The concrete implementation of this method should create a hidden div with
-     * the popup HTML. As placeholders for the values from the event data use
-     * <span id="fieldId"></span> or similiar.
+     * The concrete implementation of this method should create the contents of the
+     * As placeholders for the values from the event data use
+     *
+     * <span id="fieldId"></span>
+     *
+     * or similiar. The empty spans are filled dynamically in popup-event.js.
+     * This is invoked by the JavaScript call that is generated in
+     * Comcal_Event_Renderer::get_show_popup_javascript_call( $event )
      *
      * Valid id values are those defined in Comcal_Event->get_public_fields() and
      * in comcal_query_event_display() in event-api.php.
@@ -42,9 +47,8 @@ XML;
     abstract protected function render() : string;
 }
 
-
 /**
- * Renders an event popup that will be filled dynamically via popup-event.js.
+ * Renders a basic event popup.
  */
 class Comcal_Basic_Event_Popup extends Comcal_Event_Popup {
     protected function render() : string {
