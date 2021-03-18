@@ -45,6 +45,7 @@ require_once EVTCAL__PLUGIN_DIR . 'view/class-comcal-events-display-builder.php'
 require_once EVTCAL__PLUGIN_DIR . 'view/class-comcal-event-renderer.php';
 require_once EVTCAL__PLUGIN_DIR . 'view/class-comcal-event-popup.php';
 require_once EVTCAL__PLUGIN_DIR . 'view/show-categories.php';
+require_once EVTCAL__PLUGIN_DIR . 'view/class-comcal-pretty-event.php';
 
 // controller.
 require_once EVTCAL__PLUGIN_DIR . 'edit/edit-event.php';
