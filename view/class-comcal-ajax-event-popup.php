@@ -11,8 +11,8 @@
  * A derived class should at least override the render() method to specify
  * how the popup looks like.
  *
- * The static initialize() method must be called exactly once before
- * the popup may be used.
+ * The static verify_popup_initialized() method must be called at least once
+ * before the popup may be used.
  */
 abstract class Comcal_Ajax_Event_Popup {
     /**
@@ -31,24 +31,38 @@ abstract class Comcal_Ajax_Event_Popup {
 
     /**
      * Registers the AJAX handlers for the specific event popup class.
-     *
-     * @throws RuntimeException If initialize() was already called on this class.
      */
-    public static function intialize() {
-        $action = static::get_ajax_action_name();
-        if ( isset( self::$initialized_popups[ $action ] ) ) {
-            throw new RuntimeException( "Event popup for $action already initialized!" );
-        }
+    protected static function intialize() {
+        $action        = static::get_ajax_action_name();
         $ajax_function = array( static::class, 'ajax_get_popup_content' );
         add_action( "wp_ajax_nopriv_$action", $ajax_function );
         add_action( "wp_ajax_$action", $ajax_function );
         self::$initialized_popups[ $action ] = true;
     }
 
+    /**
+     * Makes sure the current class's AJAX handlers are registered
+     */
     public static function verify_popup_initialized() {
         $action = static::get_ajax_action_name();
         if ( ! isset( self::$initialized_popups[ $action ] ) ) {
-            throw new RuntimeException( "Event popup for $action is not initialized!" );
+            static::intialize();
+        }
+    }
+
+    /**
+     * Checks if the popup is initialized.
+     *
+     * @throws RuntimeException If not.
+     */
+    protected static function check_popup_initialized() {
+        $action = static::get_ajax_action_name();
+        if ( ! isset( self::$initialized_popups[ $action ] ) ) {
+            $class_name = static::class;
+            throw new RuntimeException(
+                'Popup must be initialized first! Please call ' .
+                "$class_name::verify_popup_initialized() in a global scope."
+            );
         }
     }
 
@@ -63,7 +77,7 @@ abstract class Comcal_Ajax_Event_Popup {
      * @return string Parameterized admin-ajax.php URL.
      */
     public static function get_event_ajax_url( Comcal_Event $event ) {
-        static::verify_popup_initialized();
+        static::check_popup_initialized();
         $action = static::get_ajax_action_name();
         $url    = wp_nonce_url( admin_url( 'admin-ajax.php' ), $action, static::$nonce_name );
         $url    = add_query_arg( 'eventId', $event->get_entry_id(), $url );
@@ -71,8 +85,8 @@ abstract class Comcal_Ajax_Event_Popup {
     }
 
     /**
-     * This is called by AJAX and validates the nonce.
-     * If a valid eventId argument is provided, static::render( $event )
+     * This is the AJAX callback. It validates the nonce
+     * and if a valid eventId argument is provided, static::render( $event )
      * will be called to generate the event popup HTML.
      */
     public static function ajax_get_popup_content() {
@@ -123,13 +137,13 @@ abstract class Comcal_Ajax_Event_Popup {
 class Comcal_Featherlight_Event_Popup extends Comcal_Ajax_Event_Popup {
 
     /**
-     * Creates a string for use in a 'data-featherlight' attribute that will open
+     * Creates a string that defines the 'data-featherlight' attribute that will open
      * a popup with the details to $event.
      *
      * @param Comcal_Event $event Event instance.
-     * @return string Attribute data.
+     * @return string Attribute definition.
      */
-    public static function get_featherlight_url( Comcal_Event $event ) {
+    public static function get_featherlight_attribute( Comcal_Event $event ) {
         $url = static::get_event_ajax_url( $event );
         return "data-featherlight='$url'";
     }
