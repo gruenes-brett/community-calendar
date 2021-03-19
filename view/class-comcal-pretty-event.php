@@ -80,34 +80,45 @@ class Comcal_Pretty_Event extends stdClass {
      */
     public function __get( $name ) {
 
-        // Value is found directly in the database.
+        $value = $this->get_value( $name );
+        if ( null !== $value ) {
+            return $value;
+        }
+
+        // Be tolerant: check if the requested field exists if converted to camelCase.
+        $camel_cased_name = comcal_snake_to_camel_case( $name );
+        $value            = $this->get_value( $camel_cased_name );
+        if ( null !== $value ) {
+            return $value;
+        }
+
+        throw new RuntimeException( "Unknown event field '$name'!" );
+    }
+
+    /**
+     * Gets the requested value either from the Comcal_Event field or the prettier map.
+     * Also applies formatting/escaping, if necessary.
+     *
+     * @param string $name Field name.
+     * @return any The value, or null if not found.
+     */
+    protected function get_value( $name ) {
         if ( isset( $this->fields[ $name ] ) ) {
             $value = $this->fields[ $name ];
-            return $this->format_value( $name, $value );
+            // Value is found directly in the database.
+            if ( $this->is_url( $name ) ) {
+                $value = esc_url( $value );
+            } elseif ( is_string( $value ) ) {
+                $value = nl2br( $value );
+            }
+            return $value;
         }
 
         // Value is calculated as defined in the prettier map.
         if ( isset( $this->prettier_map[ $name ] ) ) {
             return $this->prettier_map[ $name ]();
         }
-
-        // Be tolerant: check if the requested field exists if converted to camelCase.
-        $camel_cased_name = comcal_snake_to_camel_case( $name );
-        if ( isset( $this->fields[ $camel_cased_name ] ) ) {
-            $value = $this->fields[ $camel_cased_name ];
-            return $this->format_value( $camel_cased_name, $value );
-        }
-
-        throw new RuntimeException( "Unknown event field '$name'!" );
-    }
-
-    protected function format_value( $name, $value ) {
-        if ( $this->is_url( $name ) ) {
-            $value = esc_url( $value );
-        } elseif ( is_string( $value ) ) {
-            $value = nl2br( $value );
-        }
-        return $value;
+        return null;
     }
 
     protected function is_url( $name ) {
