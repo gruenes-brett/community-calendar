@@ -146,7 +146,6 @@ abstract class Comcal_Database_Table {
      * @return array Instances of this class for all rows.
      */
     public static function get_all() {
-        global $wpdb;
         $rows = static::query( 'SELECT * from [T];' );
         $all  = array();
         foreach ( $rows as $row ) {

@@ -2,6 +2,8 @@
 /**
  * Popups with event details.
  *
+ * @deprecated Use Comcal_Ajax_Event_Popup instead!
+ *
  * @package Community_Calendar
  */
 
