@@ -50,6 +50,8 @@ require_once EVTCAL__PLUGIN_DIR . 'view/class-comcal-pretty-event.php';
 // controller.
 require_once EVTCAL__PLUGIN_DIR . 'edit/edit-event.php';
 require_once EVTCAL__PLUGIN_DIR . 'edit/edit-category.php';
+require_once EVTCAL__PLUGIN_DIR . 'edit/class-comcal-form.php';
+require_once EVTCAL__PLUGIN_DIR . 'edit/class-comcal-edit-event-form.php';
 
 // api.
 require_once EVTCAL__PLUGIN_DIR . 'api/scraper-api.php';

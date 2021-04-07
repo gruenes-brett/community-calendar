@@ -42,12 +42,16 @@ abstract class Comcal_Ajax_Event_Popup {
 
     /**
      * Makes sure the current class's AJAX handlers are registered
+     *
+     * @return boolean True, if called for the first time.
      */
     public static function verify_popup_initialized() {
         $action = static::get_ajax_action_name();
         if ( ! isset( self::$initialized_popups[ $action ] ) ) {
             static::intialize();
+            return true;
         }
+        return false;
     }
 
     /**
@@ -158,7 +162,7 @@ class Comcal_Featherlight_Event_Popup extends Comcal_Ajax_Event_Popup {
         if ( ! $image_url ) {
             $image_url = esc_url( get_stylesheet_directory_uri() . '/img/placeholder.png' );
         }
-        // TODO: schoener machen
+        // TODO: schoener machen.
         echo <<<XML
             <h4 id="title">$title</h4>
             <p><span id="weekday"></span>, <span id="prettyDate"></span> um <span id="prettyTime"></span></p>
