@@ -56,6 +56,13 @@ abstract class Comcal_Form {
         echo $form->get_form_html();
     }
 
+    /**
+     * Gets a string of the full form HTML. Should not be overridden normally.
+     * Implement specific form fields in get_form_fields().
+     *
+     * @throws RuntimeException If the form actions were not registered.
+     * @return string Form HTML.
+     */
     public function get_form_html() : string {
         if ( ! isset( self::$initialized_forms[ static::class ] ) ) {
             throw new RuntimeException( 'action for class ' . static::class . ' not registered!' );
@@ -76,8 +83,14 @@ abstract class Comcal_Form {
 XML;
     }
 
+    /**
+     * Override to implement custom form fields.
+     */
     abstract protected function get_form_fields() : string;
 
+    /**
+     * Receives posted data and validates nonce. If successful, process_data() is called.
+     */
     public static function submit_data() {
         $valid_nonce = isset( $_POST[ static::$nonce_name ] ) && wp_verify_nonce(
             sanitize_text_field( wp_unslash( $_POST[ static::$nonce_name ] ) ),
@@ -101,5 +114,10 @@ XML;
         }
     }
 
+    /**
+     * Override to implement what to do with posted data.
+     *
+     * @param array $post_data Content of $_POST.
+     */
     abstract protected static function process_data( $post_data ) : array;
 }

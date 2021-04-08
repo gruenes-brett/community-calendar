@@ -333,7 +333,9 @@ function comcal_sanitize_post_data( $data ) {
         $data['eventId'] = '';
     }
     foreach ( Comcal_Event::get_text_field_names() as $name ) {
-        $data[ $name ] = comcal_prevent_html( $data[ $name ] );
+        if ( isset( $data[ $name ] ) ) {
+            $data[ $name ] = comcal_prevent_html( $data[ $name ] );
+        }
     }
     return $data;
 }

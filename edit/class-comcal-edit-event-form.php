@@ -15,7 +15,7 @@ class Comcal_Edit_Event_Form extends Comcal_Form {
      *
      * @var string
      */
-    protected static $nonce_name  = 'verify-edit-event';
+    protected static $nonce_name = 'verify-edit-event';
     /**
      * Specifies the action name.
      *
