@@ -30,6 +30,13 @@ abstract class Comcal_Form {
     protected static $action_name = '<set unique action name>';
 
     /**
+     * ID of the form tag.
+     */
+    protected function get_form_id() : string {
+        return '';
+    }
+
+    /**
      * Keeps track of already registered form classes and their action names.
      *
      * @var array( string => string )
@@ -72,15 +79,30 @@ abstract class Comcal_Form {
         $nonce_field    = wp_nonce_field( $action_name, static::$nonce_name, true, false );
 
         $form_fields = $this->get_form_fields();
+        $form_id     = $this->get_form_id();
+        $before_html = $this->get_html_before_form();
+        $after_html  = $this->get_html_after_form();
+
+        $form_id_attribute = '' !== $form_id ? "id='$form_id'" : '';
 
         return <<<XML
-            <form action="$admin_ajax_url" data-controller="form" method="post">
+            $before_html
+            <form action="$admin_ajax_url" $form_id_attribute data-controller="form" method="post">
                 $nonce_field
                 <input name="action" value="$action_name" type="hidden">
 
                 $form_fields
             </form>
+            $after_html
 XML;
+    }
+
+    protected function get_html_before_form() : string {
+        return '';
+    }
+
+    protected function get_html_after_form() : string {
+        return '';
     }
 
     /**
@@ -98,7 +120,6 @@ XML;
         );
         if ( ! $valid_nonce ) {
             $message = 'You targeted the right function, but sorry, your nonce did not verify.';
-            echo $message;
             wp_die(
                 $message,
                 'Error in submission',
