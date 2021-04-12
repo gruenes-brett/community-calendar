@@ -50,7 +50,11 @@ add_action(
 
 function _comcal_transform_imported_event_json( $json ) {
     $start = Comcal_Date_Time::from_date_time_str( $json->startDate );
-    $end   = Comcal_Date_Time::from_date_time_str( $json->endDate );
+    if ( isset( $json->endDate ) ) {
+        $end = Comcal_Date_Time::from_date_time_str( $json->endDate );
+    } else {
+        $end = $start;
+    }
     return array(
         'title'       => $json->name ?? '',
         // 'organizer' ...
