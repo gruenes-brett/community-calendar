@@ -37,6 +37,22 @@ abstract class Comcal_Form {
     }
 
     /**
+     * Map that defines what form field name corresponds to which field name
+     * in the internal model.
+     *
+     * @var array
+     */
+    protected static $form_field_to_model_field = array();
+
+    /**
+     * Names of fields that represent booleans (normally checkboxes).
+     * Values will be translated to 0 or 1 before process_data() is called.
+     *
+     * @var array( str )
+     */
+    protected static $boolean_fields = array();
+
+    /**
      * Keeps track of already registered form classes and their action names.
      *
      * @var array( string => string )
@@ -126,13 +142,33 @@ XML;
                 array( 'response' => 500 )
             );
         } else {
-            $res = static::process_data( $_POST );
+            $data = static::transform_post_data( $_POST );
+            $res  = static::process_data( $data );
             if ( 200 === $res[0] ) {
                 wp_die( $res[1], 'Success' );
             } else {
                 wp_die( $res[1], 'Error', array( 'response' => $res[0] ) );
             }
         }
+    }
+
+    /**
+     * Transforms post data as specified by static::$form_field_to_model_field and
+     * static::$boolean_fields.
+     *
+     * @param array $post_data $_POST content.
+     * @return array Transformed post data.
+     */
+    protected static function transform_post_data( $post_data ) {
+        $data_out = array();
+        foreach ( $post_data as $key => $value ) {
+            $key = static::$form_field_to_model_field[ $key ] ?? $key;
+            if ( in_array( $key, static::$boolean_fields, true ) ) {
+                $value = 'on' === $value ? 1 : 0;
+            }
+            $data_out[ $key ] = $value;
+        }
+        return $data_out;
     }
 
     /**

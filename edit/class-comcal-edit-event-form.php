@@ -29,7 +29,16 @@ class Comcal_Edit_Event_Form extends Comcal_Form {
      *
      * @var array
      */
-    protected static $form_to_event_field = array();
+    protected static $form_field_to_model_field = array();
+
+    /**
+     * Boolean fields.
+     *
+     * @var array
+     */
+    protected static $boolean_fields = array(
+        'public',
+    );
 
     /**
      * Event instance if used to edit an existing event.
@@ -147,18 +156,8 @@ XML;
         return static::update_event_from_array( $post_data );
     }
 
-    protected static function translate_form_to_event_fields( $data ) {
-        $data_out = array();
-        foreach ( $data as $key => $value ) {
-            $key              = static::$form_to_event_field[ $key ] ?? $key;
-            $data_out[ $key ] = $value;
-        }
-        return $data_out;
-    }
-
     protected static function update_event_from_array( $data ) {
         $data         = comcal_sanitize_post_data( $data );
-        $data         = static::translate_form_to_event_fields( $data );
         $event        = new Comcal_Event( $data );
         $is_new_event = ! $event->exists();
         if ( ! comcal_current_user_can_set_public() && ! $is_new_event ) {
