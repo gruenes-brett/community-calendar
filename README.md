@@ -85,15 +85,6 @@ Here are some examples:
 }
 ```
 
-## Upgrading
-
-**Important note**
-
-If the plugin is upgraded to a new version that alters the database format,
-in order for this to take effect, the plugin should be *deactivated* and
-immediately *activated* again.
-
-
 ## Contributing
 
 If you encounter problems with the plugin or have ideas for improvements and

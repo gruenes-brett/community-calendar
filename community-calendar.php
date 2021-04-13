@@ -80,7 +80,7 @@ add_action( 'wp_print_styles', 'comcal_styles' );
  * Initialize/update database table on activation.
  */
 function comcal_activation() {
-    Comcal_Database::init_tables();
+    Comcal_Database::update_check();
 }
 register_activation_hook( __FILE__, 'comcal_activation' );
 

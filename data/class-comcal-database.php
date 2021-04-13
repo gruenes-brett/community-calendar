@@ -9,6 +9,12 @@
  * Database helper functions.
  */
 class Comcal_Database {
+
+    /**
+     * Increase this value if any of the table schema change.
+     */
+    private const DATABASE_VERSION = '1';
+
     public static function init_tables() {
         global $wpdb;
         $wpdb->show_errors();
@@ -34,7 +40,16 @@ class Comcal_Database {
         return 'WHERE ' . implode( ' AND ', $conditions );
     }
 
+    public static function update_check() {
+        $current_db_version = get_option( 'evtcal_db_version' );
+        if ( static::DATABASE_VERSION !== $current_db_version ) {
+            static::init_tables();
+            update_option( 'evtcal_db_version', static::DATABASE_VERSION );
+        }
+    }
+
 }
+add_action( 'plugins_loaded', array( 'Comcal_Database', 'update_check' ) );
 
 /**
  * Base class for an object stored in a table.
