@@ -177,7 +177,8 @@ XML;
             }
         } else {
             $event->remove_all_categories();
-            foreach ( comcal_filter_categories( $data ) as $cat ) {
+            foreach ( static::extract_category_ids( $data ) as $cat_id ) {
+                $cat = Comcal_Category::query_from_category_id( $cat_id );
                 $event->add_category( $cat );
             }
         }
@@ -196,6 +197,22 @@ XML;
 
         return array( 200, 'Event wurde aktualisiert.' );
     }
+
+    /**
+     * Extracts catgory ids from post data.
+     *
+     * @param array $post_data Post data.
+     */
+    protected static function extract_category_ids( $post_data ) {
+        $cat_ids = array();
+        foreach ( $post_data as $key => $value ) {
+            if ( strpos( $key, 'category_' ) === 0 ) {
+                $cat_ids[] = $value;
+            }
+        }
+        return $cat_ids;
+    }
+
 }
 
 Comcal_Edit_Event_Form::register_form();
