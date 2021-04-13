@@ -13,7 +13,7 @@ class Comcal_Database {
     /**
      * Increase this value if any of the table schema change.
      */
-    private const DATABASE_VERSION = '1';
+    private const DATABASE_VERSION = '2';
 
     public static function init_tables() {
         global $wpdb;

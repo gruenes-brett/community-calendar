@@ -90,12 +90,12 @@ class Comcal_Event extends Comcal_Database_Table {
         return $sql;
     }
 
-    public function add_category( $category ) {
-        $vs = Comcal_Event_Vs_Category::create( $this, $category );
+    public function add_category( $category, bool $is_primary ) {
+        $vs = Comcal_Event_Vs_Category::create( $this, $category, $is_primary );
         $vs->store();
     }
-    public function has_category( $category ) {
-        return Comcal_Event_Vs_Category::isset( $this, $category );
+    public function has_category( $category, bool $is_primary ) {
+        return Comcal_Event_Vs_Category::isset( $this, $category, $is_primary );
     }
     public function remove_all_categories() {
         Comcal_Event_Vs_Category::remove_event( $this );

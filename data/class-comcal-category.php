@@ -72,16 +72,17 @@ class Comcal_Category extends Comcal_Database_Table {
  * NxM correlation table for events and categories.
  */
 class Comcal_Event_Vs_Category extends Comcal_Database_Table {
-    public static function create( $event, $category ) {
+    public static function create( $event, $category, bool $is_primary_category ) {
         return new self(
             array(
-                'event_id' => $event->get_field( 'id' ),
-                'category_id' => $category->get_field( 'id' ),
+                'event_id'            => $event->get_field( 'id' ),
+                'category_id'         => $category->get_field( 'id' ),
+                'is_primary_category' => $is_primary_category,
             )
         );
     }
-    public static function isset( $event, $category ) {
-        return self::create( $event, $category )->exists();
+    public static function isset( $event, $category, bool $is_primary_category ) {
+        return self::create( $event, $category, $is_primary_category )->exists();
     }
     public static function remove_event( $event ) {
         global $wpdb;
@@ -102,20 +103,28 @@ class Comcal_Event_Vs_Category extends Comcal_Database_Table {
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             event_id mediumint(9) NOT NULL,
             category_id mediumint(9) NOT NULL,
+            is_primary_category tinyint(2) NOT NULL,
             PRIMARY KEY  (id)
             ) $charset_collate;";
         return $sql;
     }
     public static function get_all_field_names() {
-        return array( 'event_id', 'category_id' );
+        return array( 'event_id', 'category_id', 'is_primary_category' );
     }
     public static function get_id_field_name() {
         // no specific id-field.
         return 'id';
     }
     public function exists() {
-        $where = 'WHERE event_id=%d AND category_id=%d';
-        $row = self::query_row( "SELECT id from [T] $where;", array( $this->get_field( 'event_id' ), $this->get_field( 'category_id' ) ) );
+        $where = 'WHERE event_id=%d AND category_id=%d AND is_primary_category=%d';
+        $row   = self::query_row(
+            "SELECT id from [T] $where;",
+            array(
+                $this->get_field( 'event_id' ),
+                $this->get_field( 'category_id' ),
+                $this->get_field( 'is_primary_category' ),
+            )
+        );
         return ! empty( $row );
     }
     public static function get_categories( $event ) {

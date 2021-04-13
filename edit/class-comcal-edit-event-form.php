@@ -177,9 +177,11 @@ XML;
             }
         } else {
             $event->remove_all_categories();
+            $is_first = true;
             foreach ( static::extract_category_ids( $data ) as $cat_id ) {
                 $cat = Comcal_Category::query_from_category_id( $cat_id );
-                $event->add_category( $cat );
+                $event->add_category( $cat, $is_first );
+                $is_first = false;
             }
         }
 
@@ -200,6 +202,8 @@ XML;
 
     /**
      * Extracts catgory ids from post data.
+     *
+     * The first id in the list will be treated as 'primary category'.
      *
      * @param array $post_data Post data.
      */
