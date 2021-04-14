@@ -141,6 +141,7 @@ function comcal_process_edit_categories( $post ) {
         $delete      = isset( $post[ "delete$suffix" ] );
         $category_id = $post[ "categoryId$suffix" ];
         $name        = $post[ "name$suffix" ];
+        $style       = $post[ "style$suffix" ] ?? false;
         $c           = Comcal_Category::query_from_category_id( $category_id );
         if ( $delete ) {
             if ( $c->delete() ) {
@@ -150,13 +151,20 @@ function comcal_process_edit_categories( $post ) {
                 $result     = 500;
             }
         } else {
-            $old_name = $c->get_field( 'name' );
-            if ( $c->set_field( 'name', $name ) ) {
+            $old_name      = $c->get_field( 'name' );
+            $changed_name  = $c->set_field( 'name', $name );
+            $changed_style = (bool) $style && $c->set_field( 'style', $style );
+            if ( $changed_name || $changed_style ) {
                 if ( $c->store() ) {
-                    $messages[] = "Kategorie umbenannt: '$old_name' -> $name'";
+                    if ( $changed_name ) {
+                        $messages[] = "Kategorie umbenannt: '$old_name' -> $name'";
+                    }
+                    if ( $changed_style ) {
+                        $messages[] = "Stil von Kategorie $name angepasst: $style";
+                    }
                 } else {
-                    $messages[] = "Kategorie '$old_name' konnte nicht in '$name' umbenannt werden!";
-                    $result = 500;
+                    $messages[] = "Kategorie '$old_name' konnte aktualisiert werden!";
+                    $result     = 500;
                 }
             }
         }

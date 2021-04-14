@@ -88,7 +88,10 @@ abstract class Comcal_Form {
      */
     public function get_form_html() : string {
         if ( ! isset( self::$initialized_forms[ static::class ] ) ) {
-            throw new RuntimeException( 'action for class ' . static::class . ' not registered!' );
+            throw new RuntimeException(
+                'action for class ' . static::class . ' not registered! Call "' . static::class . '::register_form()" '
+                . 'globally first.'
+            );
         }
         $admin_ajax_url = admin_url( 'admin-ajax.php' );
         $action_name    = static::$action_name;
@@ -175,6 +178,7 @@ XML;
      * Override to implement what to do with posted data.
      *
      * @param array $post_data Content of $_POST.
+     * @return array Tuple of return code and return message, e.g., array( 200, 'Success' )
      */
     abstract protected static function process_data( $post_data ) : array;
 }

@@ -15,7 +15,7 @@ class Comcal_Category extends Comcal_Database_Table {
         return 'categoryId';
     }
     public static function get_all_field_names() {
-        return array( 'categoryId', 'name' );
+        return array( 'categoryId', 'name', 'style' );
     }
 
     public static function get_table_name() {
@@ -26,10 +26,11 @@ class Comcal_Category extends Comcal_Database_Table {
     protected static function get_create_table_query() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
-        $sql = "CREATE TABLE [T] (
+        $sql             = "CREATE TABLE [T] (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             categoryId tinytext NOT NULL,
             name tinytext NOT NULL,
+            style tinytext NOT NULL,
             PRIMARY KEY  (id)
             ) $charset_collate;";
         return $sql;
@@ -51,11 +52,12 @@ class Comcal_Category extends Comcal_Database_Table {
         return new self( $row );
     }
 
-    public static function create( $name ) {
+    public static function create( $name, $style = 'red,white' ) {
         return new self(
             array(
                 'name'       => $name,
                 'categoryId' => uniqid( self::IDPREFIX ),
+                'style'      => $style,
             )
         );
     }
@@ -64,6 +66,16 @@ class Comcal_Category extends Comcal_Database_Table {
         $data         = $this->get_full_data();
         $data['html'] = comcal_category_button( $data['categoryId'], $data['name'], true );
         return $data;
+    }
+
+    public function get_background_foreground_colors() {
+        $style = $this->get_field( 'style' );
+        if ( ! $style ) {
+            return comcal_create_unique_colors( $this->get_field( 'name' ) );
+        }
+        $background = strtok( $style, ',' );
+        $foreground = strtok( ',' );
+        return array( $background, $foreground );
     }
 }
 
