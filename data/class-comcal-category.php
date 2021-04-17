@@ -77,6 +77,16 @@ class Comcal_Category extends Comcal_Database_Table {
         $foreground = strtok( ',' );
         return array( $background, $foreground );
     }
+
+    public function get_background_color() {
+        list( $bg, $fg ) = $this->get_background_foreground_colors();
+        return $bg;
+    }
+
+    public function get_foreground_color() {
+        list( $bg, $fg ) = $this->get_background_foreground_colors();
+        return $fg;
+    }
 }
 
 
@@ -139,12 +149,17 @@ class Comcal_Event_Vs_Category extends Comcal_Database_Table {
         );
         return ! empty( $row );
     }
-    public static function get_categories( $event ) {
+    public static function get_categories( $event, $primary_only = false ) {
         $cats_table = Comcal_Category::get_table_name();
         $event_id   = $event->get_field( 'id' );
+        $where      = '[T].event_id=%d';
+
+        if ( $primary_only ) {
+            $where .= ' AND [T].is_primary_category=1';
+        }
         $query      = "SELECT $cats_table.* FROM $cats_table "
         . "INNER JOIN [T] ON [T].category_id=$cats_table.id "
-        . 'WHERE [T].event_id=%d;';
+        . "WHERE $where;";
 
         $cats = array();
         $rows = static::query( $query, array( $event_id ) );

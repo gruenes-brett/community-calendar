@@ -103,6 +103,13 @@ class Comcal_Event extends Comcal_Database_Table {
     public function get_categories() {
         return Comcal_Event_Vs_Category::get_categories( $this );
     }
+    public function get_primary_category() {
+        $categories = Comcal_Event_Vs_Category::get_categories( $this, true );
+        if ( empty( $categories ) ) {
+            return null;
+        }
+        return $categories[0];
+    }
 
     public function get_public_fields() {
         /* returns fields and values for display */
