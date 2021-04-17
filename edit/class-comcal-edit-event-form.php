@@ -164,6 +164,10 @@ XML;
             return array( 500, 'Keine Berechtigung um ein Event zu aktualisieren!' );
         }
 
+        if ( isset( $data['delete'] ) ) {
+            return static::delete_event( $event );
+        }
+
         $allow_submission = comcal_throttle_event_submissions();
         if ( true !== $allow_submission ) {
             return array( 403, $allow_submission );
@@ -198,6 +202,14 @@ XML;
         }
 
         return array( 200, 'Event wurde aktualisiert.' );
+    }
+
+    protected static function delete_event( $event ) {
+        if ( $event->delete() ) {
+            return array( 200, 'Event gelöscht' );
+        } else {
+            return array( 500, 'Fehler beim Löschen des Event' );
+        }
     }
 
     /**
