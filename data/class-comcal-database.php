@@ -11,9 +11,9 @@
 class Comcal_Database {
 
     /**
-     * Increase this value if any of the table schema change.
+     * Increase this value if any of the table schemas change.
      */
-    private const DATABASE_VERSION = '3';
+    private const DATABASE_VERSION = '4';
 
     public static function init_tables() {
         global $wpdb;
@@ -40,6 +40,9 @@ class Comcal_Database {
         return 'WHERE ' . implode( ' AND ', $conditions );
     }
 
+    /**
+     * Makes sure all tables are updated to the latest schema version.
+     */
     public static function update_check() {
         $current_db_version = get_option( 'evtcal_db_version' );
         if ( static::DATABASE_VERSION !== $current_db_version ) {
@@ -96,7 +99,36 @@ abstract class Comcal_Database_Table {
     public static function create_table() {
         $sql = static::get_create_table_query();
         $sql = static::prepare_query( $sql );
+
+        $all_fields = static::get_all_field_names();
+        static::verify_all_fields_in_sql( $all_fields, $sql );
+
         dbDelta( $sql );
+    }
+
+    /**
+     * Sanity checks if the result of get_all_field_names() exists in the
+     * create table SQL query and vice versa.
+     *
+     * @param array  $all_fields List of all field names.
+     * @param string $sql SQL query string that is used to create the table.
+     * @throws RuntimeException If the fields are inconsistent.
+     */
+    public static function verify_all_fields_in_sql( $all_fields, $sql ) {
+        $fields_in_sql = array();
+        preg_match_all( '/^\s*([[:alnum:]_]+).*/m', $sql, $fields_in_sql );
+
+        $ignored    = array( 'id', 'CREATE', 'PRIMARY' );
+        $sql_fields = array_diff( $fields_in_sql[1], $ignored );
+
+        $missing_fields = array_diff( $sql_fields, $all_fields );
+        if ( ! empty( $missing_fields ) ) {
+            throw new RuntimeException( "Missing fields in all_fields: {$missing_fields}" );
+        }
+        $extra_fields = array_diff( $all_fields, $sql_fields );
+        if ( ! empty( $extra_fields ) ) {
+            throw new RuntimeException( "Extra fields in all_fields: {$extra_fields}" );
+        }
     }
 
     /**

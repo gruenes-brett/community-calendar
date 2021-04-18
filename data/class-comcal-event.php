@@ -59,6 +59,8 @@ class Comcal_Event extends Comcal_Database_Table {
             'created',
             'calendarName',
             'imageUrl',
+            'submitterName',
+            'submitterEmail',
         );
     }
     public static function get_table_name() {
@@ -85,6 +87,8 @@ class Comcal_Event extends Comcal_Database_Table {
             created timestamp NOT NULL,
             calendarName tinytext NOT NULL,
             imageUrl varchar(1300) NOT NULL,
+            submitterName varchar(1300) NOT NULL,
+            submitterEmail varchar(1300) NOT NULL,
             PRIMARY KEY  (id)
             ) $charset_collate;";
         return $sql;
@@ -133,7 +137,15 @@ class Comcal_Event extends Comcal_Database_Table {
         );
     }
     public static function get_text_field_names() {
-        return array( 'eventId', 'organizer', 'title', 'description', 'url' );
+        return array(
+            'eventId',
+            'organizer',
+            'title',
+            'description',
+            'url',
+            'submitterName',
+            'submitterEmail',
+        );
     }
 
     public function get_date_str(): string {
