@@ -31,6 +31,9 @@ define( 'EVTCAL__PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
+// common.
+require_once EVTCAL__PLUGIN_DIR . 'common/class-comcal-user-capabilities.php';
+
 // model.
 require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-date-time.php';
 require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-database.php';
