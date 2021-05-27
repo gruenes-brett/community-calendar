@@ -156,11 +156,30 @@ XML;
         return static::update_event_from_array( $post_data );
     }
 
+    /**
+     * Make sure the post data does not contain invalid data. Such as
+     * trying to modify an existing event.
+     *
+     * @param array $data Post data.
+     * @return array Sanitized post data.
+     */
+    protected static function sanitize_post_data( $data ) {
+        if ( ! Comcal_User_Capabilities::edit_own_events() ) {
+            $data['public'] = 0;
+        }
+        foreach ( Comcal_Event::get_text_field_names() as $name ) {
+            if ( isset( $data[ $name ] ) ) {
+                $data[ $name ] = comcal_prevent_html( $data[ $name ] );
+            }
+        }
+        return $data;
+    }
+
     protected static function update_event_from_array( $data ) {
-        $data         = comcal_sanitize_post_data( $data );
+        $data         = static::sanitize_post_data( $data );
         $event        = new Comcal_Event( $data );
         $is_new_event = ! $event->exists();
-        if ( ! comcal_current_user_can_set_public() && ! $is_new_event ) {
+        if ( ! $is_new_event && ! $event->current_user_can_edit() ) {
             return array( 500, 'Keine Berechtigung um ein Event zu aktualisieren!' );
         }
 
@@ -176,21 +195,19 @@ XML;
         if ( ! $event->store() ) {
             if ( $is_new_event ) {
                 return array( 500, 'Event konnte nicht angelegt werden. Fehlerhafte Informationen?' );
-            } else {
-                return array( 500, 'Fehler beim Update des Event' );
-            }
-        } else {
-            $event->remove_all_categories();
-            $is_first = true;
-            foreach ( static::extract_category_ids( $data ) as $cat_id ) {
-                $cat = Comcal_Category::query_from_category_id( $cat_id );
-                $event->add_category( $cat, $is_first );
-                $is_first = false;
             }
         }
 
+        $event->remove_all_categories();
+        $is_first = true;
+        foreach ( static::extract_category_ids( $data ) as $cat_id ) {
+            $cat = Comcal_Category::query_from_category_id( $cat_id );
+            $event->add_category( $cat, $is_first );
+            $is_first = false;
+        }
+
         if ( $is_new_event ) {
-            if ( comcal_current_user_can_set_public() ) {
+            if ( Comcal_User_Capabilities::administer_events() ) {
                 return array( 200, 'Event wurde angelegt.' );
             } else {
                 return array(

@@ -22,7 +22,7 @@ function comcal_current_user_can_set_public() {
  * @return bool
  */
 function comcal_throttle_event_submissions() {
-    if ( comcal_current_user_can_set_public() ) {
+    if ( Comcal_User_Capabilities::is_logged_in() ) {
         return true;
     }
     $time_limit   = 5;

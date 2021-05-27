@@ -31,7 +31,7 @@ function comcal_floating_buttons_func( $atts, $content = null ) {
     if ( $a['scrollToToday'] ) {
         $button_classes[] = 'scrollToToday';
     }
-    if ( comcal_current_user_can_set_public() && $a['editCategories'] ) {
+    if ( Comcal_User_Capabilities::edit_categories() && $a['editCategories'] ) {
         $button_classes[] = 'editCategories';
     }
     $index = 0;

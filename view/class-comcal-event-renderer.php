@@ -25,7 +25,7 @@ abstract class Comcal_Event_Renderer {
      * @return string HTML.
      */
     protected static function get_edit_link( $event ) {
-        if ( comcal_current_user_can_set_public() ) {
+        if ( $event->current_user_can_edit() ) {
             return "<a class='editEvent' eventId='{$event->get_field('eventId')}'>edit</a> &mdash; ";
         }
         return '';

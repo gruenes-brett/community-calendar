@@ -45,4 +45,11 @@ class Comcal_User_Capabilities {
     public static function current_user_id() : int {
         return get_current_user_id();
     }
+
+    /**
+     * Returns whether a user is logged in.
+     */
+    public static function is_logged_in() {
+        return 0 !== static::current_user_id();
+    }
 }
