@@ -59,9 +59,7 @@ function comcal_table_func( $atts ) {
         $latest_date = $start_date->get_next_day( $days );
     }
 
-    $is_admin        = comcal_current_user_can_set_public();
     $events_iterator = new Comcal_Event_Iterator(
-        ! $is_admin,
         $category,
         $calendar_name,
         $start_date ? $start_date->get_date_str() : null,

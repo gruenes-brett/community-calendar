@@ -86,7 +86,7 @@ class Comcal_Event extends Comcal_Database_Table {
             description text NOT NULL,
             url varchar(1300) DEFAULT '' NOT NULL,
             public tinyint(2) DEFAULT 0 NOT NULL,
-            created timestamp NOT NULL,
+            created timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
             calendarName tinytext NOT NULL,
             imageUrl varchar(1300) NOT NULL,
             submitterName varchar(1300) NOT NULL,
@@ -212,14 +212,12 @@ class Comcal_Event_Iterator implements Iterator {
      * @return array Database query result.
      */
     public function __construct(
-        $public_only,
         $category = null,
         $calendar_name = '',
         $start_date = null,
         $end_date = null
     ) {
         $this->event_rows = _comcal_get_all_event_rows(
-            $public_only,
             $category,
             $calendar_name,
             $start_date,
@@ -265,7 +263,6 @@ class Comcal_Event_Iterator implements Iterator {
  * @return array Database query result.
  */
 function _comcal_get_all_event_rows(
-    $public_only = true,
     $category = null,
     $calendar_name = '',
     $start_date = null,
@@ -275,11 +272,26 @@ function _comcal_get_all_event_rows(
     $events_table  = Comcal_Event::get_table_name();
     $evt_cat_table = Comcal_Event_Vs_Category::get_table_name();
 
-    $where_conditions   = array();
+    $where_conditions = array();
+
+    // Which calendar?
     $where_conditions[] = "($events_table.calendarName='$calendar_name' OR $events_table.calendarName='')";
-    if ( $public_only ) {
-        $where_conditions[] = "$events_table.public='1'";
+
+    // Which events?
+    $which_events = array();
+    if ( ! Comcal_User_Capabilities::administer_events() ) {
+        $which_events[] = "$events_table.public='1'";
     }
+    if ( Comcal_User_Capabilities::edit_own_events() && ! empty( $which_events ) ) {
+        // Also select the current user's events that are private.
+        $userid         = Comcal_User_Capabilities::current_user_id();
+        $which_events[] = "$events_table.userid='$userid'";
+    }
+    if ( ! empty( $which_events ) ) {
+        $where_conditions[] = '(' . implode( ' OR ', $which_events ) . ')';
+    }
+
+    // What date range?
     if ( null !== $start_date ) {
         $where_conditions[] = "$events_table.date >= '$start_date'";
     }
@@ -291,6 +303,7 @@ function _comcal_get_all_event_rows(
         $where = Comcal_Database::where_and( $where_conditions );
         $query = "SELECT * FROM $events_table $where ORDER BY date, time;";
     } else {
+        // Which category?
         $category_id        = $category->get_field( 'id' );
         $where_conditions[] = "$evt_cat_table.category_id=$category_id";
 

@@ -56,7 +56,7 @@ class Comcal_Category extends Comcal_Database_Table {
         return new self(
             array(
                 'name'       => $name,
-                'categoryId' => uniqid( self::IDPREFIX ),
+                'categoryId' => uniqid( self::IDPREFIX, true ),
                 'style'      => $style,
             )
         );

@@ -13,7 +13,7 @@ class Comcal_Database {
     /**
      * Increase this value if any of the table schemas change.
      */
-    private const DATABASE_VERSION = '5';
+    private const DATABASE_VERSION = '7';
 
     public static function init_tables() {
         global $wpdb;
@@ -269,10 +269,10 @@ abstract class Comcal_Database_Table {
         global $wpdb;
         $table_name = $this->get_table_name();
         if ( $this->exists() ) {
-            $where = array( $this->get_id_field_name() => $this->get_entry_id() );
+            $where         = array( $this->get_id_field_name() => $this->get_entry_id() );
             $affected_rows = $wpdb->update(
                 $table_name,
-                $this->get_full_data(),
+                $this->get_available_data(),
                 $where
             );
         } else {
@@ -332,13 +332,31 @@ abstract class Comcal_Database_Table {
     private function init_entry_id() {
         $id_field_name = $this->get_id_field_name();
         if ( ! isset( $this->data->$id_field_name ) || 0 === strcmp( $this->data->$id_field_name, '' ) ) {
-            $this->data->$id_field_name = uniqid( static::IDPREFIX );
+            $this->data->$id_field_name = uniqid( static::IDPREFIX, true );
         }
     }
 
+    /**
+     * Returns all field values as defined by get_all_field_names(). Fields that are
+     * not set are initialized with default values.
+     */
     public function get_full_data() {
         $data = array();
         foreach ( $this->get_all_field_names() as $field_name ) {
+            $data[ $field_name ] = $this->get_field( $field_name );
+        }
+        return $data;
+    }
+
+    /**
+     * Returns all field values that are actually initialized.
+     */
+    public function get_available_data() {
+        $data = array();
+        foreach ( $this->get_all_field_names() as $field_name ) {
+            if ( ! isset( $this->data->$field_name ) ) {
+                continue;
+            }
             $data[ $field_name ] = $this->get_field( $field_name );
         }
         return $data;
