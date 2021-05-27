@@ -25,6 +25,7 @@ class Comcal_Event extends Comcal_Database_Table {
             'eventId' => '',
             'public'  => 0,
             'created' => current_time( 'mysql' ),
+            'userid'  => Comcal_User_Capabilities::current_user_id(),
         );
     }
 
@@ -61,6 +62,7 @@ class Comcal_Event extends Comcal_Database_Table {
             'imageUrl',
             'submitterName',
             'submitterEmail',
+            'userid',
         );
     }
     public static function get_table_name() {
@@ -89,6 +91,7 @@ class Comcal_Event extends Comcal_Database_Table {
             imageUrl varchar(1300) NOT NULL,
             submitterName varchar(1300) NOT NULL,
             submitterEmail varchar(1300) NOT NULL,
+            userid mediumint(9) NOT NULL,
             PRIMARY KEY  (id)
             ) $charset_collate;";
         return $sql;
