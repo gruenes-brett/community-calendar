@@ -59,7 +59,7 @@ function comcal_table_func( $atts ) {
         $latest_date = $start_date->get_next_day( $days );
     }
 
-    $events_iterator = new Comcal_Event_Iterator(
+    $events_iterator = Comcal_Event_Iterator::load_from_database(
         $category,
         $calendar_name,
         $start_date ? $start_date->get_date_str() : null,

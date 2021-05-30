@@ -215,7 +215,6 @@ class Comcal_Event_Iterator implements Iterator {
     /**
      * Query database and initalize iterator.
      *
-     * @param bool             $public_only Only show events that are set public.
      * @param Comcal_Category  $category Only a certain category.
      * @param string           $calendar_name Name of the calendar.
      * @param Comcal_Date_Time $start_date Range start - null for all.
@@ -223,18 +222,23 @@ class Comcal_Event_Iterator implements Iterator {
      *
      * @return array Database query result.
      */
-    public function __construct(
+    public static function load_from_database(
         $category = null,
         $calendar_name = '',
         $start_date = null,
         $end_date = null
     ) {
-        $this->event_rows = _comcal_get_all_event_rows(
+        $event_rows = _comcal_get_all_event_rows(
             $category,
             $calendar_name,
             $start_date,
             $end_date
         );
+        return new static( $event_rows );
+    }
+
+    public function __construct( $event_rows ) {
+        $this->event_rows = $event_rows;
         $this->positition = 0;
     }
 

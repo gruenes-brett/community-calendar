@@ -80,6 +80,10 @@ function comcal_styles() {
 }
 add_action( 'wp_print_styles', 'comcal_styles' );
 
+
+// Update database if necessary.
+add_action( 'plugins_loaded', array( 'Comcal_Database', 'update_check' ) );
+
 /**
  * Initialize/update database table on activation.
  */

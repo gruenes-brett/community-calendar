@@ -50,9 +50,8 @@ class Comcal_Database {
             update_option( 'evtcal_db_version', static::DATABASE_VERSION );
         }
     }
-
 }
-add_action( 'plugins_loaded', array( 'Comcal_Database', 'update_check' ) );
+
 
 /**
  * Base class for an object stored in a table.
