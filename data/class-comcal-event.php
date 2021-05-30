@@ -63,6 +63,7 @@ class Comcal_Event extends Comcal_Database_Table {
             'submitterName',
             'submitterEmail',
             'userid',
+            'joinDaily',  // Multi-day event can be joined on any day.
         );
     }
     public static function get_table_name() {
@@ -92,6 +93,7 @@ class Comcal_Event extends Comcal_Database_Table {
             submitterName varchar(1300) NOT NULL,
             submitterEmail varchar(1300) NOT NULL,
             userid mediumint(9) NOT NULL,
+            joinDaily tinyint(2) DEFAULT 1 NOT NULL,
             PRIMARY KEY  (id)
             ) $charset_collate;";
         return $sql;
@@ -154,12 +156,16 @@ class Comcal_Event extends Comcal_Database_Table {
     public function get_date_str(): string {
         return $this->get_field( 'date' );
     }
-    public function get_start_date_time(): Comcal_Date_Time {
+    public function get_start_date_time( int $day ): Comcal_Date_Time {
         if ( null === $this->start_date_time ) {
             // Initialize on first use.
             $this->start_date_time = Comcal_Date_Time::from_date_str_time_str( $this->get_field( 'date' ), $this->get_field( 'time' ) );
         }
-        return $this->start_date_time;
+        if ( 0 === $day ) {
+            return $this->start_date_time;
+        } else {
+            return $this->start_date_time->get_next_day( $day );
+        }
     }
 
     public function get_categories_details() {
@@ -258,9 +264,65 @@ class Comcal_Event_Iterator implements Iterator {
 
 
 /**
+ * Iterator that wraps around Comcal_Event_Iterator and that repeats multi-day events.
+ */
+class Comcal_Multiday_Event_Iterator implements Iterator {
+    /**
+     * The original event iterator.
+     *
+     * @var Comcal_Event_Iterator
+     */
+    private $event_iterator = null;
+
+    private $next = null;
+
+    /**
+     * What is the currently returned date? Necessary for detecting date changes for inserting mutli-day instances of events.
+     *
+     * @var Comcal_Date_Time
+     */
+    private $current_date = null;
+
+    /**
+     * Stack of current events: array( date string => [event1, event2, ....] ).
+     *
+     * @var array
+     */
+    private $current_events = array();
+
+    public function __construct( Comcal_Event_Iterator $event_iterator ) {
+        $this->event_iterator = $event_iterator;
+        $this->current_date   = null;
+    }
+
+    public function rewind() {
+        $this->event_iterator->rewind();
+        $this->current_date    = null;
+        $this->multiday_events = array();
+        $this->next = null;
+    }
+
+    public function current() {
+        return array( $this->event_iterator->current(), 0 );
+    }
+
+    public function key() {
+        return $this->event_iterator->key();
+    }
+
+    public function next() {
+        $this->event_iterator->next();
+    }
+
+    public function valid() {
+        return $this->event_iterator->valid();
+    }
+}
+
+
+/**
  * Query events from database.
  *
- * @param bool             $public_only Only show events that are set public.
  * @param Comcal_Category  $category Only a certain category.
  * @param string           $calendar_name Name of the calendar.
  * @param Comcal_Date_Time $start_date Range start.

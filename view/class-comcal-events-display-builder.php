@@ -112,9 +112,10 @@ abstract class Comcal_Events_Display_Builder {
         } else {
             $clazz = 'Comcal_Default_Display_Builder';
         }
-        $builder = new $clazz( $earliest_date, $latest_date );
-        foreach ( $events_iterator as $event ) {
-            $builder->add_event( $event );
+        $builder           = new $clazz( $earliest_date, $latest_date );
+        $multiday_iterator = new Comcal_Multiday_Event_Iterator( $events_iterator );
+        foreach ( $multiday_iterator as list($event, $day) ) {
+            $builder->add_event( $event, $day );
         }
         return $builder;
     }
@@ -123,8 +124,10 @@ abstract class Comcal_Events_Display_Builder {
      * Called by create_display() for each event that is loaded from the database.
      *
      * @param Comcal_Event $event Event that is to be rendered.
+     * @param int          $day This is the n-th day instance of this event (starting at 0).
+     *                     Check $event->get_number_of_days() for total amount of days.
      */
-    abstract public function add_event( $event );
+    abstract public function add_event( $event, int $day );
 
     /**
      * Called when the events are to be rendered to HTML.
@@ -175,8 +178,8 @@ class Comcal_Default_Display_Builder extends Comcal_Events_Display_Builder {
         $this->html           = '';
     }
 
-    public function add_event( $event ) {
-        $this->html .= $this->event_renderer->render( $event );
+    public function add_event( $event, int $day ) {
+        $this->html .= $this->event_renderer->render( $event, $day );
     }
 
     public function get_html() {
@@ -254,35 +257,35 @@ class Comcal_Table_Builder extends Comcal_Default_Display_Builder {
         $this->current_date = $date_time;
     }
 
-    public function add_event( $event ) {
+    public function add_event( $event, int $day ) {
         if ( null !== $this->earliest_date && null === $this->current_date
-                 && ! $event->get_start_date_time()->is_same_day( $this->earliest_date ) ) {
+                 && ! $event->get_start_date_time( $day )->is_same_day( $this->earliest_date ) ) {
             // Add an empty row for the earliest date.
             $this->new_month( $this->earliest_date );
             $this->create_day_row( $this->earliest_date, '' );
         }
-        if ( null === $this->current_date || ! $this->current_date->is_same_month( $event->get_start_date_time() ) ) {
+        if ( null === $this->current_date || ! $this->current_date->is_same_month( $event->get_start_date_time( $day ) ) ) {
             // New month.
             if ( null !== $this->current_date ) {
                 while ( true ) {
                     // Fill in empty months.
                     $next_month = $this->current_date->get_last_day_of_month()->get_next_day();
-                    if ( $next_month->is_same_month( $event->get_start_date_time() ) ) {
+                    if ( $next_month->is_same_month( $event->get_start_date_time( $day ) ) ) {
                         break;
                     }
                     $this->new_month( $next_month );
                 }
             }
             // Create month with this event.
-            $this->new_month( $event->get_start_date_time() );
+            $this->new_month( $event->get_start_date_time( $day ) );
         } elseif ( null !== $this->current_date ) {
             // Fill empty days between events.
-            $this->fill_days_between( $this->current_date->get_next_day(), $event->get_start_date_time() );
+            $this->fill_days_between( $this->current_date->get_next_day(), $event->get_start_date_time( $day ) );
         }
         $this->create_day_row(
-            $event->get_start_date_time(),
-            $this->event_renderer->render( $event ),
-            ! $event->get_start_date_time()->is_same_day( $this->current_date )
+            $event->get_start_date_time( $day ),
+            $this->event_renderer->render( $event, $day ),
+            ! $event->get_start_date_time( $day )->is_same_day( $this->current_date )
         );
     }
 }
@@ -334,20 +337,20 @@ Let's GO! 🌿🌳/ 🌎 Klima-, Naturschutz & Nachhaltigkeit 🌱
         }
     }
 
-    public function add_event( $event ) {
+    public function add_event( $event, int $day ) {
         if ( null === $this->current_date && null !== $this->earliest_date ) {
-            $this->fill_days_between( $this->earliest_date, $event->get_start_date_time() );
+            $this->fill_days_between( $this->earliest_date, $event->get_start_date_time( $day ) );
         } elseif ( null !== $this->current_date ) {
-            $this->fill_days_between( $this->current_date->get_next_day(), $event->get_start_date_time() );
+            $this->fill_days_between( $this->current_date->get_next_day(), $event->get_start_date_time( $day ) );
         }
-        if ( null === $this->current_date || ! $this->current_date->is_same_day( $event->get_start_date_time() ) ) {
-            $this->current_date = $event->get_start_date_time();
+        if ( null === $this->current_date || ! $this->current_date->is_same_day( $event->get_start_date_time( $day ) ) ) {
+            $this->current_date = $event->get_start_date_time( $day );
             $this->html        .= $this->create_new_day( $this->current_date );
         }
-        $this->html .= $this->event_renderer->render( $event ) . '
+        $this->html .= $this->event_renderer->render( $event, $day ) . '
 
 ';
-        $this->current_date = $event->get_start_date_time();
+        $this->current_date = $event->get_start_date_time( $day );
     }
 
     private function create_new_day( $date_time ) {
