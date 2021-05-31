@@ -38,6 +38,7 @@ require_once EVTCAL__PLUGIN_DIR . 'common/class-comcal-user-capabilities.php';
 require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-date-time.php';
 require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-database.php';
 require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-event.php';
+require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-event-iterator.php';
 require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-category.php';
 
 // view.

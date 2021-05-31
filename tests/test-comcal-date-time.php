@@ -2,8 +2,6 @@
 
 use PHPUnit\Framework\TestCase;
 
-require_once 'data/class-comcal-date-time.php';
-
 final class Comcal_Date_Time_Test extends TestCase {
     public function testFromDateStrTimeStr() {
         $dt = Comcal_Date_Time::from_date_str_time_str( '2020-10-20', '12:23:45' );

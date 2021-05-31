@@ -92,3 +92,12 @@ useful features, please open an issue.
 
 If you even would like to contribute to the code, feel free to contact us at
 uk-dd@posteo.de.
+
+### Tests
+
+Tests in the `tests` directory can be executed with phpunit. Use `composer install` to
+install it and then execute tests while in the same directory as the `phpunit.xml` file:
+
+```
+./vendor/bin/phpunit
+```
