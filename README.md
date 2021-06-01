@@ -101,3 +101,11 @@ install it and then execute tests while in the same directory as the `phpunit.xm
 ```
 ./vendor/bin/phpunit
 ```
+
+For debugging unit tests set the following on the command line:
+
+```
+export XDEBUG_CONFIG="idekey=VSCODE"
+```
+
+and launch "Listen for Xdebug" as described [here](https://tighten.co/blog/configure-vscode-to-debug-phpunit-tests-with-xdebug/).

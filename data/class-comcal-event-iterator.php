@@ -58,6 +58,11 @@ class Comcal_Event_Iterator implements Iterator {
         $this->positition = 0;
     }
 
+    /**
+     * The current event.
+     *
+     * @return Comcal_Event
+     */
     public function current() {
         if ( -1 === $this->positition ) {
             return null;
@@ -90,47 +95,129 @@ class Comcal_Multiday_Event_Iterator implements Iterator {
      */
     private $event_iterator = null;
 
-    private $next = null;
-
     /**
-     * What is the currently returned date? Necessary for detecting date changes for inserting mutli-day instances of events.
+     * The event that is returned next: array( Comcal_Event, int $day ).
      *
-     * @var Comcal_Date_Time
+     * @var list( Comcal_Event $event, int $day )
      */
-    private $current_date = null;
+    private $next_event_day = null;
 
     /**
-     * Stack of current events: array( date string => [event1, event2, ....] ).
+     * Stack of collected events.
+     * This array contains an array for each day that has at least one event or a
+     * multiday instance of an event. During initialization, the array keys are strings
+     * representing the date. This will be normalized to a simple indexed list at the end
+     * of initialize_stack().
      *
      * @var array
      */
-    private $current_events = array();
+    private $event_stack = array();
 
     public function __construct( Comcal_Event_Iterator $event_iterator ) {
         $this->event_iterator = $event_iterator;
-        $this->current_date   = null;
+        $this->initialize_stack();
     }
 
     public function rewind() {
         $this->event_iterator->rewind();
-        $this->current_date    = null;
-        $this->multiday_events = array();
-        $this->next = null;
+        $this->initialize_stack();
     }
 
+    private function initialize_stack() {
+        $this->next_event_day = null;
+        $this->event_stack    = array();
+
+        // Collect events.
+        foreach ( $this->event_iterator as $event ) {
+            $this->add_event( $event );
+        }
+
+        // Normalize array:
+        // 1. Convert associative array to simple indexed list.
+        $this->event_stack = array_values( $this->event_stack );
+        $count             = count( $this->event_stack );
+        // 2. Sort each day: newer events above older events.
+        for ( $i = 0; $i < $count; $i++ ) {
+            usort( $this->event_stack[ $i ], 'static::event_sort_key' );
+        }
+        // Initialize first event.
+        $this->next_event_day = $this->next_event_instance();
+    }
+
+    /**
+     * Return current event.
+     *
+     * @return list( Comcal_Event $event, int $day )
+     */
     public function current() {
-        return array( $this->event_iterator->current(), 0 );
+        return $this->next_event_day;
     }
 
     public function key() {
-        return $this->event_iterator->key();
+        if ( null !== $this->next_event_day ) {
+            return $this->next_event_day[0]->get_entry_id() . $this->next_event_day[1];
+        }
+        return null;
     }
 
     public function next() {
-        $this->event_iterator->next();
+        $this->next_event_day = $this->next_event_instance();
     }
 
     public function valid() {
-        return $this->event_iterator->valid();
+        return null !== $this->next_event_day;
+    }
+
+    /**
+     * Retrieve the next event from the event stack.
+     *
+     * @return list( Comcal_Event $event, int $day )
+     */
+    private function next_event_instance() {
+        if ( empty( $this->event_stack ) ) {
+            return null;
+        }
+        $event_day = array_shift( $this->event_stack[0] );
+        if ( empty( $this->event_stack[0] ) ) {
+            array_shift( $this->event_stack );
+        }
+        return $event_day;
+    }
+
+    /**
+     * Fill stack with instances of this event for each day of the event.
+     *
+     * @param Comcal_Event $event The event.
+     */
+    private function add_event( Comcal_Event $event ) {
+        $days = $event->get_number_of_days();
+        for ( $day = 0; $day < $days; $day++ ) {
+            $date_str = $event->get_start_date_time( $day )->get_date_str();
+            if ( ! isset( $this->event_stack[ $date_str ] ) ) {
+                $this->event_stack[ $date_str ] = array();
+            }
+
+            array_push( $this->event_stack[ $date_str ], array( $event, $day ) );
+        }
+    }
+
+    /**
+     * Key function for sorting events within a day array.
+     *
+     * @param list $event_day1 Event and Day: list( Comcal_Event $event, int $day ).
+     * @param list $event_day2 Event and Day: list( Comcal_Event $event, int $day ).
+     */
+    private static function event_sort_key( $event_day1, $event_day2 ) {
+        $date1 = $event_day1[0]->get_date_str();
+        $date2 = $event_day2[0]->get_date_str();
+        if ( $date1 === $date2 ) {
+            $time1 = $event_day1[0]->get_time_str();
+            $time2 = $event_day2[0]->get_time_str();
+            if ( $time1 === $time2 ) {
+                return 0;
+            }
+            return ( $time1 < $time2 ) ? -1 : 1;
+        }
+        return ( $date1 < $date2 ) ? 1 : -1;
     }
 }

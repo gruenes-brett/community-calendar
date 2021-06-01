@@ -156,6 +156,9 @@ class Comcal_Event extends Comcal_Database_Table {
     public function get_date_str(): string {
         return $this->get_field( 'date' );
     }
+    public function get_time_str(): string {
+        return $this->get_field( 'time' );
+    }
     public function get_start_date_time( int $day ): Comcal_Date_Time {
         if ( null === $this->start_date_time ) {
             // Initialize on first use.
