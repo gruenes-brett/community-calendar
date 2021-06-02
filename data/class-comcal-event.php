@@ -153,6 +153,25 @@ class Comcal_Event extends Comcal_Database_Table {
         );
     }
 
+    protected function sanitize_data() {
+        if ( in_array( $this->get_field( 'dateEnd' ), array( '', '0000-00-00' ), true ) ) {
+            // If end date not set, use same as start date.
+            $this->set_field( 'dateEnd', $this->get_field( 'date' ) );
+        }
+        if ( in_array( $this->get_field( 'timeEnd' ), array( '', '00:00:00' ), true ) ) {
+            // If end time not set, use same as start time.
+            $this->set_field( 'timeEnd', $this->get_field( 'time' ) );
+        }
+
+        // Make sure the end date and time are not before start date and time.
+        $duration = $this->get_duration();
+        if ( 1 === $duration->invert ) {
+            // Negative duration: Set end to the same as start.
+            $this->set_field( 'dateEnd', $this->get_field( 'date' ) );
+            $this->set_field( 'timeEnd', $this->get_field( 'time' ) );
+        }
+    }
+
     public function get_date_str(): string {
         return $this->get_field( 'date' );
     }
@@ -186,6 +205,13 @@ class Comcal_Event extends Comcal_Database_Table {
             return 1;
         }
         return $diff->days + 1;
+    }
+
+    public function get_duration() {
+        $start_date = Comcal_Date_Time::from_date_str_time_str( $this->get_field( 'date' ), $this->get_field( 'time' ) );
+        $end_date   = Comcal_Date_Time::from_date_str_time_str( $this->get_field( 'dateEnd' ), $this->get_field( 'timeEnd' ) );
+        $diff       = $end_date->get_date_time_difference( $start_date );
+        return $diff;
     }
 
     public function current_user_can_edit() {

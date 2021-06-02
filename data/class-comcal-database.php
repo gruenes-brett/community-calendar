@@ -267,6 +267,7 @@ abstract class Comcal_Database_Table {
     public function store() {
         global $wpdb;
         $table_name = $this->get_table_name();
+        $this->sanitize_data();
         if ( $this->exists() ) {
             $where         = array( $this->get_id_field_name() => $this->get_entry_id() );
             $affected_rows = $wpdb->update(
@@ -282,6 +283,12 @@ abstract class Comcal_Database_Table {
     }
 
     /**
+     * Is called before storing the data to the database. Can be used to fill
+     * empty or invalid fields with correct values.
+     */
+    protected function sanitize_data() { }
+
+    /**
      * Deletes all entries with the current entry-ID
      */
     public function delete() {
@@ -295,7 +302,7 @@ abstract class Comcal_Database_Table {
     }
 
     public function get_field( $name, $default = null ) {
-        if ( strcmp( $name, $this->get_id_field_name() ) === 0 ) {
+        if ( $name === $this->get_id_field_name() ) {
             // Make sure we have a valid id.
             $this->init_entry_id();
         }
@@ -330,7 +337,7 @@ abstract class Comcal_Database_Table {
      */
     private function init_entry_id() {
         $id_field_name = $this->get_id_field_name();
-        if ( ! isset( $this->data->$id_field_name ) || 0 === strcmp( $this->data->$id_field_name, '' ) ) {
+        if ( ! isset( $this->data->$id_field_name ) || '' === $this->data->$id_field_name ) {
             $this->data->$id_field_name = uniqid( static::IDPREFIX, true );
         }
     }
