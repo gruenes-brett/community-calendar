@@ -203,11 +203,9 @@ class Comcal_Table_Builder extends Comcal_Default_Display_Builder {
     public function add_event( $event, int $day ) {
         $event_instance_start = $event->get_start_date_time( $day );
 
-        if ( null !== $this->earliest_date && null === $this->current_date ) {
-            if ( $event_instance_start->is_day_less_than( $this->earliest_date ) ) {
-                // Skip this even instance if it is not to be displayed.
-                return;
-            }
+        if ( null !== $this->earliest_date && $event_instance_start->is_day_less_than( $this->earliest_date ) ) {
+            // Skip this even instance if it is not to be displayed.
+            return;
         }
 
         if ( null !== $this->earliest_date && null === $this->current_date
