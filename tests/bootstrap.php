@@ -4,6 +4,8 @@ require_once 'data/class-comcal-date-time.php';
 require_once 'data/class-comcal-database.php';
 require_once 'data/class-comcal-event.php';
 require_once 'data/class-comcal-event-iterator.php';
+require_once 'view/class-comcal-events-display-builder.php';
+require_once 'view/class-comcal-event-renderer.php';
 
 function create_event_data( $title, $date, $date_end = null, $time = null ) {
     if ( null === $date_end ) {

@@ -5,84 +5,6 @@
  * @package Community_Calendar
  */
 
-$comcal_calendar_already_shown = false;
-
-/**
- * Shortcode [community-calendar-table]
- *
- * @param array $atts Shortcode attributes.
- * @return string Resulting HTML.
- */
-function comcal_table_func( $atts ) {
-    global $comcal_calendar_already_shown;
-    if ( $comcal_calendar_already_shown ) {
-        return comcal_make_error_box( 'Error: only a single calendar is allowed per page!' );
-    }
-    $a = shortcode_atts(
-        array(
-            'start'      => null,  // show events starting from ... 'today', 'next-monday', '2020-10-22', ...
-            'name'       => '',
-            'style'      => 'table',
-            'days'       => null,  // number of days to show (excluding start day).
-            'categories' => true,  // show category buttons.
-        ),
-        $atts
-    );
-
-    $calendar_name   = $a['name'];
-    $style           = $a['style'];
-    $days            = $a['days'];
-    $start           = $a['start'];
-    $show_categories = $a['categories'];
-
-    // Determine category.
-    $category = null;
-    if ( isset( $_GET['comcal_category'] ) ) {
-        $category = Comcal_Category::query_from_category_id( $_GET['comcal_category'] );
-    }
-
-    // Determine date range.
-    $latest_date = null;
-    $start_date  = null;
-    if ( strtolower( $start ) === 'today' ) {
-        $start_date = Comcal_Date_Time::now();
-    } elseif ( strtolower( $start ) === 'next-monday' ) {
-        $start_date = Comcal_Date_Time::next_monday();
-    } elseif ( null !== $start ) {
-        try {
-            $start_date = Comcal_Date_Time::from_date_str_time_str( $start, '00:00:00' );
-        } catch ( Exception $e ) {
-            return comcal_make_error_box( "Error in 'start' attribute:<br>{$e->getMessage()}" );
-        }
-    }
-    if ( null !== $days && null !== $start_date ) {
-        $latest_date = $start_date->get_next_day( $days );
-    }
-
-    $events_iterator = Comcal_Event_Iterator::load_from_database(
-        $category,
-        $calendar_name,
-        $start_date ? $start_date->get_date_str() : null,
-        $latest_date ? $latest_date->get_date_str() : null,
-    );
-
-    $output = Comcal_Events_Display_Builder::create_display( $style, $events_iterator, $start_date, $latest_date );
-
-    $comcal_calendar_already_shown = true;
-
-    $all_html = '';
-    if ( $show_categories ) {
-        $all_html .= comcal_get_category_buttons( $category );
-    }
-    $all_html .= $output->get_html() . Comcal_Basic_Event_Popup::get_popup_html() . comcal_get_edit_form( $calendar_name );
-    if ( Comcal_User_Capabilities::edit_categories() ) {
-        $all_html .= comcal_get_edit_categories_dialog();
-    }
-    return $all_html;
-}
-add_shortcode( 'community-calendar-table', 'comcal_table_func' );
-
-
 /**
  * Base class for objects that output the calendar and events in different formats
  * (e.g., as HTML table, as Markdown, etc.)
@@ -95,7 +17,7 @@ abstract class Comcal_Events_Display_Builder {
      * @var array
      */
     public static $styles = array(
-        'table' => 'Comcal_Table_Builder',
+        'table'    => 'Comcal_Table_Builder',
         'markdown' => 'Comcal_Markdown_Builder',
     );
 
@@ -220,6 +142,15 @@ class Comcal_Table_Builder extends Comcal_Default_Display_Builder {
                . "<table class='community-calendar'><tbody>\n";
     }
 
+    /**
+     * Returns HTML for the end of a month table.
+     *
+     * @return string HTML.
+     */
+    protected function get_table_foot() {
+        return "</tbody></table>\n";
+    }
+
     protected function new_month( $date ) {
         $this->finish_current_month();
         $this->html .= $this->get_table_head( $date );
@@ -231,30 +162,42 @@ class Comcal_Table_Builder extends Comcal_Default_Display_Builder {
     protected function finish_current_month() {
         if ( null !== $this->current_date ) {
             $this->fill_days_after( $this->current_date );
-            $this->html .= "</tbody></table>\n";
+            $this->html .= $this->get_table_foot();
         }
     }
 
     protected function fill_days_between( $begin_at_date, $end_before_date ) {
         foreach ( $begin_at_date->get_all_dates_until( $end_before_date ) as $this_date ) {
-            $this->create_day_row( $this_date, '' );
+            $this->create_day_row_internal( $this_date, '' );
         }
     }
 
     protected function fill_days_after( $date ) {
         foreach ( $date->get_next_day()->get_all_dates_until( $date->get_last_day_of_month() ) as $this_date ) {
-            $this->create_day_row( $this_date, '' );
+            $this->create_day_row_internal( $this_date, '' );
         }
     }
 
-    protected function create_day_row( $date_time, $text, $is_new_day = true ) {
-        $date_str           = $is_new_day ? $date_time->get_short_weekday_and_day() : '';
-        $tr_class           = $is_new_day ? '' : 'sameDay';
-        $date_class         = ( '' === $text ) ? 'has-no-events' : 'has-events';
-        $this->html        .= "<tr class='{$date_time->get_day_classes()} $tr_class day'>";
-        $this->html        .= "<td class='date $date_class'>$date_str</td>";
-        $this->html        .= "<td class='event'>$text</td></tr>\n";
+    private function create_day_row_internal( $date_time, $text, $is_new_day = true ) {
+        $this->create_day_row( $date_time, $text, $is_new_day );
         $this->current_date = $date_time;
+    }
+
+    /**
+     * Override to specifiy how a day row is rendered. This will be called for every event instance
+     * in a day.
+     *
+     * @param Comcal_Date_Time $date_time which day.
+     * @param string           $text Content of the day.
+     * @param boolean          $is_new_day true if this is the first time the day is rendered.
+     */
+    protected function create_day_row( $date_time, $text, $is_new_day = true ) {
+        $date_str    = $is_new_day ? $date_time->get_short_weekday_and_day() : '';
+        $tr_class    = $is_new_day ? '' : 'sameDay';
+        $date_class  = ( '' === $text ) ? 'has-no-events' : 'has-events';
+        $this->html .= "<tr class='{$date_time->get_day_classes()} $tr_class day'>";
+        $this->html .= "<td class='date $date_class'>$date_str</td>";
+        $this->html .= "<td class='event'>$text</td></tr>\n";
     }
 
     public function add_event( $event, int $day ) {
@@ -262,7 +205,7 @@ class Comcal_Table_Builder extends Comcal_Default_Display_Builder {
                  && ! $event->get_start_date_time( $day )->is_same_day( $this->earliest_date ) ) {
             // Add an empty row for the earliest date.
             $this->new_month( $this->earliest_date );
-            $this->create_day_row( $this->earliest_date, '' );
+            $this->create_day_row_internal( $this->earliest_date, '' );
         }
         if ( null === $this->current_date || ! $this->current_date->is_same_month( $event->get_start_date_time( $day ) ) ) {
             // New month.
@@ -282,7 +225,7 @@ class Comcal_Table_Builder extends Comcal_Default_Display_Builder {
             // Fill empty days between events.
             $this->fill_days_between( $this->current_date->get_next_day(), $event->get_start_date_time( $day ) );
         }
-        $this->create_day_row(
+        $this->create_day_row_internal(
             $event->get_start_date_time( $day ),
             $this->event_renderer->render( $event, $day ),
             ! $event->get_start_date_time( $day )->is_same_day( $this->current_date )

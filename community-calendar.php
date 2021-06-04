@@ -33,6 +33,7 @@ require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 // common.
 require_once EVTCAL__PLUGIN_DIR . 'common/class-comcal-user-capabilities.php';
+require_once EVTCAL__PLUGIN_DIR . 'common/shortcodes.php';
 
 // model.
 require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-date-time.php';
