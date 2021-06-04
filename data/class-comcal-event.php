@@ -263,7 +263,7 @@ function comcal_query_events(
 
     // What date range?
     if ( null !== $start_date ) {
-        $where_conditions[] = "$events_table.date >= '$start_date'";
+        $where_conditions[] = "$events_table.dateEnd >= '$start_date'";
     }
     if ( null !== $end_date ) {
         $where_conditions[] = "$events_table.date <= '$end_date'";
