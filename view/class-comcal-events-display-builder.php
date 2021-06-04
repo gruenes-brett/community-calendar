@@ -201,34 +201,43 @@ class Comcal_Table_Builder extends Comcal_Default_Display_Builder {
     }
 
     public function add_event( $event, int $day ) {
+        $event_instance_start = $event->get_start_date_time( $day );
+
+        if ( null !== $this->earliest_date && null === $this->current_date ) {
+            if ( $event_instance_start->is_day_less_than( $this->earliest_date ) ) {
+                // Skip this even instance if it is not to be displayed.
+                return;
+            }
+        }
+
         if ( null !== $this->earliest_date && null === $this->current_date
-                 && ! $event->get_start_date_time( $day )->is_same_day( $this->earliest_date ) ) {
+                 && ! $event_instance_start->is_same_day( $this->earliest_date ) ) {
             // Add an empty row for the earliest date.
             $this->new_month( $this->earliest_date );
             $this->create_day_row_internal( $this->earliest_date, '' );
         }
-        if ( null === $this->current_date || ! $this->current_date->is_same_month( $event->get_start_date_time( $day ) ) ) {
+        if ( null === $this->current_date || ! $this->current_date->is_same_month( $event_instance_start ) ) {
             // New month.
             if ( null !== $this->current_date ) {
                 while ( true ) {
                     // Fill in empty months.
                     $next_month = $this->current_date->get_last_day_of_month()->get_next_day();
-                    if ( $next_month->is_same_month( $event->get_start_date_time( $day ) ) ) {
+                    if ( $next_month->is_same_month( $event_instance_start ) ) {
                         break;
                     }
                     $this->new_month( $next_month );
                 }
             }
             // Create month with this event.
-            $this->new_month( $event->get_start_date_time( $day ) );
+            $this->new_month( $event_instance_start );
         } elseif ( null !== $this->current_date ) {
             // Fill empty days between events.
-            $this->fill_days_between( $this->current_date->get_next_day(), $event->get_start_date_time( $day ) );
+            $this->fill_days_between( $this->current_date->get_next_day(), $event_instance_start );
         }
         $this->create_day_row_internal(
-            $event->get_start_date_time( $day ),
+            $event_instance_start,
             $this->event_renderer->render( $event, $day ),
-            ! $event->get_start_date_time( $day )->is_same_day( $this->current_date )
+            ! $event_instance_start->is_same_day( $this->current_date )
         );
     }
 }
