@@ -115,7 +115,6 @@ class Comcal_Multiday_Event_Iterator implements Iterator {
 
     public function __construct( Comcal_Event_Iterator $event_iterator ) {
         $this->event_iterator = $event_iterator;
-        $this->initialize_stack();
     }
 
     public function rewind() {

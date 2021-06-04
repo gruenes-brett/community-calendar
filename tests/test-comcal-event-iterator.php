@@ -2,24 +2,6 @@
 
 use PHPUnit\Framework\TestCase;
 
-function create_event_data( $title, $date, $date_end = null, $time = null ) {
-    if ( null === $date_end ) {
-        $date_end = $date;
-    }
-    if ( null === $time ) {
-        $time = '12:00:00';
-    }
-    $time_end = '23:00:00';
-
-    return (object) array(
-        'title'   => $title,
-        'date'    => $date,
-        'time'    => $time,
-
-        'dateEnd' => $date_end,
-        'timeEnd' => $time_end,
-    );
-}
 function create_testdata_basic() {
     return array(
         create_event_data( 'A', '2020-01-01' ),
@@ -29,6 +11,16 @@ function create_testdata_basic() {
     );
 }
 
+function create_testdata_multiday() {
+    return array(
+        create_event_data( 'A', '2020-01-01' ),
+        create_event_data( 'B4', '2020-01-01', '2020-01-05' ),
+        create_event_data( 'C3', '2020-01-02', '2020-01-04', '12:00:00' ),
+        create_event_data( 'C1', '2020-01-02', '2020-01-02', '13:00:00' ),
+        create_event_data( 'D1', '2020-01-04' ),
+        create_event_data( 'E', '2020-02-02' ),
+    );
+}
 
 /**
  * Tests for event iterator.
@@ -63,6 +55,8 @@ final class Comcal_Event_Iterator_Test extends TestCase {
 
     public function test_multiday_event_iterator() {
         $iterator = new Comcal_Multiday_Event_Iterator( new Comcal_Event_Iterator( create_testdata_multiday() ) );
+
+        $iterator->rewind();
 
         // 1.1.
         $this->assertTrue( $iterator->valid() );
@@ -145,16 +139,4 @@ final class Comcal_Event_Iterator_Test extends TestCase {
         $iterator->next();
         $this->assertFalse( $iterator->valid() );
     }
-}
-
-
-function create_testdata_multiday() {
-    return array(
-        create_event_data( 'A', '2020-01-01' ),
-        create_event_data( 'B4', '2020-01-01', '2020-01-05' ),
-        create_event_data( 'C3', '2020-01-02', '2020-01-04', '12:00:00' ),
-        create_event_data( 'C1', '2020-01-02', '2020-01-02', '13:00:00' ),
-        create_event_data( 'D1', '2020-01-04' ),
-        create_event_data( 'E', '2020-02-02' ),
-    );
 }
