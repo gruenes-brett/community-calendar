@@ -175,13 +175,45 @@ class Comcal_Date_Time {
         return 0 === strcmp( $date_time->get_date_str(), $this->get_date_str() );
     }
 
+    public function compare_date( $other ) {
+        return strcmp( $this->get_date_str(), $other->get_date_str() );
+    }
+
     public function is_day_less_than( $other ) {
-        return strcmp( $this->date_time->format( 'Y-m-d' ), $other->get_start_date_time()->format( 'Y-m-d' ) ) < 0;
+        return $this->compare_date( $other ) < 0;
+    }
+
+    public function is_day_greater_than( $other ) {
+        return $this->compare_date( $other ) > 0;
+    }
+
+    /**
+     * Checks if this date is within a date range. Time is ignored.
+     * Parameter values of null are allowed and will ignore this limit.
+     *
+     * @param Comcal_Date_Time $earliest_date Beginning of date range (including).
+     * @param Comcal_Date_Time $latest_date End of date range (including).
+     * @return bool true, if in range, false otherwise.
+     */
+    public function is_in_date_range( $earliest_date, $latest_date ) {
+        if ( null !== $earliest_date && $this->is_day_less_than( $earliest_date ) ) {
+            return false;
+        }
+        if ( null !== $latest_date && $this->is_day_greater_than( $latest_date ) ) {
+            return false;
+        }
+        return true;
     }
 
     public function get_next_day( $number_of_days = 1 ) {
         $next_day = clone $this->date_time;
         $next_day->add( new DateInterval( "P${number_of_days}D" ) );
+        return self::from_date_time( $next_day );
+    }
+
+    public function get_prev_day( $number_of_days = 1 ) {
+        $next_day = clone $this->date_time;
+        $next_day->sub( new DateInterval( "P${number_of_days}D" ) );
         return self::from_date_time( $next_day );
     }
 

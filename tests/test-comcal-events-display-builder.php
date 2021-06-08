@@ -4,7 +4,7 @@ use PHPUnit\Framework\TestCase;
 
 function create_testdata_multiday_display() {
     return array(
-        create_event_data( 'Z', '2019-12-31', '2020-01-01' ),
+        create_event_data( 'Z', '2019-12-31', '2020-01-02' ),
         create_event_data( 'A', '2020-01-01', null, '10:00:00' ),
         create_event_data( 'B4', '2020-01-01', '2020-01-05' ),
         create_event_data( 'C3', '2020-01-02', '2020-01-04', '12:00:00' ),
@@ -78,6 +78,7 @@ M:Januar 2020
 2020-01-02 E: C3
  E: C1
  E: B4
+ E: Z
 2020-01-03 E: C3
  E: B4
 2020-01-04 E: D1
@@ -167,6 +168,7 @@ M:Januar 2020
 2020-01-02 E: C3
  E: C1
  E: B4
+ E: Z
 2020-01-03 E: C3
  E: B4
 2020-01-04 E: D1
@@ -230,6 +232,63 @@ M:Februar 2020
 2020-02-27
 2020-02-28
 2020-02-29
+-
+
+XML;
+        $this->assertEquals(
+            $expected,
+            $display->get_html()
+        );
+    }
+
+    public function test_table_builder_smaller_date_range() {
+        $iterator = new Comcal_Event_Iterator( create_testdata_multiday_display() );
+
+        $display  = Test_Table_Builder::create_display(
+            'Test_Table_Builder',
+            $iterator,
+            Comcal_Date_Time::from_date_str_time_str( '2020-01-02', '10:00:00' ), // start date.
+            Comcal_Date_Time::from_date_str_time_str( '2020-01-04', '10:00:00' ), // end date.
+        );
+        $expected = <<<XML
+M:Januar 2020
+2020-01-02 E: C3
+ E: C1
+ E: B4
+ E: Z
+2020-01-03 E: C3
+ E: B4
+2020-01-04 E: D1
+ E: C3
+ E: B4
+-
+
+XML;
+        $this->assertEquals(
+            $expected,
+            $display->get_html()
+        );
+    }
+
+    public function test_table_builder_latest_date_month_break() {
+        $iterator = new Comcal_Event_Iterator( create_testdata_multiday_display() );
+
+        $display  = Test_Table_Builder::create_display(
+            'Test_Table_Builder',
+            $iterator,
+            Comcal_Date_Time::from_date_str_time_str( '2019-12-29', '10:00:00' ), // start date.
+            Comcal_Date_Time::from_date_str_time_str( '2020-01-01', '10:00:00' ), // end date.
+        );
+        $expected = <<<XML
+M:Dezember 2019
+2019-12-29
+2019-12-30
+2019-12-31 E: Z
+-
+M:Januar 2020
+2020-01-01 E: A
+ E: B4
+ E: Z
 -
 
 XML;

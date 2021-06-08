@@ -37,7 +37,9 @@ abstract class Comcal_Events_Display_Builder {
         $builder           = new $clazz( $earliest_date, $latest_date );
         $multiday_iterator = new Comcal_Multiday_Event_Iterator( $events_iterator );
         foreach ( $multiday_iterator as list($event, $day) ) {
-            $builder->add_event( $event, $day );
+            if ( $event->get_start_date_time( $day )->is_in_date_range( $earliest_date, $latest_date ) ) {
+                $builder->add_event( $event, $day );
+            }
         }
         return $builder;
     }
@@ -161,7 +163,13 @@ class Comcal_Table_Builder extends Comcal_Default_Display_Builder {
 
     protected function finish_current_month() {
         if ( null !== $this->current_date ) {
-            $this->fill_days_after( $this->current_date );
+            if ( null === $this->latest_date || ! $this->latest_date->is_same_month( $this->current_date ) ) {
+                // finish the whole month.
+                $this->fill_days_after( $this->current_date );
+            } elseif ( ! $this->current_date->is_same_day( $this->latest_date ) ) {
+                // only finish until latest date.
+                $this->fill_days_between( $this->current_date, $this->latest_date->get_next_day() );
+            }
             $this->html .= $this->get_table_foot();
         }
     }
@@ -202,11 +210,6 @@ class Comcal_Table_Builder extends Comcal_Default_Display_Builder {
 
     public function add_event( $event, int $day ) {
         $event_instance_start = $event->get_start_date_time( $day );
-
-        if ( null !== $this->earliest_date && $event_instance_start->is_day_less_than( $this->earliest_date ) ) {
-            // Skip this even instance if it is not to be displayed.
-            return;
-        }
 
         if ( null !== $this->earliest_date && null === $this->current_date
                  && ! $event_instance_start->is_same_day( $this->earliest_date ) ) {
