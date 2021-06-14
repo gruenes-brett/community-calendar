@@ -176,9 +176,16 @@ XML;
             if ( in_array( $key, static::$boolean_fields, true ) ) {
                 $value = 'on' === $value ? 1 : 0;
             }
-            $data_out[ $key ] = $value;
+            $data_out[ $key ] = static::sanitize_text( $value );
         }
         return $data_out;
+    }
+
+    protected static function sanitize_text( $value ) {
+        if ( is_string( $value ) ) {
+            return stripslashes( htmlspecialchars( $value ) );
+        }
+        return $value;
     }
 
     /**

@@ -53,6 +53,7 @@ class Comcal_Event extends Comcal_Database_Table {
             'timeEnd',
             'organizer',
             'location',
+            'address',
             'title',
             'description',
             'url',
@@ -84,6 +85,7 @@ class Comcal_Event extends Comcal_Database_Table {
             title tinytext NOT NULL,
             organizer tinytext DEFAULT '' NOT NULL,
             location tinytext DEFAULT '' NOT NULL,
+            address tinytext DEFAULT '' NOT NULL,
             description text NOT NULL,
             url varchar(1300) DEFAULT '' NOT NULL,
             public tinyint(2) DEFAULT 0 NOT NULL,
@@ -130,6 +132,7 @@ class Comcal_Event extends Comcal_Database_Table {
             'timeEnd'        => $this->get_field( 'timeEnd' ),
             'organizer'      => $this->get_field( 'organizer' ),
             'location'       => $this->get_field( 'location' ),
+            'address'        => $this->get_field( 'address' ),
             'title'          => $this->get_field( 'title' ),
             'description'    => $this->get_field( 'description' ),
             'url'            => $this->get_field( 'url' ),
@@ -142,12 +145,16 @@ class Comcal_Event extends Comcal_Database_Table {
         );
     }
     public static function get_text_field_names() {
+        // TODO: Determine text fields from CREATE TABLE query.
         return array(
             'eventId',
             'organizer',
             'title',
+            'location',
+            'address',
             'description',
             'url',
+            'imageUrl',
             'submitterName',
             'submitterEmail',
         );

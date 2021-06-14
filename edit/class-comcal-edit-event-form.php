@@ -168,11 +168,6 @@ XML;
         if ( ! Comcal_User_Capabilities::edit_own_events() ) {
             $data['public'] = 0;
         }
-        foreach ( Comcal_Event::get_text_field_names() as $name ) {
-            if ( isset( $data[ $name ] ) ) {
-                $data[ $name ] = comcal_prevent_html( $data[ $name ] );
-            }
-        }
         return $data;
     }
 
