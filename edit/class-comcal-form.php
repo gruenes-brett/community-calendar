@@ -164,6 +164,13 @@ XML;
      */
     protected static function transform_post_data( $post_data ) {
         $data_out = array();
+
+        // Unchecked checkboxes are normally not provided in $_POST data.
+        // Initialize them with 'false'.
+        foreach ( static::$boolean_fields as $boolean_field ) {
+            $data_out[ $boolean_field ] = 0;
+        }
+
         foreach ( $post_data as $key => $value ) {
             $key = static::$form_field_to_model_field[ $key ] ?? $key;
             if ( in_array( $key, static::$boolean_fields, true ) ) {

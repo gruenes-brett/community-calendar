@@ -7,6 +7,7 @@ function create_testdata_multiday_display() {
         create_event_data( 'Z', '2019-12-31', '2020-01-02' ),
         create_event_data( 'A', '2020-01-01', null, '10:00:00' ),
         create_event_data( 'B4', '2020-01-01', '2020-01-05' ),
+        create_event_data( 'J1', '2020-01-01', '2020-01-05', null, false ),
         create_event_data( 'C3', '2020-01-02', '2020-01-04', '12:00:00' ),
         create_event_data( 'C1', '2020-01-02', '2020-01-02', '13:00:00' ),
         create_event_data( 'D1', '2020-01-04' ),
@@ -74,6 +75,7 @@ M:Dezember 2019
 M:Januar 2020
 2020-01-01 E: A
  E: B4
+ E: J1
  E: Z
 2020-01-02 E: C3
  E: C1
@@ -164,6 +166,7 @@ XML;
 M:Januar 2020
 2020-01-01 E: A
  E: B4
+ E: J1
  E: Z
 2020-01-02 E: C3
  E: C1
@@ -288,6 +291,7 @@ M:Dezember 2019
 M:Januar 2020
 2020-01-01 E: A
  E: B4
+ E: J1
  E: Z
 -
 

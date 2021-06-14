@@ -37,11 +37,32 @@ abstract class Comcal_Events_Display_Builder {
         $builder           = new $clazz( $earliest_date, $latest_date );
         $multiday_iterator = new Comcal_Multiday_Event_Iterator( $events_iterator );
         foreach ( $multiday_iterator as list($event, $day) ) {
-            if ( $event->get_start_date_time( $day )->is_in_date_range( $earliest_date, $latest_date ) ) {
+            if ( static::is_event_visible( $event, $day, $earliest_date, $latest_date ) ) {
                 $builder->add_event( $event, $day );
             }
         }
         return $builder;
+    }
+
+    /**
+     * Helper function to determine if an event instance should be rendered or not.
+     *
+     * @param Comcal_Event     $event Event to be checked.
+     * @param int              $day Nth day of the event (starting at 0).
+     * @param Comcal_Date_Time $earliest_date Start date of visible range or null for ignore.
+     * @param Comcal_Date_Time $latest_date End date of visible range or null for ignore.
+     * @return true, if the event is to be rendered.
+     */
+    protected static function is_event_visible(
+        Comcal_Event $event,
+        int $day,
+        ?Comcal_Date_Time $earliest_date,
+        ?Comcal_Date_Time $latest_date
+    ) : bool {
+        if ( $event->get_start_date_time( $day )->is_in_date_range( $earliest_date, $latest_date ) ) {
+            return $event->get_field( 'joinDaily' ) || 0 === $day;
+        }
+        return false;
     }
 
     /**
