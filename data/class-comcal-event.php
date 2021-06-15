@@ -20,12 +20,13 @@ class Comcal_Event extends Comcal_Database_Table {
 
     public static function get_defaults() {
         return array(
-            'date'    => '2019-01-01',
-            'time'    => '12:00:00',
-            'eventId' => '',
-            'public'  => 0,
-            'created' => current_time( 'mysql' ),
-            'userid'  => Comcal_User_Capabilities::current_user_id(),
+            'date'      => '2019-01-01',
+            'time'      => '12:00:00',
+            'eventId'   => '',
+            'public'    => 0,
+            'created'   => current_time( 'mysql' ),
+            'userid'    => Comcal_User_Capabilities::current_user_id(),
+            'joinDaily' => 1,
         );
     }
 
