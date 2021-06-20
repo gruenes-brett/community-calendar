@@ -338,7 +338,8 @@ abstract class Comcal_Database_Table {
     private function init_entry_id() {
         $id_field_name = $this->get_id_field_name();
         if ( ! isset( $this->data->$id_field_name ) || '' === $this->data->$id_field_name ) {
-            $this->data->$id_field_name = uniqid( static::IDPREFIX, true );
+            $value                      = uniqid( static::IDPREFIX, true );
+            $this->data->$id_field_name = static::IDPREFIX . substr( md5( $value ), 0, 8 );
         }
     }
 
