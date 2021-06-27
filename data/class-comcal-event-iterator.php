@@ -40,17 +40,29 @@ class Comcal_Event_Iterator implements Iterator {
         $start_date = null,
         $end_date = null
     ) {
-        $event_rows = comcal_query_events(
+        $event_rows = Comcal_Query_Event_Rows::query_events_by_date(
             $category,
             $calendar_name,
             $start_date,
             $end_date
         );
+
         return new static( $event_rows );
     }
 
     public function __construct( $event_rows ) {
-        $this->event_rows = $event_rows;
+        // Remove duplicates.
+        $event_ids  = array();
+        $clean_rows = array();
+        foreach ( $event_rows as $row ) {
+            if ( in_array( $row->id, $event_ids, true ) ) {
+                continue;
+            }
+            $clean_rows[] = $row;
+            $event_ids[]  = $row->id;
+        }
+
+        $this->event_rows = $clean_rows;
         $this->positition = 0;
     }
 

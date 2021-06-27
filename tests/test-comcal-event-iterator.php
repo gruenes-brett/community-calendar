@@ -53,6 +53,15 @@ final class Comcal_Event_Iterator_Test extends TestCase {
         $this->assertFalse( $iterator->valid() );
     }
 
+    public function test_prevent_duplicates() {
+        $test_data   = create_testdata_basic();
+        $test_data[] = $test_data[0];
+        $iterator    = new Comcal_Event_Iterator( $test_data );
+
+        $this->assertEquals( 4, iterator_count( $iterator ) );
+
+    }
+
     public function test_multiday_event_iterator() {
         $iterator = new Comcal_Multiday_Event_Iterator( new Comcal_Event_Iterator( create_testdata_multiday() ) );
 

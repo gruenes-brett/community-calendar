@@ -7,7 +7,11 @@ require_once 'data/class-comcal-event-iterator.php';
 require_once 'view/class-comcal-events-display-builder.php';
 require_once 'view/class-comcal-event-renderer.php';
 
+$current_id = 0;
+
 function create_event_data( $title, $date, $date_end = null, $time = null, $join_daily = true ) {
+    global $current_id;
+    $current_id++;
     if ( null === $date_end ) {
         $date_end = $date;
     }
@@ -24,5 +28,7 @@ function create_event_data( $title, $date, $date_end = null, $time = null, $join
         'dateEnd'   => $date_end,
         'timeEnd'   => $time_end,
         'joinDaily' => $join_daily,
+
+        'id'        => $current_id,
     );
 }
