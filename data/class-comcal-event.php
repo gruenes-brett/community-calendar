@@ -251,19 +251,25 @@ function comcal_query_events(
     $evt_cat_table = Comcal_Event_Vs_Category::get_table_name();
 
     $where_conditions = array();
+    $where_query_args = array();
 
     // Which calendar?
-    $where_conditions[] = "($events_table.calendarName='$calendar_name' OR $events_table.calendarName='')";
+    if ( '' !== $calendar_name ) {
+        $where_conditions[] = "($events_table.calendarName=%s OR $events_table.calendarName='')";
+        $where_query_args[] = $calendar_name;
+    }
 
     // Which events?
     $which_events = array();
     if ( ! Comcal_User_Capabilities::administer_events() ) {
-        $which_events[] = "$events_table.public='1'";
+        $which_events[]     = "$events_table.public=%d";
+        $where_query_args[] = 1;
     }
     if ( Comcal_User_Capabilities::edit_own_events() && ! empty( $which_events ) ) {
         // Also select the current user's events that are private.
-        $userid         = Comcal_User_Capabilities::current_user_id();
-        $which_events[] = "$events_table.userid='$userid'";
+        $userid             = Comcal_User_Capabilities::current_user_id();
+        $which_events[]     = "$events_table.userid=%s";
+        $where_query_args[] = $userid;
     }
     if ( ! empty( $which_events ) ) {
         $where_conditions[] = '(' . implode( ' OR ', $which_events ) . ')';
@@ -271,10 +277,12 @@ function comcal_query_events(
 
     // What date range?
     if ( null !== $start_date ) {
-        $where_conditions[] = "$events_table.dateEnd >= '$start_date'";
+        $where_conditions[] = "$events_table.dateEnd >= %s";
+        $where_query_args[] = $start_date;
     }
     if ( null !== $end_date ) {
-        $where_conditions[] = "$events_table.date <= '$end_date'";
+        $where_conditions[] = "$events_table.date <= %s";
+        $where_query_args[] = $end_date;
     }
 
     if ( null === $category ) {
@@ -283,13 +291,21 @@ function comcal_query_events(
     } else {
         // Which category?
         $category_id        = $category->get_field( 'id' );
-        $where_conditions[] = "$evt_cat_table.category_id=$category_id";
+        $where_conditions[] = "$evt_cat_table.category_id=%s";
+        $where_query_args[] = $category_id;
 
         $where = Comcal_Database::where_and( $where_conditions );
         $query = "SELECT $events_table.* FROM $events_table "
         . "INNER JOIN $evt_cat_table ON $evt_cat_table.event_id=$events_table.id "
         . "$where ORDER BY $events_table.date, $events_table.time;";
     }
-    $rows = $wpdb->get_results( $query );
+
+    if ( $where_query_args ) {
+        $prepared_query = $wpdb->prepare( $query, $where_query_args );
+    } else {
+        $prepared_query = $query;
+    }
+
+    $rows = $wpdb->get_results( $prepared_query );
     return $rows;
 }
