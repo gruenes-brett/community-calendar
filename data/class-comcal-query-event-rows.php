@@ -37,6 +37,33 @@ class Comcal_Query_Event_Rows {
     }
 
     /**
+     * Query events from database, ordered by creation time
+     *
+     * @param Comcal_Category  $category Only a certain category.
+     * @param string           $calendar_name Name of the calendar.
+     * @param Comcal_Date_Time $start_date Range start.
+     * @param Comcal_Date_Time $end_date Range end.
+     *
+     * @return array Database query result.
+     */
+    public static function query_events_by_creation(
+        $category = null,
+        $calendar_name = '',
+        $start_date = null,
+        $end_date = null
+    ) {
+        return static::query_events(
+            $category,
+            $calendar_name,
+            $start_date,
+            $end_date,
+            array( 'created' ),
+            'DESC'
+        );
+    }
+
+
+    /**
      * Query events from database.
      *
      * @param Comcal_Category  $category Only a certain category.
