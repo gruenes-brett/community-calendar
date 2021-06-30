@@ -21,6 +21,14 @@ abstract class Comcal_Events_Display_Builder {
         'markdown' => 'Comcal_Markdown_Builder',
     );
 
+    /**
+     * Set to false in the concrete class to disable repeated event instances
+     * for multi-day events.
+     *
+     * @var bool
+     */
+    protected static bool $is_multiday = true;
+
     public static function add_style( $name, $class_name ) {
         self::$styles[ $name ] = $class_name;
     }
@@ -35,10 +43,19 @@ abstract class Comcal_Events_Display_Builder {
             $clazz = 'Comcal_Default_Display_Builder';
         }
         $builder           = new $clazz( $earliest_date, $latest_date );
-        $multiday_iterator = new Comcal_Multiday_Event_Iterator( $events_iterator );
-        foreach ( $multiday_iterator as list($event, $day) ) {
-            if ( static::is_event_visible( $event, $day, $earliest_date, $latest_date ) ) {
-                $builder->add_event( $event, $day );
+
+        if ( static::$is_multiday ) {
+            $multiday_iterator = new Comcal_Multiday_Event_Iterator( $events_iterator );
+            foreach ( $multiday_iterator as list($event, $day) ) {
+                if ( static::is_event_visible( $event, $day, $earliest_date, $latest_date ) ) {
+                    $builder->add_event( $event, $day );
+                }
+            }
+        } else {
+            foreach ( $events_iterator as $event ) {
+                if ( static::is_event_visible( $event, 0, $earliest_date, $latest_date ) ) {
+                    $builder->add_event( $event, 0 );
+                }
             }
         }
         return $builder;
@@ -218,7 +235,7 @@ class Comcal_Table_Builder extends Comcal_Default_Display_Builder {
      *
      * @param Comcal_Date_Time $date_time which day.
      * @param string           $text Content of the day.
-     * @param boolean          $is_new_day true if this is the first time the day is rendered.
+     * @param bool             $is_new_day true if this is the first time the day is rendered.
      */
     protected function create_day_row( $date_time, $text, $is_new_day = true ) {
         $date_str    = $is_new_day ? $date_time->get_short_weekday_and_day() : '';
