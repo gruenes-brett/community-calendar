@@ -198,6 +198,10 @@ class Comcal_Event extends Comcal_Database_Table {
         }
     }
 
+    public function get_end_date_time(): Comcal_Date_Time {
+        return Comcal_Date_Time::from_date_str_time_str( $this->get_field( 'dateEnd' ), $this->get_field( 'timeEnd' ) );
+    }
+
     public function get_created_date() : Comcal_Date_Time {
         $created = $this->get_field( 'created' );
         return Comcal_Date_Time::from_date_time_str( $created );
