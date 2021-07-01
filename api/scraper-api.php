@@ -13,23 +13,26 @@
  * @return array Imported event JSON data.
  */
 function comcal_api_import_event_url( $data ) {
-    $scraper_url = 'http://127.0.0.1:5010/api/scrape?';
-
-    $ch = curl_init( $scraper_url . http_build_query( $data->get_params() ) );
-    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-    curl_setopt( $ch, CURLOPT_HEADER, 0 );
-
-    $response = curl_exec( $ch );
-    $info     = curl_getinfo( $ch );
-    curl_close( $ch );
-    if ( false === $response ) {
-        return new WP_Error( 'import-event-url', "Could not reach $scraper_url", array( 'status' => 500 ) );
+    if ( ! isset( $data->get_params()['url'] ) ) {
+        return new WP_Error( 'import-event-url', "Expected parameter 'url'", array( 'status' => 500 ) );
     }
-    if ( 200 !== $info['http_code'] ) {
-        return new WP_Error( 'import-event-url', $response, array( 'status' => $info['http_code'] ) );
+
+    $url = $data->get_params()['url'];
+    if ( ! _comcal_check_valid_import_url( $url ) ) {
+        return new WP_Error( 'import-event-url', 'Es werden nur Facebook-Events unterstützt.', array( 'status' => 500 ) );
     }
-    $response_json = json_decode( $response );
-    return _comcal_transform_imported_event_json( $response_json->data );
+    $response = wp_remote_get( $url );
+
+    if ( is_wp_error( $response ) ) {
+        return new WP_Error( 'import-event-url', "Could not reach $url", array( 'status' => 500 ) );
+    }
+
+    try {
+        $response_json = _comcal_extract_event_data( $response['body'] );
+        return _comcal_transform_imported_event_json( $response_json );
+    } catch ( Exception $exception ) {
+        return new WP_Error( 'import-event-url', "Fehler bei der Datenverarbeitung: $exception", array( 'status' => 500 ) );
+    }
 }
 
 add_action(
@@ -67,4 +70,28 @@ function _comcal_transform_imported_event_json( $json ) {
         'dateEnd'     => $end->get_date_str(),
         'timeEnd'     => $end->get_time_str(),
     );
+}
+
+function _comcal_extract_event_data( $text ) {
+    $pattern = '/<script type="application\/ld\+json".*>(.*"startDate".*"name".*)<\/script>/';
+    $matches = array();
+    if ( false === preg_match( $pattern, $text, $matches ) ) {
+        return false;
+    }
+    return json_decode( $matches[1] );
+}
+
+/**
+ * Check if it is an URL that we are potentially able to import.
+ * Rules:
+ *  1. Must start with http:// or https://
+ *  2. Domain must be facebook.* or fb.me
+ *
+ * @param string $url URL to check.
+ * @return bool true if valid.
+ */
+function _comcal_check_valid_import_url( $url ) : bool {
+    $pattern = '/^https?:\/\/?([a-zA-Z-]*\.?facebook.*|fb\.me)/';
+    $result  = preg_match( $pattern, $url );
+    return false !== $result && $result > 0;
 }
