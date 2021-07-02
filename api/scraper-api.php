@@ -29,6 +29,9 @@ function comcal_api_import_event_url( $data ) {
 
     try {
         $response_json = _comcal_extract_event_data( $response['body'] );
+        if ( false === $response_json ) {
+            return new WP_Error( 'import-event-url', 'Es wurden keine Event-Informationen gefunden.', array( 'status' => 500 ) );
+        }
         return _comcal_transform_imported_event_json( $response_json );
     } catch ( Exception $exception ) {
         return new WP_Error( 'import-event-url', "Fehler bei der Datenverarbeitung: $exception", array( 'status' => 500 ) );
@@ -75,7 +78,8 @@ function _comcal_transform_imported_event_json( $json ) {
 function _comcal_extract_event_data( $text ) {
     $pattern = '/<script type="application\/ld\+json".*>(.*"startDate".*"name".*)<\/script>/';
     $matches = array();
-    if ( false === preg_match( $pattern, $text, $matches ) ) {
+    $result  = preg_match( $pattern, $text, $matches );
+    if ( false === $result || 0 === $result ) {
         return false;
     }
     return json_decode( $matches[1] );
