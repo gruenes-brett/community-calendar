@@ -8,6 +8,12 @@
 /**
  * REST API endpoint wp-json/comcal/v1/import-event-url
  *
+ * Returns the event data of a Facebook event as JSON.
+ *
+ * Parameters:
+ *          url   ... URL of Facebook event
+ *          debug ... If present, the raw response of the request will be returned.
+ *
  * @param object $data Request data.
  *
  * @return array Imported event JSON data.
@@ -17,16 +23,43 @@ function comcal_api_import_event_url( $data ) {
         return new WP_Error( 'import-event-url', "Expected parameter 'url'", array( 'status' => 500 ) );
     }
 
+    $debug = false;
+    if ( isset( $data->get_params()['debug'] ) ) {
+        $debug = true;
+    }
+
     $url = $data->get_params()['url'];
     if ( ! _comcal_check_valid_import_url( $url ) ) {
         return new WP_Error( 'import-event-url', 'Es werden nur Facebook-Events unterstützt.', array( 'status' => 500 ) );
     }
-    $response = wp_remote_get( $url );
+
+    // Define request headers.
+    $user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0';
+    $headers    = array(
+        'Content-Type'    => 'text/html; charset=utf-8',
+        'Accept'          => '*/*',
+        'Accept-Language' => 'en-US;q=0.5',
+        'User-Agent'      => $user_agent,
+    );
+
+    // Send request.
+    $response = wp_remote_get(
+        $url,
+        array(
+            'headers'    => $headers,
+            'user-agent' => $user_agent,
+        )
+    );
 
     if ( is_wp_error( $response ) ) {
         return new WP_Error( 'import-event-url', "Could not reach $url", array( 'status' => 500 ) );
     }
 
+    if ( $debug ) {
+        return $response;
+    }
+
+    // Evaluate response.
     try {
         $response_json = _comcal_extract_event_data( $response['body'] );
         if ( false === $response_json ) {
