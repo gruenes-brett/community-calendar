@@ -9,7 +9,7 @@
  * Category definition.
  */
 class Comcal_Category extends Comcal_Database_Table {
-    const IDPREFIX = 'category:';
+    const IDPREFIX = 'ct';
 
     public static function get_id_field_name() {
         return 'categoryId';
@@ -56,7 +56,7 @@ class Comcal_Category extends Comcal_Database_Table {
         return new self(
             array(
                 'name'       => $name,
-                'categoryId' => uniqid( self::IDPREFIX, true ),
+                'categoryId' => static::generate_id(),
                 'style'      => $style,
             )
         );

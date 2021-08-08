@@ -69,7 +69,7 @@ abstract class Comcal_Database_Table {
      * @var stdClass $data
      */
     protected $data = null;
-    const IDPREFIX  = 'x:';
+    const IDPREFIX  = 'xx';
 
     /**
      * Specifies table name.
@@ -338,9 +338,18 @@ abstract class Comcal_Database_Table {
     private function init_entry_id() {
         $id_field_name = $this->get_id_field_name();
         if ( ! isset( $this->data->$id_field_name ) || '' === $this->data->$id_field_name ) {
-            $value                      = uniqid( static::IDPREFIX, true );
-            $this->data->$id_field_name = static::IDPREFIX . substr( md5( $value ), 0, 8 );
+            $this->data->$id_field_name = $this->generate_id();
         }
+    }
+
+    /**
+     * Create a new random id.
+     *
+     * @return String Id value including prefix.
+     */
+    protected static function generate_id() {
+        $value = uniqid( static::IDPREFIX, true );
+        return static::IDPREFIX . substr( md5( $value ), 0, 8 );
     }
 
     /**

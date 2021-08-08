@@ -16,7 +16,7 @@ class Comcal_Event extends Comcal_Database_Table {
      */
     private $start_date_time = null;
 
-    const IDPREFIX = 'event:';
+    const IDPREFIX = 'ev';
 
     public static function get_defaults() {
         return array(
