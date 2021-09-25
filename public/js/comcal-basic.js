@@ -18,6 +18,7 @@ function scrollToToday(delay_ms) {
         // jQuery(window).scrollTop(pos.top - 40);
         $('html, body').delay(delay_ms).animate({scrollTop: pos.top - 85}, 500);
     }
+    $('button.scrollToToday').blur()
 }
 
 })(jQuery);
