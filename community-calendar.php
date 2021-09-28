@@ -24,7 +24,7 @@ if ( ! function_exists( 'add_action' ) ) {
     exit;
 }
 
-define( 'EVTCAL_VERSION', '0.0.1' );
+define( 'EVTCAL_VERSION', '0.0.2' );
 define( 'EVTCAL__MINIMUM_WP_VERSION', '5.2' );
 define( 'EVTCAL__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'EVTCAL__PLUGIN_URL', plugin_dir_url( __FILE__ ) );

@@ -150,6 +150,7 @@ table.community-calendar table.event.notPublic {
     line-height: 64px;
 
     right: 8px;
+    bottom: 16px;
 }
 
 .comcal-floating-button-container .comcal-floating-button.other {

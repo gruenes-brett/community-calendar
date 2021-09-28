@@ -2,6 +2,7 @@
     $(document).ready(function(){
         $('#comcal-copy-markdown').click(copyMarkdownToClipboard);
         $('button.scrollToToday').click(scrollToToday);
+        $('button.scrollToTop').click(scrollToTop);
     });
 
 function copyMarkdownToClipboard() {
@@ -9,16 +10,21 @@ function copyMarkdownToClipboard() {
     document.execCommand('copy');
 }
 
-/**
- * Implements the 'scroll up'-button behavior.
- */
-function scrollToToday(delay_ms) {
-    let pos = $('tr.today').offset();
+function scrollToPosition(position) {
+    $('html, body').delay(50).animate({scrollTop: position}, 500);
+}
+
+function scrollToToday() {
+    let pos = $('.today').offset();
     if (pos !== undefined) {
-        // jQuery(window).scrollTop(pos.top - 40);
-        $('html, body').delay(delay_ms).animate({scrollTop: pos.top - 85}, 500);
+        scrollToPosition(pos.top - 85);
     }
     $('button.scrollToToday').blur()
+}
+
+function scrollToTop() {
+    scrollToPosition(0);
+    $('button.scrollToTop').blur()
 }
 
 })(jQuery);
