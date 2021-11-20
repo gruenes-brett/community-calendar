@@ -22,6 +22,8 @@ git clone https://github.com/joergrs/community-calendar.git
 
 ## Usage
 
+The main purpose of this plugin is its usage together with the Grünes Brett WordPress Theme: https://github.com/gruenes-brett/webseite
+
 ### Integration into the Wordpress page
 
 The plugin introduces its functionality using short codes. Differently named calendars may
