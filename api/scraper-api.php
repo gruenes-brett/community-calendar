@@ -71,7 +71,7 @@ add_action(
  * @param string $url Event url.
  */
 function _comcal_request_event_via_service( $url ) {
-    $scraper_url = 'http://service.joedd.de/event-loader/api/scrape';
+    $scraper_url = 'http://127.0.0.1:5050/api/scrape';
     $response    = wp_remote_get(
         $scraper_url . '?' . http_build_query( array( 'url' => $url ) )
     );
