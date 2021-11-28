@@ -8,13 +8,13 @@
 
 /*
 Plugin Name: Community Calendar
-Plugin URI: https://github.com/joergrs/community-calendar
+Plugin URI: https://github.com/gruenes-brett/community-calendar
 Description: This plugin allows users to submit event to the website and display them in a calendar
 Author: Joerg Schroeter
 Version: 0.0.1
 Requires at least: 5.5
 Requires PHP: 7.2
-Author URI: https://github.com/joergrs
+Author URI: https://github.com/gruenes-brett
 License: GPL v3
 */
 

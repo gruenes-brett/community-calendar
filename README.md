@@ -16,7 +16,7 @@ site (usually `wp-content/plugins/`). The directory must be named `community-cal
 create this directory for you).
 ```
 cd <root_of_page>/wp-content/plugins
-git clone https://github.com/joergrs/community-calendar.git
+git clone https://github.com/gruenes-brett/community-calendar.git
 ```
 2. Activate the plugin in the the admin area of your page
 
