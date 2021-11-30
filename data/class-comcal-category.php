@@ -23,6 +23,24 @@ class Comcal_Category extends Comcal_Database_Table {
         return $wpdb->prefix . 'comcal_cats';
     }
 
+    /**
+     * Create a default set of categories if none exists.
+     */
+    public static function ensure_default_categories() {
+        if ( static::count() > 0 ) {
+            return;
+        }
+
+        static::create( 'Demo', '#40a4d8,white' )->store();
+        static::create( 'Diskussion', '#33beb8,white' )->store();
+        static::create( 'Exkursion', '#b2c225,white' )->store();
+        static::create( 'Online', '#fecc2f,white' )->store();
+        static::create( 'Pflegeeinsatz', '#f9a228,white' )->store();
+        static::create( 'Treffen', '#db3838,white' )->store();
+        static::create( 'Vortrag', '#ee657a,white' )->store();
+        static::create( 'Workshop', '#a363d9,white' )->store();
+    }
+
     protected static function get_create_table_query() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();

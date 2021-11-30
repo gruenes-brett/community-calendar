@@ -3,15 +3,15 @@
  * Community Calender plugin
  *
  * @package Community_Calendar
- * @version 0.0.1
+ * @version 0.0.2
  */
 
 /*
 Plugin Name: Community Calendar
 Plugin URI: https://github.com/gruenes-brett/community-calendar
 Description: This plugin allows users to submit event to the website and display them in a calendar
-Author: Joerg Schroeter
-Version: 0.0.1
+Author: Joerg Schroeter, Grünes Brett Team
+Version: 0.0.2
 Requires at least: 5.5
 Requires PHP: 7.2
 Author URI: https://github.com/gruenes-brett
@@ -92,6 +92,7 @@ add_action( 'plugins_loaded', array( 'Comcal_Database', 'update_check' ) );
  */
 function comcal_activation() {
     Comcal_Database::update_check();
+    Comcal_Category::ensure_default_categories();
 }
 register_activation_hook( __FILE__, 'comcal_activation' );
 
