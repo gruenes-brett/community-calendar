@@ -106,7 +106,7 @@ abstract class Comcal_Form {
 
         return <<<XML
             $before_html
-            <form action="$admin_ajax_url" $form_id_attribute data-controller="form" method="post">
+            <form action="$admin_ajax_url" $form_id_attribute method="post">
                 $nonce_field
                 <input name="action" value="$action_name" type="hidden">
 
