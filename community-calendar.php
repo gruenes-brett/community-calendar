@@ -3,7 +3,7 @@
  * Community Calender plugin
  *
  * @package Community_Calendar
- * @version 0.0.2
+ * @version 0.0.3
  */
 
 /*
@@ -11,9 +11,9 @@ Plugin Name: Community Calendar
 Plugin URI: https://github.com/gruenes-brett/community-calendar
 Description: This plugin allows users to submit event to the website and display them in a calendar
 Author: Joerg Schroeter, Grünes Brett Team
-Version: 0.0.2
+Version: 0.0.3
 Requires at least: 5.5
-Requires PHP: 7.2
+Requires PHP: 7.2,7.4
 Author URI: https://github.com/gruenes-brett
 License: GPL v3
 */
@@ -24,7 +24,7 @@ if ( ! function_exists( 'add_action' ) ) {
     exit;
 }
 
-define( 'EVTCAL_VERSION', '0.0.2' );
+define( 'EVTCAL_VERSION', '0.0.3' );
 define( 'EVTCAL__MINIMUM_WP_VERSION', '5.2' );
 define( 'EVTCAL__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'EVTCAL__PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -121,3 +121,25 @@ function comcal_warning( $text ) {
 function comcal_error( $text ) {
     error_log( 'ComCal-error: ' . $text );
 }
+
+/**
+ * Gets called before an Email is sent. Activates the SMTP configuration if
+ * option 'comcal_smtp_host` is set to the string 'true'.
+ *
+ * @param PHPMailer\PHPMailer\PHPMailer $phpmailer Mailer object.
+ */
+function send_smtp_email( $phpmailer ) {
+    $smtp_enabled = get_option( 'comcal_use_smtp' );
+    if ( 'true' === $smtp_enabled ) {
+        $phpmailer->isSMTP();
+        $phpmailer->Host       = get_option( 'comcal_smtp_host' );
+        $phpmailer->SMTPAuth   = get_option( 'comcal_smtp_auth' );
+        $phpmailer->Port       = get_option( 'comcal_smtp_port' );
+        $phpmailer->Username   = get_option( 'comcal_smtp_user' );
+        $phpmailer->Password   = get_option( 'comcal_smtp_pass' );
+        $phpmailer->SMTPSecure = get_option( 'comcal_smtp_secure' );
+        $phpmailer->From       = get_option( 'comcal_smtp_from' );
+        $phpmailer->FromName   = get_option( 'comcal_smtp_name' );
+    }
+}
+add_action( 'phpmailer_init', 'send_smtp_email' );
