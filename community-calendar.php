@@ -133,7 +133,7 @@ function send_smtp_email( $phpmailer ) {
     if ( 'true' === $smtp_enabled ) {
         $phpmailer->isSMTP();
         $phpmailer->Host       = get_option( 'comcal_smtp_host' );
-        $phpmailer->SMTPAuth   = get_option( 'comcal_smtp_auth' );
+        $phpmailer->SMTPAuth   = 'true' === get_option( 'comcal_smtp_auth' );
         $phpmailer->Port       = get_option( 'comcal_smtp_port' );
         $phpmailer->Username   = get_option( 'comcal_smtp_user' );
         $phpmailer->Password   = get_option( 'comcal_smtp_pass' );
