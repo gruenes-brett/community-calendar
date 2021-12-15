@@ -236,4 +236,18 @@ class Comcal_Event extends Comcal_Database_Table {
                ( Comcal_User_Capabilities::edit_own_events()
                  && Comcal_User_Capabilities::current_user_id() == $this->get_field( 'userid' ) );  // Non-strict comparison, because userid is retrieved as string.
     }
+
+    /**
+     * Returns whether this event instance has already passed.
+     *
+     * @param int $day Multi-day events only: which day of the event? Default: last day.
+     * @return bool Event has passed.
+     */
+    public function is_obsolete( $day = -1 ) {
+        if ( -1 === $day ) {
+            $day = $this->get_number_of_days() - 1;
+        }
+        $day_start_date = $this->get_start_date_time( $day );
+        return $day_start_date->is_day_less_than( Comcal_Date_Time::now() );
+    }
 }
