@@ -203,10 +203,10 @@ XML;
         }
 
         if ( $is_new_event ) {
-            Comcal_Event_Emailer::send_event_submitted_email( $event, Comcal_Event_Emailer::EVENT_SUBMITTER );
             if ( Comcal_User_Capabilities::administer_events() ) {
                 return array( 200, 'Event wurde angelegt.' );
             } else {
+                Comcal_Event_Emailer::send_event_submitted_email( $event, Comcal_Event_Emailer::EVENT_SUBMITTER );
                 return array(
                     200,
                     'Vielen Dank für deinen Eintrag! Nach einer Prüfung werden wir ihn '
