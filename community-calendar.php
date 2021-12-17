@@ -60,6 +60,10 @@ require_once EVTCAL__PLUGIN_DIR . 'edit/class-comcal-form.php';
 require_once EVTCAL__PLUGIN_DIR . 'edit/class-comcal-edit-event-form.php';
 require_once EVTCAL__PLUGIN_DIR . 'edit/class-comcal-edit-categories-form.php';
 
+// email.
+require_once EVTCAL__PLUGIN_DIR . 'email/class-comcal-email-templates.php';
+require_once EVTCAL__PLUGIN_DIR . 'email/class-comcal-event-emailer.php';
+
 // api.
 require_once EVTCAL__PLUGIN_DIR . 'api/scraper-api.php';
 require_once EVTCAL__PLUGIN_DIR . 'api/event-api.php';
