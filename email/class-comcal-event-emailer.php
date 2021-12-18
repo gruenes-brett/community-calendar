@@ -51,13 +51,36 @@ class Comcal_Event_Emailer {
      */
     public static function send_event_submitted_email( Comcal_Event $event, int $recipients ) {
 
+        $submitter_name = $event->get_field( 'submitterName' );
         if ( $recipients & self::EVENT_SUBMITTER ) {
-            list($subject, $body) = self::get_templates()->create_event_submitted_email_for_submitter( $event );
+            list($subject, $body) = self::get_templates()->create_event_submitted_email( $event, $submitter_name );
             wp_mail(
                 $event->get_field( 'submitterEmail' ),
                 $subject,
                 $body
             );
+        }
+
+        if ( $recipients & self::ALL_EDITORS ) {
+
+            $users = get_users(
+                array(
+                    'role'   => 'editor',
+                    'fields' => array(
+                        'display_name',
+                        'user_email',
+                    ),
+                )
+            );
+
+            foreach ( $users as $user ) {
+                list($subject, $body) = self::get_templates()->create_event_submitted_email( $event, $user->display_name );
+                wp_mail(
+                    $user->user_email,
+                    "$subject (von $submitter_name)",
+                    $body
+                );
+            }
         }
     }
 

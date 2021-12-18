@@ -23,18 +23,20 @@ class Comcal_Email_Templates {
      * Creates subject and body of an 'event submitted' email for the submitter of the event
      *
      * @param Comcal_Event $event The event.
+     * @param string       $recipient_name The name of the receiver of the email.
      * @return array subject and message.
      */
-    public function create_event_submitted_email_for_submitter( Comcal_Event $event ) {
+    public function create_event_submitted_email( Comcal_Event $event, string $recipient_name ) {
         $pretty  = new Comcal_Pretty_Event( $event );
-        $name    = $event->get_field( 'submitterName' );
         $link    = $this->create_event_link( $event );
         $message = <<<XML
-Hallo $name,
+Hallo $recipient_name,
 
 die Veranstaltung "{$pretty->title}" wurde eingetragen und wartet auf Freigabe.
 
 Link zur Veranstaltung: $link
+
+Danke!
 XML;
 
         $subject = 'Neue Veranstaltung eingetragen';
