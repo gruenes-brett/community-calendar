@@ -17,6 +17,7 @@ class Comcal_Query_Event_Rows {
      * @param string           $calendar_name Name of the calendar.
      * @param Comcal_Date_Time $start_date Range start.
      * @param Comcal_Date_Time $end_date Range end.
+     * @param int|null         $limit_userid Certain userid or any if null.
      *
      * @return array Database query result.
      */
@@ -24,13 +25,15 @@ class Comcal_Query_Event_Rows {
         $category = null,
         $calendar_name = '',
         $start_date = null,
-        $end_date = null
+        $end_date = null,
+        $limit_userid = null
     ) {
         return static::query_events(
             $category,
             $calendar_name,
             $start_date,
             $end_date,
+            $limit_userid,
             array( 'date', 'time' ),
             'ASC'
         );
@@ -43,6 +46,7 @@ class Comcal_Query_Event_Rows {
      * @param string           $calendar_name Name of the calendar.
      * @param Comcal_Date_Time $start_date Range start.
      * @param Comcal_Date_Time $end_date Range end.
+     * @param int|null         $limit_userid Certain userid or any if null.
      *
      * @return array Database query result.
      */
@@ -50,13 +54,15 @@ class Comcal_Query_Event_Rows {
         $category = null,
         $calendar_name = '',
         $start_date = null,
-        $end_date = null
+        $end_date = null,
+        $limit_userid = null
     ) {
         return static::query_events(
             $category,
             $calendar_name,
             $start_date,
             $end_date,
+            $limit_userid,
             array( 'created' ),
             'DESC'
         );
@@ -70,6 +76,7 @@ class Comcal_Query_Event_Rows {
      * @param string           $calendar_name Name of the calendar.
      * @param Comcal_Date_Time $start_date Range start.
      * @param Comcal_Date_Time $end_date Range end.
+     * @param int|null         $limit_userid Certain userid or any if null.
      * @param array            $order_by_columns list of columns in the ORDER BY statement.
      * @param string           $sort_direction ASC or DESC.
      *
@@ -80,6 +87,7 @@ class Comcal_Query_Event_Rows {
         $calendar_name,
         $start_date,
         $end_date,
+        $limit_userid,
         $order_by_columns,
         $sort_direction
     ) {
@@ -110,6 +118,12 @@ class Comcal_Query_Event_Rows {
         }
         if ( ! empty( $which_events ) ) {
             $where_conditions[] = '(' . implode( ' OR ', $which_events ) . ')';
+        }
+
+        // Limit by user?
+        if ( null !== $limit_userid ) {
+            $where_conditions[] = "$events_table.userid=%d";
+            $where_query_args[] = $limit_userid;
         }
 
         // What date range?

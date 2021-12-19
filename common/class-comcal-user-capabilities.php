@@ -13,6 +13,8 @@ class Comcal_User_Capabilities {
     /**
      * Returns whether the currently logged in user may edit other user's events.
      *
+     * This is admins and editors.
+     *
      * @return bool
      */
     public static function administer_events() : bool {
@@ -22,6 +24,8 @@ class Comcal_User_Capabilities {
     /**
      * Returns whether the currently logged in user may edit categories.
      *
+     * This is admins only.
+     *
      * @return bool
      */
     public static function edit_categories() : bool {
@@ -30,6 +34,8 @@ class Comcal_User_Capabilities {
 
     /**
      * Returns whether the currently logged in user may edit own events.
+     *
+     * This is admins, editors and authors.
      *
      * @return bool
      */
@@ -51,5 +57,15 @@ class Comcal_User_Capabilities {
      */
     public static function is_logged_in() {
         return 0 !== static::current_user_id();
+    }
+
+    /**
+     * Returns whether the currently logged in user may edit events.
+     * Either his own or others.
+     *
+     * This is admins, editors and authors.
+     */
+    public static function has_edit_privileges() {
+        return static::edit_own_events();
     }
 }
