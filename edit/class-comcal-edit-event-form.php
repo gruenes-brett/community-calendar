@@ -205,6 +205,13 @@ XML;
         if ( $is_new_event ) {
             if ( Comcal_User_Capabilities::administer_events() ) {
                 return array( 200, 'Event wurde angelegt.' );
+            } elseif ( $event->current_user_can_edit() ) {
+                // Send email to authors.
+                Comcal_Event_Emailer::send_event_submitted_email(
+                    $event,
+                    Comcal_Event_Emailer::EVENT_SUBMITTER
+                );
+                return array( 200, 'Event wurde angelegt.' );
             } else {
                 Comcal_Event_Emailer::send_event_submitted_email(
                     $event,
