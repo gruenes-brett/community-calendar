@@ -310,6 +310,15 @@ abstract class Comcal_Database_Table {
     }
 
     public function get_field( $name, $default = null ) {
+        assert(
+            in_array(
+                $name,
+                $this->get_all_field_names(),
+                true
+            ),
+            "Field $name does not exist in " . get_class( $this )
+        );
+
         if ( $name === $this->get_id_field_name() ) {
             // Make sure we have a valid id.
             $this->init_entry_id();
@@ -317,14 +326,14 @@ abstract class Comcal_Database_Table {
         if ( isset( $this->data->$name ) ) {
             return $this->data->$name;
         }
-        if ( 'id' === $name ) {
-            // update 'id' with value from database.
-            $temp_entry = static::query_by_entry_id( $this->get_entry_id() );
-            if ( null !== $temp_entry ) {
-                $this->data->id = $temp_entry->get_field( 'id' );
-                return $this->data->id;
-            }
+
+        // Check if entry exists in database.
+        $temp_entry = static::query_by_entry_id( $this->get_entry_id() );
+        if ( null !== $temp_entry ) {
+            $this->data->$name = $temp_entry->get_field( $name );
+            return $this->data->$name;
         }
+
         return $this->get_default( $name, $default );
     }
 

@@ -232,9 +232,14 @@ class Comcal_Event extends Comcal_Database_Table {
     }
 
     public function current_user_can_edit() {
-        return Comcal_User_Capabilities::administer_events() ||
-               ( Comcal_User_Capabilities::edit_own_events()
-                 && Comcal_User_Capabilities::current_user_id() == $this->get_field( 'userid' ) );  // Non-strict comparison, because userid is retrieved as string.
+        if ( Comcal_User_Capabilities::administer_events() ) {
+            return true;
+        }
+        if ( Comcal_User_Capabilities::edit_own_events() ) {
+            $current_user_id = Comcal_User_Capabilities::current_user_id();
+            return "$current_user_id" === $this->get_field( 'userid' );
+        }
+        return true;
     }
 
     /**
