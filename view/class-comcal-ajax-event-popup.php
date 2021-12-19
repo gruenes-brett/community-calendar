@@ -78,13 +78,17 @@ abstract class Comcal_Ajax_Event_Popup {
      * Returns an AJAX URL that will retrieve the popup HTML for the given $event.
      *
      * @param Comcal_Event $event Event Instance.
+     * @param bool         $create_copy Create URL that edits a copy of the event.
      * @return string Parameterized admin-ajax.php URL.
      */
-    public static function get_event_ajax_url( Comcal_Event $event ) {
+    public static function get_event_ajax_url( Comcal_Event $event, bool $create_copy = false ) {
         static::check_popup_initialized();
         $action = static::get_ajax_action_name();
         $url    = wp_nonce_url( admin_url( 'admin-ajax.php' ), $action, static::$nonce_name );
         $url    = add_query_arg( 'eventId', $event->get_entry_id(), $url );
+        if ( $create_copy ) {
+            $url = add_query_arg( 'copyEvent', 'true', $url );
+        }
         return add_query_arg( 'action', $action, $url );
     }
 
@@ -113,6 +117,10 @@ abstract class Comcal_Ajax_Event_Popup {
         if ( null === $event ) {
             static::render_bad_event( "Keine Event mit id $event_id vorhanden" );
             wp_die();
+        }
+
+        if ( isset( $_GET['copyEvent'] ) && 'true' === $_GET['copyEvent'] ) {
+            $event->duplicate();
         }
         static::render( $event );
         wp_die();
@@ -145,10 +153,11 @@ class Comcal_Featherlight_Event_Popup extends Comcal_Ajax_Event_Popup {
      * a popup with the details to $event.
      *
      * @param Comcal_Event $event Event instance.
+     * @param bool         $create_copy Create URL that edits a copy of the event.
      * @return string Attribute definition.
      */
-    public static function get_featherlight_attribute( Comcal_Event $event ) {
-        $url = static::get_event_ajax_url( $event );
+    public static function get_featherlight_attribute( Comcal_Event $event, bool $create_copy = false ) {
+        $url = static::get_event_ajax_url( $event, $create_copy );
         return "data-featherlight='$url'";
     }
 

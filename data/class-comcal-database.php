@@ -283,6 +283,14 @@ abstract class Comcal_Database_Table {
     }
 
     /**
+     * Duplicates the current event in memoiry by reassigning it a new ID. The duplicate still
+     * must be stored explicitely.
+     */
+    public function duplicate() {
+        $this->init_entry_id( true );
+    }
+
+    /**
      * Is called before storing the data to the database. Can be used to fill
      * empty or invalid fields with correct values.
      */
@@ -334,10 +342,12 @@ abstract class Comcal_Database_Table {
 
     /**
      * Initialize the id field with a random id, if not already set.
+     *
+     * @param bool $force Create a new ID even if it is set already.
      */
-    private function init_entry_id() {
+    private function init_entry_id( $force = false ) {
         $id_field_name = $this->get_id_field_name();
-        if ( ! isset( $this->data->$id_field_name ) || '' === $this->data->$id_field_name ) {
+        if ( $force || ! isset( $this->data->$id_field_name ) || '' === $this->data->$id_field_name ) {
             $this->data->$id_field_name = $this->generate_id();
         }
     }
