@@ -32,7 +32,7 @@ class Comcal_Event_Iterator implements Iterator {
      * @param Comcal_Date_Time $start_date Range start - null for all.
      * @param Comcal_Date_Time $end_date Range end - null for all.
      *
-     * @return array Database query result.
+     * @return Comcal_Event_Iterator Iterator inclucding database query result.
      */
     public static function load_from_database(
         $category = null,
@@ -66,7 +66,7 @@ class Comcal_Event_Iterator implements Iterator {
         $this->positition = 0;
     }
 
-    public function rewind() {
+    public function rewind() : void {
         $this->positition = 0;
     }
 
@@ -86,11 +86,11 @@ class Comcal_Event_Iterator implements Iterator {
         return $this->positition;
     }
 
-    public function next() {
+    public function next() : void {
         $this->positition++;
     }
 
-    public function valid() {
+    public function valid() : bool {
         return isset( $this->event_rows[ $this->positition ] );
     }
 }
@@ -129,7 +129,7 @@ class Comcal_Multiday_Event_Iterator implements Iterator {
         $this->event_iterator = $event_iterator;
     }
 
-    public function rewind() {
+    public function rewind() : void {
         $this->event_iterator->rewind();
         $this->initialize_stack();
     }
@@ -171,11 +171,11 @@ class Comcal_Multiday_Event_Iterator implements Iterator {
         return null;
     }
 
-    public function next() {
+    public function next() : void {
         $this->next_event_day = $this->next_event_instance();
     }
 
-    public function valid() {
+    public function valid() : bool {
         return null !== $this->next_event_day;
     }
 
