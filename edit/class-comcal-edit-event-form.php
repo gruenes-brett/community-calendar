@@ -56,7 +56,11 @@ class Comcal_Edit_Event_Form extends Comcal_Form {
     protected string $calendar_name;
 
     public function __construct( string $calendar_name = '', Comcal_Event $event = null ) {
-        $this->event         = $event ?? new Comcal_Event();
+        if ( null === $event || ! $event->current_user_can_edit() ) {
+            $this->event = new Comcal_Event();
+        } else {
+            $this->event = $event;
+        }
         $this->calendar_name = $calendar_name;
     }
 
