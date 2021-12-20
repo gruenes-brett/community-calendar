@@ -239,7 +239,7 @@ class Comcal_Event extends Comcal_Database_Table {
             $current_user_id = Comcal_User_Capabilities::current_user_id();
             return "$current_user_id" === $this->get_field( 'userid' );
         }
-        return true;
+        return false;
     }
 
     /**
