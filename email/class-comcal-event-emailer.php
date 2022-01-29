@@ -130,12 +130,25 @@ class Comcal_Email_Settings {
 
         update_user_meta( $user_id, 'comcal_email_settings', $email_settings );
     }
+
+    public static function is_email_settings_enabled( $user_id ) {
+        if ( ! Comcal_User_Capabilities::administer_events() ) {
+            return false;
+        }
+        if ( ! current_user_can( 'edit_user', $user_id ) ) {
+            return false;
+        }
+        $user_meta = get_userdata( $user_id );
+        return in_array( 'editor', $user_meta->roles, true )
+            || in_array( 'administrator', $user_meta->roles, true );
+    }
 }
 
 function comcal_user_email_settings_form( WP_User $user ) {
-    if ( ! Comcal_User_Capabilities::administer_events() ) {
+    if ( ! Comcal_Email_Settings::is_email_settings_enabled( $user->ID ) ) {
         return;
     }
+
     $email_settings = Comcal_Email_Settings::get_email_settings( $user->ID );
     $checked        = $email_settings['on_submitted'] ? 'checked' : 'unchecked';
     echo <<<XML
@@ -160,13 +173,9 @@ XML;
 
 add_action( 'show_user_profile', 'comcal_user_email_settings_form' ); // editing your own profile.
 add_action( 'edit_user_profile', 'comcal_user_email_settings_form' ); // editing another user.
-add_action( 'user_new_form', 'comcal_user_email_settings_form' ); // creating a new user.
 
 function comcal_user_email_settings_form_save( $user_id ) {
-    if ( ! Comcal_User_Capabilities::administer_events() ) {
-        return;
-    }
-    if ( ! current_user_can( 'edit_user', $user_id ) ) {
+    if ( ! Comcal_Email_Settings::is_email_settings_enabled( $user_id ) ) {
         return;
     }
 
@@ -179,4 +188,3 @@ function comcal_user_email_settings_form_save( $user_id ) {
 }
 add_action( 'personal_options_update', 'comcal_user_email_settings_form_save' );
 add_action( 'edit_user_profile_update', 'comcal_user_email_settings_form_save' );
-add_action( 'user_register', 'comcal_user_email_settings_form_save' );
