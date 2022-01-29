@@ -219,7 +219,7 @@ XML;
             } else {
                 Comcal_Event_Emailer::send_event_submitted_email(
                     $event,
-                    Comcal_Event_Emailer::EVENT_SUBMITTER | Comcal_Event_Emailer::ALL_EDITORS
+                    Comcal_Event_Emailer::EVENT_SUBMITTER | Comcal_Event_Emailer::ON_SUBMITTED
                 );
                 return array(
                     200,
