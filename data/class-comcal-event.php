@@ -146,6 +146,7 @@ class Comcal_Event extends Comcal_Database_Table {
             'calendarName'   => $this->get_field( 'calendarName' ),
             'imageUrl'       => $this->get_field( 'imageUrl' ),
             'number_of_days' => $this->get_number_of_days(),
+            'cancelled'      => $this->is_cancelled(),
         );
     }
     public static function get_text_field_names() {
