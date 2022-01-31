@@ -39,6 +39,7 @@ class Comcal_Edit_Event_Form extends Comcal_Form {
     protected static $boolean_fields = array(
         'public',
         'joinDaily',
+        'cancelled',
     );
 
     /**

@@ -27,6 +27,7 @@ class Comcal_Event extends Comcal_Database_Table {
             'created'   => current_time( 'mysql' ),
             'userid'    => Comcal_User_Capabilities::current_user_id(),
             'joinDaily' => 1,
+            'cancelled' => 0,
         );
     }
 
@@ -66,6 +67,7 @@ class Comcal_Event extends Comcal_Database_Table {
             'submitterEmail',
             'userid',
             'joinDaily',  // Multi-day event can be joined on any day.
+            'cancelled',
         );
     }
     public static function get_table_name() {
@@ -97,6 +99,7 @@ class Comcal_Event extends Comcal_Database_Table {
             submitterEmail varchar(1300) NOT NULL,
             userid mediumint(9) NOT NULL,
             joinDaily tinyint(2) DEFAULT 1 NOT NULL,
+            cancelled tinyint(2) DEFAULT 0 NOT NULL,
             PRIMARY KEY  (id)
             ) $charset_collate;";
         return $sql;
@@ -254,5 +257,9 @@ class Comcal_Event extends Comcal_Database_Table {
         }
         $day_start_date = $this->get_start_date_time( $day );
         return $day_start_date->is_day_less_than( Comcal_Date_Time::now() );
+    }
+
+    public function is_cancelled() {
+        return $this->get_field( 'cancelled' );
     }
 }
