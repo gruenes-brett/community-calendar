@@ -13,11 +13,11 @@ class Comcal_Query_Event_Rows {
     /**
      * Query events from database, ordered by date and time.
      *
-     * @param Comcal_Category  $category Only a certain category.
-     * @param string           $calendar_name Name of the calendar.
-     * @param Comcal_Date_Time $start_date Range start.
-     * @param Comcal_Date_Time $end_date Range end.
-     * @param int|null         $limit_userid Certain userid or any if null.
+     * @param Comcal_Category $category Only a certain category.
+     * @param string          $calendar_name Name of the calendar.
+     * @param string          $start_date Range start.
+     * @param string          $end_date Range end.
+     * @param int|null        $limit_userid Certain userid or any if null.
      *
      * @return array Database query result.
      */
@@ -42,12 +42,12 @@ class Comcal_Query_Event_Rows {
     /**
      * Query events from database, ordered by creation time
      *
-     * @param Comcal_Category  $category Only a certain category.
-     * @param string           $calendar_name Name of the calendar.
-     * @param Comcal_Date_Time $start_date Range start.
-     * @param Comcal_Date_Time $end_date Range end.
-     * @param int|null         $limit_userid Certain userid or any if null.
-     *
+     * @param Comcal_Category $category Only a certain category.
+     * @param string          $calendar_name Name of the calendar.
+     * @param string          $start_date Range start.
+     * @param string          $end_date Range end.
+     * @param int|null        $limit_userid Certain userid or any if null.
+
      * @return array Database query result.
      */
     public static function query_events_by_creation(

@@ -126,7 +126,7 @@ class Comcal_Event extends Comcal_Database_Table {
         return $categories[0];
     }
 
-    public function get_public_fields() {
+    public function get_public_fields() : array {
         /* returns fields and values for display */
         return array(
             'eventId'        => $this->get_field( 'eventId' ),
