@@ -22,7 +22,7 @@ function comcal_convert_urls_to_links( $input ) {
     return preg_replace( $pattern, '<a target="_blank" href="http$2://$3">$0</a>', $input );
 }
 
-function _comcal_query_event( $data ) {
+function _comcal_query_event_public_fields( $data ) {
     $event = Comcal_Event::query_by_entry_id( $data['eventId'] );
     if ( null === $event ) {
         return new WP_Error(
@@ -42,7 +42,7 @@ function _comcal_query_event( $data ) {
  * @return array Event JSON data.
  */
 function comcal_query_event_display( $data ) {
-    $result = _comcal_query_event( $data );
+    $result = _comcal_query_event_public_fields( $data );
 
     $result['description'] = comcal_convert_urls_to_links( $result['description'] );
     if ( ! empty( $result['url'] ) ) {
@@ -54,7 +54,9 @@ function comcal_query_event_display( $data ) {
     $result['prettyTime'] = $datetime->get_pretty_time();
     $result['weekday']    = $datetime->get_weekday();
     foreach ( Comcal_Event::get_text_field_names() as $name ) {
-        $result[ $name ] = nl2br( $result[ $name ] );
+        if ( isset( $result[ $name ] ) ) {
+            $result[ $name ] = nl2br( $result[ $name ] );
+        }
     }
     return $result;
 }
@@ -64,7 +66,7 @@ add_action(
         global $comcal_rest_route;
         register_rest_route(
             $comcal_rest_route,
-            'eventDisplay/(?P<eventId>event:[a-f0-9]+)',
+            'eventDisplay/(?P<eventId>ev[a-f0-9]+)',
             array(
                 'methods'             => 'GET',
                 'callback'            => 'comcal_query_event_display',
@@ -82,9 +84,11 @@ add_action(
  * @return array Event JSON data.
  */
 function comcal_query_event_raw( $data ) {
-    $result = _comcal_query_event( $data );
+    $result = _comcal_query_event_public_fields( $data );
     foreach ( Comcal_Event::get_text_field_names() as $name ) {
-        $result[ $name ] = htmlspecialchars_decode( $result[ $name ] );
+        if ( isset( $result[ $name ] ) ) {
+            $result[ $name ] = htmlspecialchars_decode( $result[ $name ] );
+        }
     }
     return $result;
 }
@@ -94,7 +98,7 @@ add_action(
         global $comcal_rest_route;
         register_rest_route(
             $comcal_rest_route,
-            '/eventRaw/(?P<eventId>event:[a-f0-9]+)',
+            '/eventRaw/(?P<eventId>ev[a-f0-9]+)',
             array(
                 'methods'             => 'GET',
                 'callback'            => 'comcal_query_event_raw',
