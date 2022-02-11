@@ -18,6 +18,7 @@ class Comcal_Query_Event_Rows {
      * @param string          $start_date Range start.
      * @param string          $end_date Range end.
      * @param int|null        $limit_userid Certain userid or any if null.
+     * @param string|null     $limit_organizer Limit to events by a specific organizer.
      *
      * @return array Database query result.
      */
@@ -26,7 +27,8 @@ class Comcal_Query_Event_Rows {
         $calendar_name = '',
         $start_date = null,
         $end_date = null,
-        $limit_userid = null
+        $limit_userid = null,
+        $limit_organizer = null
     ) {
         return static::query_events(
             $category,
@@ -35,7 +37,8 @@ class Comcal_Query_Event_Rows {
             $end_date,
             $limit_userid,
             array( 'date', 'time' ),
-            'ASC'
+            'ASC',
+            $limit_organizer
         );
     }
 
@@ -47,6 +50,7 @@ class Comcal_Query_Event_Rows {
      * @param string          $start_date Range start.
      * @param string          $end_date Range end.
      * @param int|null        $limit_userid Certain userid or any if null.
+     * @param string|null     $limit_organizer Limit to events by a specific organizer.
 
      * @return array Database query result.
      */
@@ -55,7 +59,8 @@ class Comcal_Query_Event_Rows {
         $calendar_name = '',
         $start_date = null,
         $end_date = null,
-        $limit_userid = null
+        $limit_userid = null,
+        $limit_organizer = null
     ) {
         return static::query_events(
             $category,
@@ -64,7 +69,8 @@ class Comcal_Query_Event_Rows {
             $end_date,
             $limit_userid,
             array( 'created' ),
-            'DESC'
+            'DESC',
+            $limit_organizer
         );
     }
 
@@ -79,6 +85,7 @@ class Comcal_Query_Event_Rows {
      * @param int|null         $limit_userid Certain userid or any if null.
      * @param array            $order_by_columns list of columns in the ORDER BY statement.
      * @param string           $sort_direction ASC or DESC.
+     * @param string|null      $limit_organizer Limit to events by a specific organizer.
      *
      * @return array Database query result.
      */
@@ -89,7 +96,8 @@ class Comcal_Query_Event_Rows {
         $end_date,
         $limit_userid,
         $order_by_columns,
-        $sort_direction
+        $sort_direction,
+        $limit_organizer = null
     ) {
         global $wpdb;
         $events_table  = Comcal_Event::get_table_name();
@@ -134,6 +142,12 @@ class Comcal_Query_Event_Rows {
         if ( null !== $end_date ) {
             $where_conditions[] = "$events_table.date <= %s";
             $where_query_args[] = $end_date;
+        }
+
+        // Limit by organizer?
+        if ( null !== $limit_organizer ) {
+            $where_conditions[] = "$events_table.organizer = %s";
+            $where_query_args[] = $limit_organizer;
         }
 
         if ( null === $category ) {

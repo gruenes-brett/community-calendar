@@ -24,6 +24,12 @@ $comcal_rest_route = 'comcal/v1';
  * Error container for API errors.
  */
 class Comcal_Api_Error extends Exception {
+
+    /**
+     * Error code.
+     *
+     * @var string
+     */
     public string $id;
 
     public function __construct( $message, $code, $id ) {
@@ -183,6 +189,53 @@ add_action(
             array(
                 'methods'             => 'GET',
                 'callback'            => 'comcal_api_query_event_by_category',
+                'permission_callback' => '__return_true',
+            )
+        );
+    }
+);
+
+
+/**
+ * API method that returns event data. Filtered by organizer.
+ *
+ * @param WP_REST_Request $data JSON data containing an 'organizerName' key.
+ *
+ * @return array Events JSON data.
+ */
+function comcal_api_query_event_by_organizer( WP_REST_Request $data ) {
+    return _comcal_api_execute(
+        function() use ( $data ) {
+            $organizer_name = urldecode( $data['organizerName'] );
+
+            $events = new Comcal_Event_Iterator(
+                Comcal_Query_Event_Rows::query_events_by_date(
+                    null,
+                    '',
+                    Comcal_Date_time::now()->get_date_str(),
+                    null,
+                    null,
+                    $organizer_name
+                )
+            );
+            $result = array();
+            foreach ( $events as $event ) {
+                $result[] = _comcal_get_event_public_data_as_json( $event, $data->has_param( 'display' ) );
+            }
+            return $result;
+        }
+    );
+}
+add_action(
+    'rest_api_init',
+    function () {
+        global $comcal_rest_route;
+        register_rest_route(
+            $comcal_rest_route,
+            '/event/byOrganizer/(?P<organizerName>.+)',
+            array(
+                'methods'             => 'GET',
+                'callback'            => 'comcal_api_query_event_by_organizer',
                 'permission_callback' => '__return_true',
             )
         );
