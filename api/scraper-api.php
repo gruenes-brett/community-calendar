@@ -25,7 +25,7 @@ function comcal_api_import_event_url( $data ) {
 
     $url = $data->get_params()['url'];
     if ( ! _comcal_check_valid_import_url( $url ) ) {
-        return new WP_Error( 'import-event-url', 'Es werden nur Facebook-Events unterstützt.', array( 'status' => 500 ) );
+        return new WP_Error( 'import-event-url', 'Events von der angegeben URL werden nicht unterstützt!', array( 'status' => 500 ) );
     }
 
     $response_json = _comcal_request_event_via_service( $url );
@@ -113,7 +113,7 @@ function _comcal_transform_imported_event_json( $json ) {
  * @return bool true if valid.
  */
 function _comcal_check_valid_import_url( $url ) : bool {
-    $pattern = '/^https?:\/\/([a-zA-Z-]*\.?facebook.*|fb\.me|.*bund-sachsen.de.*)/';
+    $pattern = '/^https?:\/\/([a-zA-Z-]*\.?facebook.*|fb\.me|.*bund-[a-zA-Z].*.de.*)/';
     $result  = preg_match( $pattern, $url );
     return false !== $result && $result > 0;
 }
