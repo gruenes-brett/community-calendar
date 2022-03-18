@@ -90,7 +90,7 @@ function _comcal_transform_imported_event_json( $json ) {
     }
     return array(
         'title'       => $json->title ?? '',
-        // 'organizer' ...
+        'organizer'   => $json->organizer ?? '',
         'address'     => $json->address ?? '',
         'location'    => $json->location ?? '',
         'description' => $json->description ?? '',
