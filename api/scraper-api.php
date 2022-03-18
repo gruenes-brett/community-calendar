@@ -28,11 +28,7 @@ function comcal_api_import_event_url( $data ) {
         return new WP_Error( 'import-event-url', 'Es werden nur Facebook-Events unterstützt.', array( 'status' => 500 ) );
     }
 
-    if ( isset( $data->get_params()['direct'] ) ) {
-        $response_json = _comcal_request_facebook_event( $url );
-    } else {
-        $response_json = _comcal_request_event_via_service( $url );
-    }
+    $response_json = _comcal_request_event_via_service( $url );
 
     if ( is_wp_error( $response_json ) ) {
         return $response_json;
@@ -81,67 +77,22 @@ function _comcal_request_event_via_service( $url ) {
 }
 
 /**
- * Directly query event data from Facebook.
- *
- * @param string $url Event url.
- */
-function _comcal_request_facebook_event( $url ) {
-    // Define request headers.
-    $user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0';
-    $headers    = array(
-        'Content-Type'    => 'text/html; charset=utf-8',
-        'Accept'          => '*/*',
-        'Accept-Language' => 'en-US;q=0.5',
-        'User-Agent'      => $user_agent,
-    );
-
-    // Send request.
-    $response = wp_remote_get(
-        $url,
-        array(
-            'headers'    => $headers,
-            'user-agent' => $user_agent,
-        )
-    );
-
-    if ( is_wp_error( $response ) ) {
-        return new WP_Error( 'import-event-url', "Could not reach $url", array( 'status' => 500 ) );
-    }
-    $response_json = _comcal_extract_event_data( $response['body'] );
-    return $response_json;
-}
-
-/**
- * Find event JSON data within Facebook page.
- *
- * @param string $text Event page HTML.
- */
-function _comcal_extract_event_data( $text ) {
-    $pattern = '/<script type="application\/ld\+json".*>(.*"startDate".*"name".*)<\/script>/';
-    $matches = array();
-    $result  = preg_match( $pattern, $text, $matches );
-    if ( false === $result || 0 === $result ) {
-        return false;
-    }
-    return json_decode( $matches[1] );
-}
-
-/**
  * Transform Facebook-JSON to JSON that is compatible with Community Calendar.
  *
  * @param stdClass $json JSON as parsed from Facebook event.
  */
 function _comcal_transform_imported_event_json( $json ) {
-    $start = Comcal_Date_Time::from_date_time_str( $json->startDate );
-    if ( isset( $json->endDate ) ) {
-        $end = Comcal_Date_Time::from_date_time_str( $json->endDate );
+    $start = Comcal_Date_Time::from_date_time_str( $json->start_date );
+    if ( isset( $json->end_date ) ) {
+        $end = Comcal_Date_Time::from_date_time_str( $json->end_date );
     } else {
         $end = $start;
     }
     return array(
-        'title'       => $json->name ?? '',
+        'title'       => $json->title ?? '',
         // 'organizer' ...
-        'location'    => $json->location->name ?? 'keine Ortsangabe',
+        'address'     => $json->address ?? '',
+        'location'    => $json->location ?? '',
         'description' => $json->description ?? '',
         'url'         => $json->url ?? '',
 
@@ -162,7 +113,7 @@ function _comcal_transform_imported_event_json( $json ) {
  * @return bool true if valid.
  */
 function _comcal_check_valid_import_url( $url ) : bool {
-    $pattern = '/^https?:\/\/?([a-zA-Z-]*\.?facebook.*|fb\.me)/';
+    $pattern = '/^https?:\/\/([a-zA-Z-]*\.?facebook.*|fb\.me|.*bund-sachsen.de.*)/';
     $result  = preg_match( $pattern, $url );
     return false !== $result && $result > 0;
 }
