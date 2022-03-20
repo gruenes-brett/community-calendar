@@ -113,7 +113,7 @@ function _comcal_transform_imported_event_json( $json ) {
  * @return bool true if valid.
  */
 function _comcal_check_valid_import_url( $url ) : bool {
-    $pattern = '/^https?:\/\/([a-zA-Z-]*\.?facebook.*|fb\.me|.*bund-[a-zA-Z].*.de.*)/';
+    $pattern = '/^https?:\/\/([a-zA-Z-]*\.?facebook.*|fb\.me|.*bund-[a-zA-Z].*.de.*|.*adfc.de\/.*)/';
     $result  = preg_match( $pattern, $url );
     return false !== $result && $result > 0;
 }
