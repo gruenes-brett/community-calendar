@@ -241,7 +241,7 @@ class Comcal_Event extends Comcal_Database_Table {
         }
         if ( Comcal_User_Capabilities::edit_own_events() ) {
             $current_user_id = Comcal_User_Capabilities::current_user_id();
-            return "$current_user_id" === $this->get_field( 'userid' );
+            return "$current_user_id" === "{$this->get_field( 'userid' )}";
         }
         return false;
     }
@@ -262,5 +262,9 @@ class Comcal_Event extends Comcal_Database_Table {
 
     public function is_cancelled() {
         return $this->get_field( 'cancelled' );
+    }
+
+    public function is_public() {
+        return $this->get_field( 'public' );
     }
 }
