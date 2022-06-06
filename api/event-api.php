@@ -14,6 +14,9 @@
  *      - example.com/wp-json/comcal/v1/event/byCategory/Whatever
  *          -> Return all events that belong to a certain category
  *
+ *      - example.com/wp-json/comcal/v1/event/all/
+ *          -> Show all future events (may be many)
+ *
  * @package Community_Calendar
  */
 
@@ -151,6 +154,46 @@ add_action(
     }
 );
 
+
+/**
+ * API method that returns event data for all future events.
+ *
+ * @param WP_REST_Request $data JSON data containing an 'categoryName' key.
+ *
+ * @return array Events JSON data.
+ */
+function comcal_api_query_all_events( WP_REST_Request $data ) {
+    return _comcal_api_execute(
+        function() use ( $data ) {
+            $events = Comcal_Event_Iterator::load_from_database(
+                null,
+                '',
+                Comcal_Date_time::now()->get_date_str(),
+                null
+            );
+            $result = array();
+            foreach ( $events as $event ) {
+                $result[] = _comcal_get_event_public_data_as_json( $event, $data->has_param( 'display' ) );
+            }
+            return $result;
+        }
+    );
+}
+add_action(
+    'rest_api_init',
+    function () {
+        global $comcal_rest_route;
+        register_rest_route(
+            $comcal_rest_route,
+            '/event/all/',
+            array(
+                'methods'             => 'GET',
+                'callback'            => 'comcal_api_query_all_events',
+                'permission_callback' => '__return_true',
+            )
+        );
+    }
+);
 
 /**
  * API method that returns event data. Filtered by category.
