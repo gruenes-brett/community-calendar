@@ -67,6 +67,11 @@ require_once EVTCAL__PLUGIN_DIR . 'email/class-comcal-event-emailer.php';
 require_once EVTCAL__PLUGIN_DIR . 'api/scraper-api.php';
 require_once EVTCAL__PLUGIN_DIR . 'api/event-api.php';
 
+// telegram.
+require_once EVTCAL__PLUGIN_DIR . 'telegram/class-telegram-options.php';
+require_once EVTCAL__PLUGIN_DIR . 'telegram/class-telegram-bot-agent.php';
+require_once EVTCAL__PLUGIN_DIR . 'telegram/class-comcal-telegram-messaging.php';
+
 /**
  * Enqueue scripts and styles.
  */
