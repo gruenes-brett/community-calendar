@@ -72,6 +72,10 @@ require_once EVTCAL__PLUGIN_DIR . 'telegram/class-telegram-options.php';
 require_once EVTCAL__PLUGIN_DIR . 'telegram/class-telegram-bot-agent.php';
 require_once EVTCAL__PLUGIN_DIR . 'telegram/class-comcal-telegram-messaging.php';
 
+// markdown.
+require_once EVTCAL__PLUGIN_DIR . 'view/markdown/class-comcal-markdown-builder.php';
+require_once EVTCAL__PLUGIN_DIR . 'view/markdown/class-comcal-markdown-event-renderer.php';
+
 /**
  * Enqueue scripts and styles.
  */

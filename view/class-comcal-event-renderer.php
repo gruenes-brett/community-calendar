@@ -97,21 +97,3 @@ XML;
     }
 
 }
-
-/**
- * Renders event as markdown.
- */
-class Comcal_Markdown_Event_Renderer extends Comcal_Event_Renderer {
-    public function render( Comcal_Event $event, int $day ) : string {
-        $date_time = $event->get_start_date_time();
-
-        $md  = '**' . $date_time->get_humanized_time() . '** ';
-        $md .= $event->get_field( 'organizer' );
-        $md .= ' | ';
-        $md .= $event->get_field( 'title' );
-        $md .= ' ';
-        $md .= $event->get_field( 'url' );
-
-        return $md;
-    }
-}

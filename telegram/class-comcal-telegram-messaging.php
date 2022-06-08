@@ -15,9 +15,47 @@ class Comcal_Telegram_Messaging {
             return;
         }
 
-        // TODO: gather events of next day and send to channel
-        // $bot = new Telegram_Bot_Agent();
-        // $bot->send_message_to_channel( 'some text' );
+        $bot = new Telegram_Bot_Agent();
+        // $bot->send_message_to_channel( self::get_events_markdown( 'weekly' ) );
+        // $bot->send_message_to_channel('blubb');
+    }
+
+    private static function get_start_end_dates( $schedule ): array {
+        if ( 'daily' === $schedule ) {
+            $today = Comcal_Date_Time::now();
+            return array( $today, $today );
+        } elseif ( 'weekly' === $schedule ) {
+            $today = Comcal_Date_Time::now();
+            return array( $today, $today->get_next_day( 6 ) );
+        } else {
+            return array( null, null );
+        }
+    }
+
+    private static function get_events_markdown( $schedule ): string {
+        list( $start, $end ) = self::get_start_end_dates( $schedule );
+        if ( null === $start ) {
+            return "bad schedule $schedule";
+        }
+        $builder = Comcal_Markdown_Builder::get_instance( $start, $end );
+        $header  = self::get_header_markdown( $schedule );
+        return $header . $builder->get_html();
+    }
+
+    private static function get_header_markdown( $schedule ): string {
+        list( $start, $end ) = self::get_start_end_dates( $schedule );
+        if ( null === $start ) {
+            return "bad schedule $schedule";
+        }
+        $pretty_start = Comcal_Markdown_Builder::esc_markdown_all( $start->format( 'd.m.' ) );
+        $pretty_end   = Comcal_Markdown_Builder::esc_markdown_all( $end->format( 'd.m.' ) );
+        $header       = '🗓 ';
+        if ( 'daily' === $schedule ) {
+            $header .= "*Veranstaltungen am $pretty_start:*\n\n";
+        } elseif ( 'weekly' === $schedule ) {
+            $header .= "*Woche vom $pretty_start bis $pretty_end:*\n\n";
+        }
+        return $header;
     }
 }
 

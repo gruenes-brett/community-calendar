@@ -19,7 +19,7 @@ class Telegram_Bot_Agent {
     }
 
     private function post( $endpoint, array $data ) {
-        $args = array(
+        $args     = array(
             'body'        => json_encode( $data ),
             'headers'     => array(
                 'Content-Type' => 'application/json; charset=utf-8',
@@ -30,10 +30,14 @@ class Telegram_Bot_Agent {
         );
         $response = wp_remote_post( $this->get_url( $endpoint ), $args );
         if ( is_wp_error( $response ) ) {
-            return $response->errors;
+            return $response;
         } else {
-            $body = wp_remote_retrieve_body( $response );
-            return json_decode( $body );
+            $body          = wp_remote_retrieve_body( $response );
+            $json_response = json_decode( $body );
+            if ( ! $json_response->ok ) {
+                throw new Exception( $json_response->description );
+            }
+            return $json_response;
         }
     }
 
@@ -43,6 +47,6 @@ class Telegram_Bot_Agent {
             'text'       => $message,
             'parse_mode' => 'markdownV2',
         );
-        $this->post( 'sendMessage', $data );
+        return $this->post( 'sendMessage', $data );
     }
 }
