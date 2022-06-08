@@ -27,10 +27,10 @@ class Comcal_Event_Iterator implements Iterator {
     /**
      * Query database and initalize iterator.
      *
-     * @param Comcal_Category  $category Only a certain category.
-     * @param string           $calendar_name Name of the calendar.
-     * @param Comcal_Date_Time $start_date Range start - null for all.
-     * @param Comcal_Date_Time $end_date Range end - null for all.
+     * @param Comcal_Category         $category Only a certain category.
+     * @param string                  $calendar_name Name of the calendar.
+     * @param Comcal_Date_Time|string $start_date Range start - null for all.
+     * @param Comcal_Date_Time|string $end_date Range end - null for all.
      *
      * @return Comcal_Event_Iterator Iterator inclucding database query result.
      */
@@ -40,6 +40,12 @@ class Comcal_Event_Iterator implements Iterator {
         $start_date = null,
         $end_date = null
     ) {
+        if ( is_a( $start_date, 'Comcal_Date_Time' ) ) {
+            $start_date = $start_date->get_date_str();
+        }
+        if ( is_a( $end_date, 'Comcal_Date_Time' ) ) {
+            $end_date = $end_date->get_date_str();
+        }
         $event_rows = Comcal_Query_Event_Rows::query_events_by_date(
             $category,
             $calendar_name,
