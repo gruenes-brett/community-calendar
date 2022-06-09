@@ -29,6 +29,13 @@ class Comcal_Pretty_Event extends stdClass {
     protected $fields;
 
     /**
+     * If set to false, HTML entities in text fields will be unescaped.
+     *
+     * @var bool
+     */
+    protected $html_mode;
+
+    /**
      * A callback map that maps custom field names to functions that generate
      * pretty names.
      *
@@ -50,13 +57,13 @@ class Comcal_Pretty_Event extends stdClass {
      */
     protected function initialize_prettier_map() {
         $map = array(
-            'prettyDate' => function() {
+            'prettyDate'     => function() {
                 return $this->datetime->get_pretty_date();
             },
-            'prettyTime' => function() {
+            'prettyTime'     => function() {
                 return $this->datetime->get_pretty_time();
             },
-            'weekday'    => function() {
+            'weekday'        => function() {
                 return $this->datetime->get_weekday();
             },
             'humanized_time' => function() {
@@ -69,12 +76,13 @@ class Comcal_Pretty_Event extends stdClass {
         };
 
         $map['url_or_permalink'] = function() {
-            return $this->fields['url'] ? $this->fields['url'] : $this->permalink;
+            return $this->url ? $this->url : $this->permalink;
         };
         return $map;
     }
 
-    public function __construct( Comcal_Event $event ) {
+    public function __construct( Comcal_Event $event, bool $html_mode = true ) {
+        $this->html_mode    = $html_mode;
         $this->fields       = $event->get_public_fields();
         $this->datetime     = Comcal_Date_Time::from_date_str_time_str(
             $this->fields['date'],
@@ -121,7 +129,11 @@ class Comcal_Pretty_Event extends stdClass {
             if ( $this->is_url( $name ) ) {
                 $value = esc_url( $value );
             } elseif ( is_string( $value ) ) {
-                $value = nl2br( $value );
+                if ( $this->html_mode ) {
+                    $value = nl2br( $value );
+                } else {
+                    $value = htmlspecialchars_decode( $value );
+                }
             }
             return $value;
         }

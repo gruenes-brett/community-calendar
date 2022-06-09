@@ -10,7 +10,7 @@
  */
 class Comcal_Markdown_Event_Renderer extends Comcal_Event_Renderer {
     public function render( Comcal_Event $event, int $day ) : string {
-        $pretty_event = new Comcal_Pretty_Event( $event );
+        $pretty_event = new Comcal_Pretty_Event( $event, false );
 
         $organizer = Comcal_Markdown_Builder::esc_markdown_all( $pretty_event->organizer );
         if ( $organizer ) {
