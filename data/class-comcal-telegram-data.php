@@ -62,7 +62,11 @@ class Comcal_Telegram_Data extends Comcal_Database_Table {
         return new self( $row );
     }
 
-    public static function create_from_response( Comcal_Date_Time $orignal_message_date, stdClass $response_json ) {
+    public static function create_from_response(
+        Comcal_Date_Time $orignal_message_date,
+        string $message_text,
+        stdClass $response_json
+    ) {
         $new = new self(
             array(
                 'original_message_date' => $orignal_message_date->get_database_timestamp(),
@@ -70,7 +74,7 @@ class Comcal_Telegram_Data extends Comcal_Database_Table {
                 'chat_id'               => $response_json->result->chat->id,
             )
         );
-        $new->update_from_response( $response_json );
+        $new->update_from_response( $message_text, $response_json );
         return $new;
     }
 
@@ -78,10 +82,10 @@ class Comcal_Telegram_Data extends Comcal_Database_Table {
         return $this->get_field( 'message_id' );
     }
 
-    public function update_from_response( stdClass $response_json ) {
+    public function update_from_response( string $message_text, stdClass $response_json ) {
         $data = array(
             'last_update_date'     => current_time( 'mysql' ),
-            'last_message_content' => $response_json->result->text,
+            'last_message_content' => $message_text,
             'response'             => json_encode( $response_json ),
         );
         foreach ( $data as $name => $value ) {

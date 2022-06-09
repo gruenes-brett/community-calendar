@@ -38,15 +38,22 @@ class Comcal_Telegram_Messaging {
             // Post a new message.
             $response = $bot_agent->send_message( $new_text );
             if ( $response->ok ) {
-                $new_message = Comcal_Telegram_Data::create_from_response( $today, $response );
+                $new_message = Comcal_Telegram_Data::create_from_response( $today, $new_text, $response );
                 $new_message->store();
             }
         } elseif ( $new_text !== $old_message->get_last_message_content() ) {
             // Update an old message.
-            $response = $bot_agent->update_message( $old_message->get_message_id(), $new_text );
-            if ( $response->ok ) {
-                $old_message->update_from_response( $response );
-                $old_message->store();
+            try {
+                $response = $bot_agent->update_message( $old_message->get_message_id(), $new_text );
+                if ( $response->ok ) {
+                    $old_message->update_from_response( $new_text, $response );
+                    $old_message->store();
+                }
+            } catch ( TelegramException $e ) {
+                if ( 'Bad Request: MESSAGE_ID_INVALID' === $e->getMessage() ) {
+                    // Original message was removed from Telegram Channel. Delete from database.
+                    $old_message->delete();
+                }
             }
         }
     }

@@ -346,7 +346,7 @@ abstract class Comcal_Database_Table {
     }
 
     public function set_field( $name, $value ) {
-        if ( $this->data->$name !== $value ) {
+        if ( ! isset( $this->data->$name ) || $this->data->$name !== $value ) {
             $this->data->$name = $value;
             return true;
         }

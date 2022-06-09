@@ -35,7 +35,7 @@ class Telegram_Bot_Agent {
             $body          = wp_remote_retrieve_body( $response );
             $json_response = json_decode( $body );
             if ( ! $json_response->ok ) {
-                throw new Exception( $json_response->description );
+                throw new TelegramException( $json_response->description, $json_response );
             }
             return $json_response;
         }
@@ -60,5 +60,12 @@ class Telegram_Bot_Agent {
             'disable_web_page_preview' => true,
         );
         return $this->post( 'editMessageText', $data );
+    }
+}
+
+class TelegramException extends Exception {
+    public function __construct( $message, $response_json ) {
+        parent::__construct( $message );
+        $this->response_json = $response_json;
     }
 }
