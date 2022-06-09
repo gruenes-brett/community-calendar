@@ -15,7 +15,7 @@ class Comcal_Category extends Comcal_Database_Table {
         return 'categoryId';
     }
     public static function get_all_field_names() {
-        return array( 'categoryId', 'name', 'style' );
+        return array( 'categoryId', 'name', 'style', 'id' );
     }
 
     public static function get_table_name() {
@@ -149,7 +149,7 @@ class Comcal_Event_Vs_Category extends Comcal_Database_Table {
         return $sql;
     }
     public static function get_all_field_names() {
-        return array( 'event_id', 'category_id', 'is_primary_category' );
+        return array( 'event_id', 'category_id', 'is_primary_category', 'id' );
     }
     public static function get_id_field_name() {
         // no specific id-field.
@@ -167,7 +167,7 @@ class Comcal_Event_Vs_Category extends Comcal_Database_Table {
         );
         return ! empty( $row );
     }
-    public static function get_categories( $event, $primary_only = false ) {
+    public static function get_categories( Comcal_Event $event, $primary_only = false ) {
         $cats_table = Comcal_Category::get_table_name();
         $event_id   = $event->get_field( 'id' );
         $where      = '[T].event_id=%d';

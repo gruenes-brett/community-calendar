@@ -23,6 +23,7 @@ class Comcal_Telegram_Data extends Comcal_Database_Table {
     }
     public static function get_all_field_names() {
         return array(
+            'id',
             'identifier',
             'original_message_date',
             'last_update_date',
