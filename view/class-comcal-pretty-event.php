@@ -127,7 +127,9 @@ class Comcal_Pretty_Event extends stdClass {
             $value = $this->fields[ $name ];
             // Value is found directly in the database.
             if ( $this->is_url( $name ) ) {
-                $value = esc_url( $value );
+                if ( $this->html_mode ) {
+                    $value = esc_url( $value );
+                }
             } elseif ( is_string( $value ) ) {
                 if ( $this->html_mode ) {
                     $value = nl2br( $value );
