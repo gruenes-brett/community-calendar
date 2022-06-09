@@ -49,7 +49,7 @@ class Comcal_Pretty_Event extends stdClass {
      * @return array( string => function ) Map of custom field functions.
      */
     protected function initialize_prettier_map() {
-        return array(
+        $map = array(
             'prettyDate' => function() {
                 return $this->datetime->get_pretty_date();
             },
@@ -59,7 +59,19 @@ class Comcal_Pretty_Event extends stdClass {
             'weekday'    => function() {
                 return $this->datetime->get_weekday();
             },
+            'humanized_time' => function() {
+                return $this->datetime->get_humanized_time();
+            },
         );
+
+        $map['permalink'] = function() {
+            return Comcal_Info::get()->get_event_url( $this->event_id );
+        };
+
+        $map['url_or_permalink'] = function() {
+            return $this->fields['url'] ? $this->fields['url'] : $this->permalink;
+        };
+        return $map;
     }
 
     public function __construct( Comcal_Event $event ) {

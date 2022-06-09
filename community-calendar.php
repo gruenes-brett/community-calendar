@@ -33,6 +33,7 @@ require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 // common.
 require_once EVTCAL__PLUGIN_DIR . 'common/class-comcal-user-capabilities.php';
+require_once EVTCAL__PLUGIN_DIR . 'common/class-comcal-info.php';
 
 // model.
 require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-date-time.php';
@@ -41,6 +42,7 @@ require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-event.php';
 require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-event-iterator.php';
 require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-category.php';
 require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-query-event-rows.php';
+require_once EVTCAL__PLUGIN_DIR . 'data/class-comcal-telegram-data.php';
 
 // view.
 require_once EVTCAL__PLUGIN_DIR . 'view/view-common.php';

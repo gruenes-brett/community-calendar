@@ -9,18 +9,22 @@
  * Creates a Markdown overview of all events in the next week (starting monday)
  */
 class Comcal_Markdown_Builder extends Comcal_Default_Display_Builder {
-    /**
-     * Instantiates the Past_Calendar_Table_Builder singleton and loads the
-     * events from the database.
-     */
-    public static function get_instance( $start_date, $end_date ) {
-        $events_iterator = Comcal_Event_Iterator::load_from_database(
-            null,
-            '',
-            $start_date,
-            $end_date
-        );
 
+    /**
+     * No multiday event repetitions.
+     *
+     * @var bool
+     */
+    protected static bool $is_multiday = false;
+
+    /**
+     * Instantiates a Comcal_Markdown_Builder based on a date range and an Comcal_Event_Iterator object.
+     */
+    public static function create_from_iterator(
+        Comcal_Date_Time $start_date,
+        Comcal_Date_Time $end_date,
+        Comcal_Event_Iterator $events_iterator
+    ) {
         $instance = self::create_display(
             static::class,
             $events_iterator,
@@ -59,7 +63,7 @@ class Comcal_Markdown_Builder extends Comcal_Default_Display_Builder {
     }
     protected function fill_days_between( $begin_at_date, $end_before_date ) {
         foreach ( $begin_at_date->get_all_dates_until( $end_before_date ) as $this_date ) {
-            $this->html .= $this->create_new_day( $this_date ) . '    _\(bis jetzt leider nichts\)_
+            $this->html .= $this->create_new_day( $this_date ) . '    _\(bis jetzt noch nichts\)_
 
 ';
         }

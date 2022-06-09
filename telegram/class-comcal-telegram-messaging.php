@@ -10,66 +10,78 @@
  */
 class Comcal_Telegram_Messaging {
     public static function trigger_daily_send() {
+        $telegram = new Comcal_Telegram_Messaging();
+        $telegram->send_or_update_weekly_overview(
+            new Telegram_Bot_Agent(),
+            Comcal_Date_Time::now(),
+            '',
+            ''
+        );
+    }
+
+    public function send_or_update_weekly_overview(
+        Telegram_Bot_Agent $bot_agent,
+        Comcal_Date_Time $today,
+        string $header_markdown = '',
+        string $footer_markdown = ''
+    ) {
         $schedule = Telegram_Options::get_option_value( 'schedule' );
         if ( ! Telegram_Options::is_configured() || false === strstr( $schedule, 'daily' ) ) {
             return;
         }
 
-        $bot = new Telegram_Bot_Agent();
-        // $bot->send_message_to_channel( self::get_events_markdown( 'weekly' ) );
-        // $bot->send_message_to_channel('blubb');
+        $messaging = new self();
+        $reply     = $bot_agent->send_message(
+            $header_markdown . $messaging->get_events_markdown( $today ) . $footer_markdown
+        );
     }
 
-    private static function get_start_end_dates( $schedule ): array {
-        if ( 'daily' === $schedule ) {
-            $today = Comcal_Date_Time::now();
-            return array( $today, $today );
-        } elseif ( 'weekly' === $schedule ) {
-            $today = Comcal_Date_Time::now();
-            return array( $today, $today->get_next_day( 6 ) );
+    public static function get_weekly_date_range( Comcal_Date_Time $today ): array {
+        if ( $today->is_sunday() ) {
+            $monday = $today->get_next_day( 1 );
         } else {
-            return array( null, null );
+            $monday = $today->get_last_monday();
         }
+        return array( $monday, $monday->get_next_day( 6 ) );
     }
 
-    private static function get_events_markdown( $schedule ): string {
-        list( $start, $end ) = self::get_start_end_dates( $schedule );
-        if ( null === $start ) {
-            return "bad schedule $schedule";
-        }
-        $builder = Comcal_Markdown_Builder::get_instance( $start, $end );
-        $header  = self::get_header_markdown( $schedule );
+    private function get_events_markdown( Comcal_Date_Time $today ): string {
+        list( $start, $end ) = self::get_weekly_date_range( $today );
+        $events_iterator     = Comcal_Event_Iterator::load_from_database(
+            null,
+            '',
+            $start,
+            $end
+        );
+        return $this->get_events_markdown_from_iterator( $start, $end, $events_iterator );
+    }
+
+    public function get_events_markdown_from_iterator( $start, $end, $iterator ) {
+        $builder = Comcal_Markdown_Builder::create_from_iterator( $start, $end, $iterator );
+        $header  = $this->get_header_markdown( $start, $end );
         return $header . $builder->get_html();
     }
 
-    private static function get_header_markdown( $schedule ): string {
-        list( $start, $end ) = self::get_start_end_dates( $schedule );
-        if ( null === $start ) {
-            return "bad schedule $schedule";
-        }
+    private function get_header_markdown( Comcal_Date_Time $start, Comcal_Date_Time $end ): string {
         $pretty_start = Comcal_Markdown_Builder::esc_markdown_all( $start->format( 'd.m.' ) );
         $pretty_end   = Comcal_Markdown_Builder::esc_markdown_all( $end->format( 'd.m.' ) );
-        $header       = '🗓 ';
-        if ( 'daily' === $schedule ) {
-            $header .= "*Veranstaltungen am $pretty_start:*\n\n";
-        } elseif ( 'weekly' === $schedule ) {
-            $header .= "*Woche vom $pretty_start bis $pretty_end:*\n\n";
-        }
+        $title        = Comcal_Info::get()->get_website_title();
+        $url          = Comcal_Info::get()->get_website_url();
+        $header       = "[$title]($url)\n";
+        $header      .= "🗓 *Woche vom $pretty_start bis $pretty_end:*\n\n";
         return $header;
     }
 }
 
-// TODO: use a useful schedule
+// TODO: use a useful schedule.
 add_filter( 'cron_schedules', 'example_add_cron_interval' );
 function example_add_cron_interval( $schedules ) {
     $schedules['fifteen_secs'] = array(
         'interval' => 15,
-        'display'  => esc_html__( 'Every Five Seconds' ),
+        'display'  => esc_html__( 'Every Fifteen Seconds' ),
     );
     return $schedules;
 }
-
-$dis = Telegram_Options::is_configured();
 add_action( 'comcal_telegram_daily', array( 'Comcal_Telegram_Messaging', 'trigger_daily_send' ) );
 
 function comcal_activate_cron() {

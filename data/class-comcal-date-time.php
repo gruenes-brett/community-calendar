@@ -117,7 +117,10 @@ class Comcal_Date_Time {
         return $comcal_weekday_names_de[ $this->date_time->format( 'w' ) ];
     }
     public function is_monday() {
-        return 1 === $this->date_time->format( 'N' );
+        return '1' === $this->date_time->format( 'N' );
+    }
+    public function is_sunday() {
+        return '7' === $this->date_time->format( 'N' );
     }
 
     public function get_short_weekday_and_day() {
@@ -223,6 +226,17 @@ class Comcal_Date_Time {
         $next_day = clone $this->date_time;
         $next_day->sub( new DateInterval( "P${number_of_days}D" ) );
         return self::from_date_time( $next_day );
+    }
+
+    public function get_last_monday() {
+        if ( $this->is_monday() ) {
+            return clone $this;
+        }
+        $yesterday = clone $this;
+        do {
+            $yesterday = $yesterday->get_prev_day();
+        } while ( ! $yesterday->is_monday() );
+        return $yesterday;
     }
 
     /**
