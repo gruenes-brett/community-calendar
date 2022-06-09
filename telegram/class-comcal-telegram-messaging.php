@@ -50,9 +50,19 @@ class Comcal_Telegram_Messaging {
                     $old_message->store();
                 }
             } catch ( TelegramException $e ) {
-                if ( 'Bad Request: MESSAGE_ID_INVALID' === $e->getMessage() ) {
+                if ( in_array(
+                    $e->getMessage(),
+                    array(
+                        'Bad Request: MESSAGE_ID_INVALID',
+                        'Bad Request: message to edit not found',
+                    ),
+                    true
+                )
+                ) {
                     // Original message was removed from Telegram Channel. Delete from database.
                     $old_message->delete();
+                } else {
+                    throw $e;
                 }
             }
         }
