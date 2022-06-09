@@ -41,12 +41,22 @@ class Telegram_Bot_Agent {
         }
     }
 
-    public function send_message_to_channel( $message ) {
+    public function send_message( string $message ) {
         $data = array(
             'chat_id'    => Telegram_Options::get_option_value( 'channel' ),
             'text'       => $message,
             'parse_mode' => 'markdownV2',
         );
         return $this->post( 'sendMessage', $data );
+    }
+
+    public function update_message( int $message_id, string $message ) {
+        $data = array(
+            'chat_id'    => Telegram_Options::get_option_value( 'channel' ),
+            'message_id' => $message_id,
+            'text'       => $message,
+            'parse_mode' => 'markdownV2',
+        );
+        return $this->post( 'editMessageText', $data );
     }
 }

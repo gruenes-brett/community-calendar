@@ -13,7 +13,7 @@ class Comcal_Database {
     /**
      * Increase this value if any of the table schemas change.
      */
-    private const DATABASE_VERSION = '11';
+    private const DATABASE_VERSION = '12';
 
     public static function init_tables() {
         global $wpdb;
@@ -22,6 +22,7 @@ class Comcal_Database {
         Comcal_Event::create_table();
         Comcal_Category::create_table();
         Comcal_Event_Vs_Category::create_table();
+        Comcal_Telegram_Data::create_table();
     }
 
     public static function delete_tables() {
@@ -31,6 +32,7 @@ class Comcal_Database {
         Comcal_Event::drop_table();
         Comcal_Category::drop_table();
         Comcal_Event_Vs_Category::drop_table();
+        Comcal_Telegram_Data::drop_table();
     }
 
     public static function where_and( $conditions ) {
@@ -122,11 +124,13 @@ abstract class Comcal_Database_Table {
 
         $missing_fields = array_diff( $sql_fields, $all_fields );
         if ( ! empty( $missing_fields ) ) {
-            throw new RuntimeException( "Missing fields in all_fields: {$missing_fields}" );
+            $fieldnames = implode( ', ', $missing_fields );
+            throw new RuntimeException( "Missing fields in all_fields: {$fieldnames}" );
         }
         $extra_fields = array_diff( $all_fields, $sql_fields );
         if ( ! empty( $extra_fields ) ) {
-            throw new RuntimeException( "Extra fields in all_fields: {$extra_fields}" );
+            $fieldnames = implode( ', ', $extra_fields );
+            throw new RuntimeException( "Extra fields in all_fields: {$fieldnames}" );
         }
     }
 
