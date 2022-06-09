@@ -48,6 +48,7 @@ class Comcal_Event extends Comcal_Database_Table {
     }
     public static function get_all_field_names() {
         return array(
+            'id',
             'eventId',
             'date',
             'time',
