@@ -55,7 +55,7 @@ class Telegram_Options {
         ?>
 
             <div class="wrap">
-                <h2>Community Calendar Settings</h2>
+                <h2>Community Calendar Einstellungen</h2>
                 <p></p>
                 <?php settings_errors(); ?>
 
@@ -79,7 +79,7 @@ class Telegram_Options {
 
         add_settings_section(
             'comcal_telegram_settings_setting_section', // id.
-            'Settings', // title.
+            'Einstellungen zum Telegramkanal', // title.
             array( $this, 'comcal_telegram_settings_section_info' ), // callback.
             'comcal-telegram-settings-admin' // page.
         );
@@ -94,7 +94,7 @@ class Telegram_Options {
 
         add_settings_field(
             'telegram_channel_1', // id.
-            'Telegram Channel (@...)', // title.
+            'Telegramkanal (@...)', // title.
             array( $this, 'telegram_channel_1_callback' ), // callback.
             'comcal-telegram-settings-admin', // page.
             'comcal_telegram_settings_setting_section' // section.
@@ -102,7 +102,7 @@ class Telegram_Options {
 
         add_settings_field(
             'schedule_2', // id.
-            'Schedule', // title.
+            'Zeitplan', // title.
             array( $this, 'schedule_2_callback' ), // callback.
             'comcal-telegram-settings-admin', // page.
             'comcal_telegram_settings_setting_section' // section.
@@ -132,26 +132,40 @@ class Telegram_Options {
 
     public function telegram_bot_token_0_callback() {
         printf(
-            '<input class="regular-text" type="text" name="comcal_telegram_settings_option_name[telegram_bot_token_0]" id="telegram_bot_token_0" value="%s">',
+            '<input class="regular-text" type="text" name="comcal_telegram_settings_option_name[telegram_bot_token_0]" id="telegram_bot_token_0" value="%s" placeholder="5556778...">',
             isset( $this->comcal_telegram_settings_options['telegram_bot_token_0'] ) ? esc_attr( $this->comcal_telegram_settings_options['telegram_bot_token_0'] ) : ''
         );
+        ?>
+        <p class="description">
+            Token des Bot, über welchen die Übersicht versendet wird. Hinweise zur Boterstellung unter <a href="https://core.telegram.org/bots">https://core.telegram.org/bots</a>, Stichwort BotFather.
+        </p>
+        <?php
     }
 
     public function telegram_channel_1_callback() {
         printf(
-            '<input class="regular-text" type="text" name="comcal_telegram_settings_option_name[telegram_channel_1]" id="telegram_channel_1" value="%s">',
+            '<input class="regular-text" type="text" name="comcal_telegram_settings_option_name[telegram_channel_1]" id="telegram_channel_1" value="%s" placeholder="@mein_kanal">',
             isset( $this->comcal_telegram_settings_options['telegram_channel_1'] ) ? esc_attr( $this->comcal_telegram_settings_options['telegram_channel_1'] ) : ''
         );
+        ?>
+        <p class="description">
+            Telegramkanal, in welchem der Bot die Übersicht erstellen soll. Der Bot muss in diesem Kanal als Admin hinzugefügt worden sein.
+        </p>
+        <?php
     }
 
     public function schedule_2_callback() {
         ?>
         <select name="comcal_telegram_settings_option_name[schedule_2]" id="schedule_2">
             <?php $selected = ( isset( $this->comcal_telegram_settings_options['schedule_2'] ) && 'disabled' === $this->comcal_telegram_settings_options['schedule_2'] ) ? 'selected' : ''; ?>
-            <option value="disabled" <?php echo $selected; ?>>Disabled</option>
+            <option value="disabled" <?php echo $selected; ?>>Deaktiviert</option>
             <?php $selected = ( isset( $this->comcal_telegram_settings_options['schedule_2'] ) && 'weekly' === $this->comcal_telegram_settings_options['schedule_2'] ) ? 'selected' : ''; ?>
-            <option value="weekly" <?php echo $selected; ?>>Weekly</option>
+            <option value="weekly" <?php echo $selected; ?>>Wöchentliche Übersicht</option>
         </select>
+        <p class="description">
+            Wenn aktiviert, dann wird ab Sonntag eine Veranstaltungsübersicht der kommenden Woche (Montag bis Sonntag) in den Telegrammkanal gepostet.
+            Etwa alle 15 Minuten wird überprüft, ob es Änderungen oder neue Veranstaltungen gibt. In diesem Fall wird der vorhandene Post aktualisiert.
+        </p>
         <?php
     }
 
