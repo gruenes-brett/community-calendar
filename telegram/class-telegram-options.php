@@ -151,10 +151,6 @@ class Telegram_Options {
             <option value="disabled" <?php echo $selected; ?>>Disabled</option>
             <?php $selected = ( isset( $this->comcal_telegram_settings_options['schedule_2'] ) && 'weekly' === $this->comcal_telegram_settings_options['schedule_2'] ) ? 'selected' : ''; ?>
             <option value="weekly" <?php echo $selected; ?>>Weekly</option>
-            <?php $selected = ( isset( $this->comcal_telegram_settings_options['schedule_2'] ) && 'daily' === $this->comcal_telegram_settings_options['schedule_2'] ) ? 'selected' : ''; ?>
-            <option value="daily" <?php echo $selected; ?>>Daily</option>
-            <?php $selected = ( isset( $this->comcal_telegram_settings_options['schedule_2'] ) && 'weekly_daily' === $this->comcal_telegram_settings_options['schedule_2'] ) ? 'selected' : ''; ?>
-            <option value="weekly_daily" <?php echo $selected; ?>>Weekly and Daily</option>
         </select>
         <?php
     }

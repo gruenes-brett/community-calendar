@@ -13,7 +13,7 @@ class Comcal_Database {
     /**
      * Increase this value if any of the table schemas change.
      */
-    private const DATABASE_VERSION = '12';
+    private const DATABASE_VERSION = '13';
 
     public static function init_tables() {
         global $wpdb;
@@ -119,7 +119,7 @@ abstract class Comcal_Database_Table {
         $fields_in_sql = array();
         preg_match_all( '/^\s*([[:alnum:]_]+).*/m', $sql, $fields_in_sql );
 
-        $ignored    = array( 'id', 'CREATE', 'PRIMARY' );
+        $ignored    = array( 'CREATE', 'PRIMARY' );
         $sql_fields = array_diff( $fields_in_sql[1], $ignored );
 
         $missing_fields = array_diff( $sql_fields, $all_fields );

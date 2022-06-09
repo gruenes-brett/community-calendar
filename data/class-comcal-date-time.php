@@ -93,6 +93,10 @@ class Comcal_Date_Time {
         return $this->date_time->getTimestamp();
     }
 
+    public function get_database_timestamp() {
+        return $this->date_time->format( 'Y-m-d H:i:s' );
+    }
+
     public function get_humanized_time() {
         $hour   = $this->date_time->format( 'G' );
         $minute = $this->date_time->format( 'i' );
