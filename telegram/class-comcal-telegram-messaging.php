@@ -106,11 +106,13 @@ class Comcal_Telegram_Messaging {
 }
 
 // TODO: use a useful schedule.
-add_filter( 'cron_schedules', 'example_add_cron_interval' );
-function example_add_cron_interval( $schedules ) {
-    $schedules['fifteen_secs'] = array(
-        'interval' => 15,
-        'display'  => esc_html__( 'Every Fifteen Seconds' ),
+add_filter( 'cron_schedules', 'comcal_add_telegram_cron_interval' );
+function comcal_add_telegram_cron_interval( $schedules ) {
+    $interval = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? 15 : 15 * 60;
+
+    $schedules['telegram_channel_schedule'] = array(
+        'interval' => $interval,
+        'display'  => "Every $interval seconds",
     );
     return $schedules;
 }
@@ -118,7 +120,7 @@ add_action( 'comcal_telegram_daily', array( 'Comcal_Telegram_Messaging', 'trigge
 
 function comcal_activate_cron() {
     if ( ! wp_next_scheduled( 'comcal_telegram_daily' ) ) {
-        wp_schedule_event( time(), 'fifteen_secs', 'comcal_telegram_daily' );
+        wp_schedule_event( time(), 'telegram_channel_schedule', 'comcal_telegram_daily' );
     }
 }
 add_action( 'wp', 'comcal_activate_cron' );
