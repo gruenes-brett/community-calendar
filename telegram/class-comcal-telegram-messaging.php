@@ -26,14 +26,29 @@ class Comcal_Telegram_Messaging {
         string $footer_markdown = ''
     ) {
         $schedule = Telegram_Options::get_option_value( 'schedule' );
-        if ( ! Telegram_Options::is_configured() || false === strstr( $schedule, 'daily' ) ) {
+        if ( ! Telegram_Options::is_configured() || 'weekly' !== $schedule ) {
             return;
         }
 
-        $messaging = new self();
-        $reply     = $bot_agent->send_message(
-            $header_markdown . $messaging->get_events_markdown( $today ) . $footer_markdown
-        );
+        $old_message = Comcal_Telegram_Data::query_from_original_message_date( $today );
+        $messaging   = new self();
+        $new_text    = $header_markdown . $messaging->get_events_markdown( $today ) . $footer_markdown;
+
+        if ( null === $old_message ) {
+            // Post a new message.
+            $response = $bot_agent->send_message( $new_text );
+            if ( $response->ok ) {
+                $new_message = Comcal_Telegram_Data::create_from_response( $today, $response );
+                $new_message->store();
+            }
+        } elseif ( $new_text !== $old_message->get_last_message_content() ) {
+            // Update an old message.
+            $response = $bot_agent->update_message( $old_message->get_message_id(), $new_text );
+            if ( $response->ok ) {
+                $old_message->update_from_response( $response );
+                $old_message->store();
+            }
+        }
     }
 
     public static function get_weekly_date_range( Comcal_Date_Time $today ): array {
