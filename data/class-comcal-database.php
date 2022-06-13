@@ -282,7 +282,6 @@ abstract class Comcal_Database_Table {
         } else {
             $affected_rows = $wpdb->insert( $table_name, $this->get_full_data() );
         }
-        $e = $wpdb->last_error;
         return $affected_rows;
     }
 

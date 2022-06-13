@@ -25,20 +25,21 @@ class Comcal_Telegram_Messaging {
         string $header_markdown = '',
         string $footer_markdown = ''
     ) {
-        $schedule = Telegram_Options::get_option_value( 'schedule' );
-        if ( ! Telegram_Options::is_configured() || 'weekly' !== $schedule ) {
+        if ( ! Telegram_Options::is_weekly_enabled() ) {
             return;
         }
 
-        $old_message = Comcal_Telegram_Data::query_from_original_message_date( $today );
+        list( $monday, $sunday ) = $this->get_weekly_date_range( $today );
+
+        $old_message = Comcal_Telegram_Data::query_from_original_message_date( $monday );
         $messaging   = new self();
-        $new_text    = $header_markdown . $messaging->get_events_markdown( $today ) . $footer_markdown;
+        $new_text    = $header_markdown . $messaging->get_events_markdown( $monday ) . $footer_markdown;
 
         if ( null === $old_message ) {
             // Post a new message.
             $response = $bot_agent->send_message( $new_text );
             if ( $response->ok ) {
-                $new_message = Comcal_Telegram_Data::create_from_response( $today, $new_text, $response );
+                $new_message = Comcal_Telegram_Data::create_from_response( $monday, $new_text, $response );
                 $new_message->store();
             }
         } elseif ( $new_text !== $old_message->get_last_message_content() ) {

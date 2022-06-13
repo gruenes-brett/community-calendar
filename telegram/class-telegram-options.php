@@ -28,6 +28,11 @@ class Telegram_Options {
         return $options[ $option_map[ $name ] ];
     }
 
+    public static function is_weekly_enabled() {
+        $schedule = self::get_option_value( 'schedule' );
+        return self::is_configured() && 'weekly' === $schedule;
+    }
+
     /**
      * The options.
      *
