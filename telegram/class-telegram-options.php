@@ -9,7 +9,7 @@
 /**
  * Telegram options page.
  */
-class Telegram_Options {
+class Telegram_Options extends Comcal_Settings {
 
     public static function is_configured() {
         $schedule = self::get_option_value( 'schedule' );
@@ -18,127 +18,40 @@ class Telegram_Options {
         return 'disabled' !== $schedule && ! empty( $token ) && ! empty( $channel );
     }
 
-    public static function get_option_value( $name ) {
-        $option_map = array(
-            'bot_token' => 'telegram_bot_token_0',
-            'channel'   => 'telegram_channel_1',
-            'schedule'  => 'schedule_2',
-        );
-        $options    = get_option( 'comcal_telegram_settings_option_name' ); // Array of All Options.
-        return $options[ $option_map[ $name ] ];
-    }
-
     public static function is_weekly_enabled() {
         $schedule = self::get_option_value( 'schedule' );
         return self::is_configured() && 'weekly' === $schedule;
     }
 
-    /**
-     * The options.
-     *
-     * @var array
-     */
-    private $comcal_telegram_settings_options;
-
-    public function __construct() {
-        add_action( 'admin_menu', array( $this, 'comcal_telegram_settings_add_plugin_page' ) );
-        add_action( 'admin_init', array( $this, 'comcal_telegram_settings_page_init' ) );
+    public static function get_section_title() {
+        return 'Telegram';
     }
 
-    public function comcal_telegram_settings_add_plugin_page() {
-        add_options_page(
-            'Community Calendar Settings', // page_title.
-            'Community Calendar', // menu_title.
-            'manage_options', // capability.
-            'comcal-telegram-settings', // menu_slug.
-            array( $this, 'comcal_telegram_settings_create_admin_page' ) // function.
+    public static function get_section_tag() {
+        return 'telegram';
+    }
+
+    public static function get_option_ids() {
+        return array(
+            'bot_token' => 'telegram_bot_token_0',
+            'channel'   => 'telegram_channel_1',
+            'schedule'  => 'schedule_2',
         );
     }
 
-    public function comcal_telegram_settings_create_admin_page() {
-        $this->comcal_telegram_settings_options = get_option( 'comcal_telegram_settings_option_name' );
-        ?>
-
-            <div class="wrap">
-                <h2>Community Calendar Einstellungen</h2>
-                <p></p>
-                <?php settings_errors(); ?>
-
-                <form method="post" action="options.php">
-                    <?php
-                        settings_fields( 'comcal_telegram_settings_option_group' );
-                        do_settings_sections( 'comcal-telegram-settings-admin' );
-                        submit_button();
-                    ?>
-                </form>
-            </div>
-        <?php
-    }
-
-    public function comcal_telegram_settings_page_init() {
-        register_setting(
-            'comcal_telegram_settings_option_group', // option_group.
-            'comcal_telegram_settings_option_name', // option_name.
-            array( $this, 'comcal_telegram_settings_sanitize' ) // sanitize_callback.
+    public static function get_option_labels() {
+        return array(
+            'bot_token' => 'Telegram Bot Token',
+            'channel'   => 'Telegramkanal (@...)',
+            'schedule'  => 'Zeitplan',
         );
-
-        add_settings_section(
-            'comcal_telegram_settings_setting_section', // id.
-            'Einstellungen zum Telegramkanal', // title.
-            array( $this, 'comcal_telegram_settings_section_info' ), // callback.
-            'comcal-telegram-settings-admin' // page.
-        );
-
-        add_settings_field(
-            'telegram_bot_token_0', // id.
-            'Telegram Bot Token', // title.
-            array( $this, 'telegram_bot_token_0_callback' ), // callback.
-            'comcal-telegram-settings-admin', // page.
-            'comcal_telegram_settings_setting_section' // section.
-        );
-
-        add_settings_field(
-            'telegram_channel_1', // id.
-            'Telegramkanal (@...)', // title.
-            array( $this, 'telegram_channel_1_callback' ), // callback.
-            'comcal-telegram-settings-admin', // page.
-            'comcal_telegram_settings_setting_section' // section.
-        );
-
-        add_settings_field(
-            'schedule_2', // id.
-            'Zeitplan', // title.
-            array( $this, 'schedule_2_callback' ), // callback.
-            'comcal-telegram-settings-admin', // page.
-            'comcal_telegram_settings_setting_section' // section.
-        );
-    }
-
-    public function comcal_telegram_settings_sanitize( $input ) {
-        $sanitary_values = array();
-        if ( isset( $input['telegram_bot_token_0'] ) ) {
-            $sanitary_values['telegram_bot_token_0'] = sanitize_text_field( $input['telegram_bot_token_0'] );
-        }
-
-        if ( isset( $input['telegram_channel_1'] ) ) {
-            $sanitary_values['telegram_channel_1'] = sanitize_text_field( $input['telegram_channel_1'] );
-        }
-
-        if ( isset( $input['schedule_2'] ) ) {
-            $sanitary_values['schedule_2'] = $input['schedule_2'];
-        }
-
-        return $sanitary_values;
-    }
-
-    public function comcal_telegram_settings_section_info() {
-
     }
 
     public function telegram_bot_token_0_callback() {
+        $value = self::get_option_value( 'bot_token' );
         printf(
-            '<input class="regular-text" type="text" name="comcal_telegram_settings_option_name[telegram_bot_token_0]" id="telegram_bot_token_0" value="%s" placeholder="5556778...">',
-            isset( $this->comcal_telegram_settings_options['telegram_bot_token_0'] ) ? esc_attr( $this->comcal_telegram_settings_options['telegram_bot_token_0'] ) : ''
+            '<input class="regular-text" type="text" name="comcal_settings_option_name[telegram_bot_token_0]" id="telegram_bot_token_0" value="%s" placeholder="5556778...">',
+            esc_attr( $value )
         );
         ?>
         <p class="description">
@@ -148,9 +61,10 @@ class Telegram_Options {
     }
 
     public function telegram_channel_1_callback() {
+        $value = self::get_option_value( 'channel' );
         printf(
-            '<input class="regular-text" type="text" name="comcal_telegram_settings_option_name[telegram_channel_1]" id="telegram_channel_1" value="%s" placeholder="@mein_kanal">',
-            isset( $this->comcal_telegram_settings_options['telegram_channel_1'] ) ? esc_attr( $this->comcal_telegram_settings_options['telegram_channel_1'] ) : ''
+            '<input class="regular-text" type="text" name="comcal_settings_option_name[telegram_channel_1]" id="telegram_channel_1" value="%s" placeholder="@mein_kanal">',
+            esc_attr( $value )
         );
         ?>
         <p class="description">
@@ -160,11 +74,12 @@ class Telegram_Options {
     }
 
     public function schedule_2_callback() {
+        $value = self::get_option_value( 'schedule' );
         ?>
-        <select name="comcal_telegram_settings_option_name[schedule_2]" id="schedule_2">
-            <?php $selected = ( isset( $this->comcal_telegram_settings_options['schedule_2'] ) && 'disabled' === $this->comcal_telegram_settings_options['schedule_2'] ) ? 'selected' : ''; ?>
+        <select name="comcal_settings_option_name[schedule_2]" id="schedule_2">
+            <?php $selected = 'disabled' === $value ? 'selected' : ''; ?>
             <option value="disabled" <?php echo $selected; ?>>Deaktiviert</option>
-            <?php $selected = ( isset( $this->comcal_telegram_settings_options['schedule_2'] ) && 'weekly' === $this->comcal_telegram_settings_options['schedule_2'] ) ? 'selected' : ''; ?>
+            <?php $selected = ( $value && 'weekly' === $value ) ? 'selected' : ''; ?>
             <option value="weekly" <?php echo $selected; ?>>Wöchentliche Übersicht</option>
         </select>
         <p class="description">
@@ -177,5 +92,5 @@ class Telegram_Options {
 }
 
 if ( is_admin() ) {
-    $comcal_telegram_settings = new Telegram_Options();
+    Comcal_Settings::add_settings_instance( new Telegram_Options() );
 }
