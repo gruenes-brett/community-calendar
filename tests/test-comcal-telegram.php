@@ -96,7 +96,7 @@ XML;
     public function test_send_or_update_weekly_overview() {
         // arrange.
         set_option(
-            'comcal_telegram_settings_option_name',
+            'comcal_settings_option_name',
             array(
                 'telegram_bot_token_0' => 'abc123',
                 'telegram_channel_1'   => '@xyz',
