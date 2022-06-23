@@ -21,6 +21,7 @@ require_once 'data/class-comcal-category.php';
 require_once 'telegram/class-comcal-telegram-messaging.php';
 require_once 'telegram/class-telegram-bot-agent.php';
 require_once 'settings/class-comcal-settings.php';
+require_once 'settings/class-comcal-settings-common.php';
 require_once 'telegram/class-telegram-options.php';
 require_once 'view/markdown/class-comcal-markdown-builder.php';
 require_once 'view/markdown/class-comcal-markdown-event-renderer.php';

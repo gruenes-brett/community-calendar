@@ -30,6 +30,17 @@ class Comcal_Settings_Common extends Comcal_Settings {
         );
     }
 
+    public static function is_email_blacklisted( $email ) : bool {
+        $blacklist = static::get_option_value( 'email_blacklist' );
+        $email_mod = trim( strtolower( $email ) );
+        foreach ( explode( ',', $blacklist ) as $black ) {
+            if ( trim( strtolower( $black ) ) === $email_mod ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function email_blacklist_0_callback() {
         $value = self::get_option_value( 'email_blacklist' );
         printf(

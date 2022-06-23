@@ -54,12 +54,15 @@ class Comcal_Event_Emailer {
 
         $submitter_name = $event->get_field( 'submitterName' );
         if ( $recipients & self::EVENT_SUBMITTER ) {
-            list($subject, $body) = self::get_templates()->create_event_submitted_email( $event, $submitter_name );
-            wp_mail(
-                $event->get_field( 'submitterEmail' ),
-                $subject,
-                $body
-            );
+            $email = $event->get_field( 'submitterEmail' );
+            if ( ! Comcal_Settings_Common::is_email_blacklisted( $email ) ) {
+                list($subject, $body) = self::get_templates()->create_event_submitted_email( $event, $submitter_name );
+                wp_mail(
+                    $email,
+                    $subject,
+                    $body
+                );
+            }
         }
 
         if ( $recipients & self::ON_SUBMITTED ) {
