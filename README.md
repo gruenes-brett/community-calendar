@@ -38,6 +38,16 @@ API entry point: `https://your.domain/wp-json/comcal/v1/`
 Optionally, a parameter `?display` may be added to the URL in order for the description being returned as HTML
 instead of raw text.
 
+## E-Mail notifications
+
+If non-registered user adds a new event, it will be hidden by default and needs to be
+set public by an admin or an editor user (Redakteur). The non-registered user will
+receive an email notification about his new event, including the link to the (hidden)
+event. Admins and editors may enable a setting in their profile that they want
+to receive an email notification about new anonymous events.
+
+![](doc/email_notifications.png)
+
 ## Contributing
 
 If you encounter problems with the plugin or have ideas for improvements and
