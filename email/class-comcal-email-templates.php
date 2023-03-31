@@ -27,12 +27,13 @@ class Comcal_Email_Templates {
      * @return array subject and message.
      */
     public function create_event_submitted_email( Comcal_Event $event, string $recipient_name ) {
-        $pretty  = new Comcal_Pretty_Event( $event );
+        $pretty  = new Comcal_Pretty_Event( $event, false );
         $link    = $this->create_event_link( $event );
         $message = <<<XML
 Hallo $recipient_name,
 
-die Veranstaltung "{$pretty->title}" wurde eingetragen und wartet auf Freigabe.
+die Veranstaltung "{$pretty->title}" wurde eingetragen. Sie wird nun von unserer Redaktion
+geprüft und anschließend veröffentlicht.
 
 Link zur Veranstaltung: $link
 
